@@ -55,6 +55,27 @@ export function SiteHeader() {
           </Link>
         )}
       </div>
+      <div className="flex items-center gap-5 overflow-x-auto border-t-2 border-foreground px-6 py-3 md:hidden">
+        {NAV.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className="shrink-0 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors hover:text-gold [&.active]:text-gold"
+            activeOptions={{ exact: item.to === "/" }}
+          >
+            {item.label}
+          </Link>
+        ))}
+        {user ? (
+          <button onClick={signOut} className="ml-auto shrink-0 text-[10px] font-bold tracking-[0.15em] text-gold uppercase">
+            Sign out
+          </button>
+        ) : (
+          <Link to="/auth" className="ml-auto shrink-0 text-[10px] font-bold tracking-[0.15em] text-gold uppercase">
+            Sign in
+          </Link>
+        )}
+      </div>
     </header>
   );
 }
