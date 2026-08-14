@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/databases/")({
       { property: "og:title", content: "SQL Instance CI Class — CB Assets" },
       {
         property: "og:description",
-        content: "Search and filter the SQL inventory in the CB Assets.",
+        content: "Search and filter the SQL inventory in CB Assets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

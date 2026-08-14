@@ -9,7 +9,7 @@ export const Route = createFileRoute("/privacy")({
       {
         name: "description",
         content:
-          "How the CB Assets handles personal data: categories processed, lawful basis, retention, data subject rights and how to raise a request.",
+          "How CB Assets handles personal data: categories processed, lawful basis, retention, data subject rights and how to raise a request.",
       },
       { property: "og:title", content: "Privacy & Data Protection — CB Assets" },
       {

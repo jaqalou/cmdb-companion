@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/access-points/")({
       { property: "og:title", content: "Access Point CI Class — CB Assets" },
       {
         property: "og:description",
-        content: "Search, filter and export the wireless inventory in the CB Assets.",
+        content: "Search, filter and export the wireless inventory in CB Assets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

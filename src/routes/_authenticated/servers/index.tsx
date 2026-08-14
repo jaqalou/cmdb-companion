@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/servers/")({
       { property: "og:title", content: "Server CI Class — CB Assets" },
       {
         property: "og:description",
-        content: "Search and filter the full server inventory in the CB Assets.",
+        content: "Search and filter the full server inventory in CB Assets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
