@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      cmdb_audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          changed_fields: string[] | null
+          id: number
+          new_values: Json | null
+          occurred_at: string
+          old_values: Json | null
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          changed_fields?: string[] | null
+          id?: number
+          new_values?: Json | null
+          occurred_at?: string
+          old_values?: Json | null
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          changed_fields?: string[] | null
+          id?: number
+          new_values?: Json | null
+          occurred_at?: string
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       cmdb_ci_db_mssql_instance: {
         Row: {
           always_on: string | null
@@ -329,15 +368,118 @@ export type Database = {
         }
         Relationships: []
       }
+      data_subject_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          due_at: string
+          id: string
+          notes: string | null
+          received_at: string
+          request_type: string
+          status: string
+          subject_identifier: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string
+          id?: string
+          notes?: string | null
+          received_at?: string
+          request_type: string
+          status?: string
+          subject_identifier: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string
+          id?: string
+          notes?: string | null
+          received_at?: string
+          request_type?: string
+          status?: string
+          subject_identifier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      personal_data_register: {
+        Row: {
+          created_at: string
+          data_category: string
+          field_name: string
+          id: string
+          lawful_basis: string
+          purpose: string
+          retention_period: string
+          table_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_category: string
+          field_name: string
+          id?: string
+          lawful_basis: string
+          purpose: string
+          retention_period: string
+          table_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_category?: string
+          field_name?: string
+          id?: string
+          lawful_basis?: string
+          purpose?: string
+          retention_period?: string
+          table_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_write: { Args: { _user_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -464,6 +606,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor", "viewer"],
+    },
   },
 } as const

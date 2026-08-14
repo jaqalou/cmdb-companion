@@ -71,12 +71,14 @@ function applyEncodedQuery<T>(query: T, encoded: string): T {
   return q as never as T;
 }
 
-export async function listRecords(table: string, url: URL) {
+export async function listRecords(table: string, url: URL, authorization: string | null) {
+  if (!authorization)
+    return failure("Unauthorized", 401, "Bearer token required — CMDB records are not public");
   const p = url.searchParams;
   const fields = p.get("sysparm_fields")?.trim();
   const limit = Math.min(Number(p.get("sysparm_limit") ?? 100) || 100, 1000);
   const offset = Number(p.get("sysparm_offset") ?? 0) || 0;
-  const supabase = makeClient();
+  const supabase = makeClient(authorization);
 
   let query = supabase
     .from(table)
@@ -93,9 +95,16 @@ export async function listRecords(table: string, url: URL) {
   return json({ result: data ?? [], meta: { count: count ?? 0, limit, offset } });
 }
 
-export async function getRecord(table: string, sysId: string, url: URL) {
+export async function getRecord(
+  table: string,
+  sysId: string,
+  url: URL,
+  authorization: string | null,
+) {
+  if (!authorization)
+    return failure("Unauthorized", 401, "Bearer token required — CMDB records are not public");
   const fields = url.searchParams.get("sysparm_fields")?.trim();
-  const supabase = makeClient();
+  const supabase = makeClient(authorization);
   const { data, error } = await supabase
     .from(table)
     .select(fields ? fields.split(",").map((f) => f.trim()).join(",") : "*")

@@ -6,7 +6,7 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 import { instancesQuery } from "@/lib/cmdb-data";
 import { INSTANCE_FIELDS } from "@/lib/cmdb-schema";
 
-export const Route = createFileRoute("/databases/")({
+export const Route = createFileRoute("/_authenticated/databases/")({
   head: () => ({
     meta: [
       { title: "SQL Instance CI Class — Nordbryg CMDB" },

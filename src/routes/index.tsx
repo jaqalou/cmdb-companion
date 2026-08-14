@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { instancesQuery, serversQuery } from "@/lib/cmdb-data";
+import { useAuth } from "@/hooks/use-auth";
 import heroImage from "@/assets/hero-datacenter.jpg";
 
 export const Route = createFileRoute("/")({
@@ -28,8 +30,22 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const servers = useQuery(serversQuery);
-  const instances = useQuery(instancesQuery);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Federated sign-in returns to this public origin; resume the intended
+  // destination only once a session actually exists.
+  useEffect(() => {
+    if (!user) return;
+    const saved = sessionStorage.getItem("cmdb.redirect");
+    if (saved && saved.startsWith("/") && !saved.startsWith("//")) {
+      sessionStorage.removeItem("cmdb.redirect");
+      navigate({ to: saved });
+    }
+  }, [user, navigate]);
+
+  const servers = useQuery({ ...serversQuery, enabled: !!user });
+  const instances = useQuery({ ...instancesQuery, enabled: !!user });
   const serverRows = servers.data ?? [];
   const instanceRows = instances.data ?? [];
 
@@ -83,7 +99,8 @@ function Index() {
         </div>
       </section>
 
-      <section className="border-b border-border bg-sand">
+      {user ? (
+        <section className="border-b border-border bg-sand">
         <div className="mx-auto grid max-w-[1400px] grid-cols-2 gap-px px-6 py-12 lg:grid-cols-4 lg:px-10">
           {stats.map((s) => (
             <div key={s.label} className="px-2">
@@ -92,7 +109,26 @@ function Index() {
             </div>
           ))}
         </div>
-      </section>
+        </section>
+      ) : (
+        <section className="border-b border-border bg-sand">
+          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 px-6 py-12 lg:px-10">
+            <div>
+              <p className="eyebrow text-muted-foreground">Restricted content</p>
+              <p className="mt-3 max-w-xl text-muted-foreground">
+                Configuration records contain asset and personal data. Sign in with your Nordbryg
+                account to view the inventory — access is role-based and every change is logged.
+              </p>
+            </div>
+            <Link
+              to="/auth"
+              className="bg-brand px-8 py-4 text-xs uppercase tracking-[0.2em] text-brand-foreground"
+            >
+              Sign in to continue
+            </Link>
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-[1400px] px-6 py-24 lg:px-10">
         <p className="eyebrow text-muted-foreground">Configuration item classes</p>
