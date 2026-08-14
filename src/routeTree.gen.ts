@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SecurityRouteImport } from './routes/security'
 import { Route as AuthenticatedDatabasesIndexRouteImport } from './routes/_authenticated/databases/index'
 import { Route as AuthenticatedDatabasesSysIdRouteImport } from './routes/_authenticated/databases/$sysId'
 import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authenticated/servers/index'
@@ -37,6 +39,16 @@ const ApiRoute = ApiRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDatabasesIndexRoute =
@@ -79,6 +91,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/security': typeof SecurityRoute
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/databases/': typeof AuthenticatedDatabasesIndexRoute
@@ -90,6 +104,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/security': typeof SecurityRoute
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/databases': typeof AuthenticatedDatabasesIndexRoute
@@ -103,6 +119,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/security': typeof SecurityRoute
   '/_authenticated/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/_authenticated/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/_authenticated/databases/': typeof AuthenticatedDatabasesIndexRoute
@@ -116,6 +134,8 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/auth'
+    | '/privacy'
+    | '/security'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/databases/'
@@ -127,6 +147,8 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/auth'
+    | '/privacy'
+    | '/security'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/databases'
@@ -139,6 +161,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/api'
     | '/auth'
+    | '/privacy'
+    | '/security'
     | '/_authenticated/databases/$sysId'
     | '/_authenticated/servers/$sysId'
     | '/_authenticated/databases/'
@@ -152,6 +176,8 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApiRoute: typeof ApiRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SecurityRoute: typeof SecurityRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -182,6 +208,20 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/databases/': {
@@ -275,6 +315,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApiRoute: ApiRouteWithChildren,
   AuthRoute: AuthRoute,
+  PrivacyRoute: PrivacyRoute,
+  SecurityRoute: SecurityRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
