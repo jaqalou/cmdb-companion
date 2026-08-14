@@ -3,6 +3,8 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 export const TABLES: Record<string, string> = {
   cmdb_ci_server: "cmdb_ci_server",
   cmdb_ci_db_mssql_instance: "cmdb_ci_db_mssql_instance",
+  cmdb_ci_netgear_switch: "cmdb_ci_netgear_switch",
+  cmdb_ci_wap: "cmdb_ci_wap",
 };
 
 function makeClient(authorization?: string | null): SupabaseClient {

@@ -58,6 +58,8 @@ function DatabasesPage() {
           { field: "region", label: "Region" },
         ]}
         isLoading={isLoading}
+        exportFields={INSTANCE_FIELDS}
+        exportName="cmdb_ci_db_mssql_instance"
       />
     </PageShell>
   );
