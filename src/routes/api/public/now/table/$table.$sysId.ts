@@ -8,7 +8,12 @@ export const Route = createFileRoute("/api/public/now/table/$table/$sysId")({
       GET: async ({ request, params }) => {
         const table = resolveTable(params.table);
         if (!table) return failure("Invalid table", 404, `Unknown table ${params.table}`);
-        return getRecord(table, params.sysId, new URL(request.url));
+        return getRecord(
+          table,
+          params.sysId,
+          new URL(request.url),
+          request.headers.get("authorization"),
+        );
       },
       PATCH: async ({ request, params }) => {
         const table = resolveTable(params.table);
