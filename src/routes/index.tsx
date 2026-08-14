@@ -65,7 +65,7 @@ function Index() {
     <PageShell>
       <section className="mx-auto max-w-[1400px] px-6 pt-20 pb-16 lg:px-10 lg:pt-28">
         <p className="eyebrow text-gold">Group IT · Configuration Management Database</p>
-        <h1 className="mt-6 text-[clamp(1.5rem,6.2vw,4rem)] leading-[0.92] uppercase">
+        <h1 className="mt-6 text-[clamp(1.3rem,5.5vw,4rem)] leading-[0.92] uppercase">
           Infrastructure
           <br />
           <span className="text-brand">mapped in sync.</span>
