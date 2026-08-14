@@ -9,16 +9,16 @@ import { SERVER_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/servers/")({
   head: () => ({
     meta: [
-      { title: "Server CI Class — Nordbryg CMDB" },
+      { title: "Server CI Class — CB Assets" },
       {
         name: "description",
         content:
           "Browse every server configuration item: hostname, region, environment, SLA, owner, OS lifecycle and backup status.",
       },
-      { property: "og:title", content: "Server CI Class — Nordbryg CMDB" },
+      { property: "og:title", content: "Server CI Class — CB Assets" },
       {
         property: "og:description",
-        content: "Search and filter the full server inventory in the Nordbryg CMDB.",
+        content: "Search and filter the full server inventory in the CB Assets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

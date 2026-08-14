@@ -5,13 +5,13 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy & Data Protection — Nordbryg CMDB" },
+      { title: "Privacy & Data Protection — CB Assets" },
       {
         name: "description",
         content:
-          "How the Nordbryg CMDB handles personal data: categories processed, lawful basis, retention, data subject rights and how to raise a request.",
+          "How the CB Assets handles personal data: categories processed, lawful basis, retention, data subject rights and how to raise a request.",
       },
-      { property: "og:title", content: "Privacy & Data Protection — Nordbryg CMDB" },
+      { property: "og:title", content: "Privacy & Data Protection — CB Assets" },
       {
         property: "og:description",
         content: "Personal data categories, lawful basis, retention and data subject rights.",

@@ -9,16 +9,16 @@ import { SWITCH_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/switches/")({
   head: () => ({
     meta: [
-      { title: "Network Switch CI Class — Nordbryg CMDB" },
+      { title: "Network Switch CI Class — CB Assets" },
       {
         name: "description",
         content:
           "Browse every network switch: role, model, firmware, ports, uplinks, VLANs, owner, lifecycle and monitoring.",
       },
-      { property: "og:title", content: "Network Switch CI Class — Nordbryg CMDB" },
+      { property: "og:title", content: "Network Switch CI Class — CB Assets" },
       {
         property: "og:description",
-        content: "Search, filter and export the switch inventory in the Nordbryg CMDB.",
+        content: "Search, filter and export the switch inventory in the CB Assets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

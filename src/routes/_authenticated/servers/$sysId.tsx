@@ -9,12 +9,12 @@ import { SERVER_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/servers/$sysId")({
   head: () => ({
     meta: [
-      { title: "Server record — Nordbryg CMDB" },
+      { title: "Server record — CB Assets" },
       {
         name: "description",
         content: "Full configuration item record for a single server, with all CMDB attributes.",
       },
-      { property: "og:title", content: "Server record — Nordbryg CMDB" },
+      { property: "og:title", content: "Server record — CB Assets" },
       { property: "og:description", content: "All CMDB attributes for this server record." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

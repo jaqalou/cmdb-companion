@@ -79,14 +79,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Nordbryg CMDB" },
+      { title: "CB Assets" },
       {
         name: "description",
         content:
-          "Internal configuration management database for Nordbryg Group IT, with a ServiceNow-style Table API.",
+          "Internal configuration management database for CB Assets Group IT, with a ServiceNow-style Table API.",
       },
-      { name: "author", content: "Nordbryg Group IT" },
-      { property: "og:title", content: "Nordbryg CMDB" },
+      { name: "author", content: "CB Assets Group IT" },
+      { property: "og:title", content: "CB Assets" },
       {
         property: "og:description",
         content: "Internal configuration management database with a ServiceNow-style Table API.",
