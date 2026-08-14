@@ -9,7 +9,7 @@ type Props = {
   table: string;
   title: string;
   subtitle: string;
-  backTo: "/servers" | "/databases";
+  backTo: "/servers" | "/databases" | "/switches" | "/access-points";
   backLabel: string;
 };
 
