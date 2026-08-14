@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DatabasesIndexRouteImport } from './routes/databases/index'
+import { Route as DatabasesSysIdRouteImport } from './routes/databases/$sysId'
+import { Route as ServersIndexRouteImport } from './routes/servers/index'
+import { Route as ServersSysIdRouteImport } from './routes/servers/$sysId'
+import { Route as ApiPublicNowTableTableRouteImport } from './routes/api/public/now/table/$table'
+import { Route as ApiPublicNowTableTableSysIdRouteImport } from './routes/api/public/now/table/$table.$sysId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DatabasesIndexRoute = DatabasesIndexRouteImport.update({
+  id: '/databases/',
+  path: '/databases/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatabasesSysIdRoute = DatabasesSysIdRouteImport.update({
+  id: '/databases/$sysId',
+  path: '/databases/$sysId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServersIndexRoute = ServersIndexRouteImport.update({
+  id: '/servers/',
+  path: '/servers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServersSysIdRoute = ServersSysIdRouteImport.update({
+  id: '/servers/$sysId',
+  path: '/servers/$sysId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicNowTableTableRoute = ApiPublicNowTableTableRouteImport.update({
+  id: '/api/public/now/table/$table',
+  path: '/api/public/now/table/$table',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicNowTableTableSysIdRoute =
+  ApiPublicNowTableTableSysIdRouteImport.update({
+    id: '/$sysId',
+    path: '/$sysId',
+    getParentRoute: () => ApiPublicNowTableTableRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/databases/$sysId': typeof DatabasesSysIdRoute
+  '/servers/$sysId': typeof ServersSysIdRoute
+  '/databases/': typeof DatabasesIndexRoute
+  '/servers/': typeof ServersIndexRoute
+  '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
+  '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/databases/$sysId': typeof DatabasesSysIdRoute
+  '/servers/$sysId': typeof ServersSysIdRoute
+  '/databases': typeof DatabasesIndexRoute
+  '/servers': typeof ServersIndexRoute
+  '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
+  '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/databases/$sysId': typeof DatabasesSysIdRoute
+  '/servers/$sysId': typeof ServersSysIdRoute
+  '/databases/': typeof DatabasesIndexRoute
+  '/servers/': typeof ServersIndexRoute
+  '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
+  '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/databases/$sysId'
+    | '/servers/$sysId'
+    | '/databases/'
+    | '/servers/'
+    | '/api/public/now/table/$table'
+    | '/api/public/now/table/$table/$sysId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/databases/$sysId'
+    | '/servers/$sysId'
+    | '/databases'
+    | '/servers'
+    | '/api/public/now/table/$table'
+    | '/api/public/now/table/$table/$sysId'
+  id:
+    | '__root__'
+    | '/'
+    | '/databases/$sysId'
+    | '/servers/$sysId'
+    | '/databases/'
+    | '/servers/'
+    | '/api/public/now/table/$table'
+    | '/api/public/now/table/$table/$sysId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DatabasesSysIdRoute: typeof DatabasesSysIdRoute
+  ServersSysIdRoute: typeof ServersSysIdRoute
+  DatabasesIndexRoute: typeof DatabasesIndexRoute
+  ServersIndexRoute: typeof ServersIndexRoute
+  ApiPublicNowTableTableRoute: typeof ApiPublicNowTableTableRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,72 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/databases/': {
+      id: '/databases/'
+      path: '/databases'
+      fullPath: '/databases/'
+      preLoaderRoute: typeof DatabasesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/databases/$sysId': {
+      id: '/databases/$sysId'
+      path: '/databases/$sysId'
+      fullPath: '/databases/$sysId'
+      preLoaderRoute: typeof DatabasesSysIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servers/': {
+      id: '/servers/'
+      path: '/servers'
+      fullPath: '/servers/'
+      preLoaderRoute: typeof ServersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servers/$sysId': {
+      id: '/servers/$sysId'
+      path: '/servers/$sysId'
+      fullPath: '/servers/$sysId'
+      preLoaderRoute: typeof ServersSysIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/now/table/$table': {
+      id: '/api/public/now/table/$table'
+      path: '/api/public/now/table/$table'
+      fullPath: '/api/public/now/table/$table'
+      preLoaderRoute: typeof ApiPublicNowTableTableRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/now/table/$table/$sysId': {
+      id: '/api/public/now/table/$table/$sysId'
+      path: '/$sysId'
+      fullPath: '/api/public/now/table/$table/$sysId'
+      preLoaderRoute: typeof ApiPublicNowTableTableSysIdRouteImport
+      parentRoute: typeof ApiPublicNowTableTableRoute
+    }
   }
 }
 
+interface ApiPublicNowTableTableRouteChildren {
+  ApiPublicNowTableTableSysIdRoute: typeof ApiPublicNowTableTableSysIdRoute
+}
+
+const ApiPublicNowTableTableRouteChildren: ApiPublicNowTableTableRouteChildren =
+  {
+    ApiPublicNowTableTableSysIdRoute: ApiPublicNowTableTableSysIdRoute,
+  }
+
+const ApiPublicNowTableTableRouteWithChildren =
+  ApiPublicNowTableTableRoute._addFileChildren(
+    ApiPublicNowTableTableRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DatabasesSysIdRoute: DatabasesSysIdRoute,
+  ServersSysIdRoute: ServersSysIdRoute,
+  DatabasesIndexRoute: DatabasesIndexRoute,
+  ServersIndexRoute: ServersIndexRoute,
+  ApiPublicNowTableTableRoute: ApiPublicNowTableTableRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
