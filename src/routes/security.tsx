@@ -92,7 +92,7 @@ function SecurityPage() {
       </section>
 
       <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10">
-        <div className="divide-y divide-border border border-border bg-card">
+        <div className="divide-y-2 divide-foreground border-2 border-foreground bg-card">
           {MEASURES.map(([article, title, detail]) => (
             <div key={article} className="grid gap-4 px-6 py-8 lg:grid-cols-[320px_1fr] lg:px-10">
               <p className="eyebrow text-muted-foreground">{article}</p>
