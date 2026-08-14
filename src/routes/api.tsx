@@ -24,11 +24,11 @@ export const Route = createFileRoute("/api")({
 });
 
 const ENDPOINTS = [
-  { method: "GET", path: "/api/public/now/table/{table}", desc: "List records with encoded query, field selection and pagination." },
-  { method: "POST", path: "/api/public/now/table/{table}", desc: "Create a record. Requires a bearer token." },
-  { method: "GET", path: "/api/public/now/table/{table}/{sys_id}", desc: "Retrieve a single record." },
-  { method: "PATCH", path: "/api/public/now/table/{table}/{sys_id}", desc: "Update a record. Requires a bearer token." },
-  { method: "DELETE", path: "/api/public/now/table/{table}/{sys_id}", desc: "Delete a record. Requires a bearer token." },
+  { method: "GET", path: "/api/public/now/table/{table}", desc: "List records with encoded query, field selection and pagination. Viewer role or above." },
+  { method: "POST", path: "/api/public/now/table/{table}", desc: "Create a record. Editor role or above." },
+  { method: "GET", path: "/api/public/now/table/{table}/{sys_id}", desc: "Retrieve a single record. Viewer role or above." },
+  { method: "PATCH", path: "/api/public/now/table/{table}/{sys_id}", desc: "Update a record. Editor role or above." },
+  { method: "DELETE", path: "/api/public/now/table/{table}/{sys_id}", desc: "Delete a record. Admin role only." },
 ];
 
 const PARAMS = [
@@ -108,26 +108,38 @@ function ApiDocs() {
           </div>
         </div>
 
+        <h2 className="mt-16 font-display text-3xl text-brand">Authentication</h2>
+        <div className="gold-rule mt-3 mb-6" />
+        <p className="max-w-3xl text-muted-foreground">
+          Every call — reads included — requires a bearer token for a signed-in account. There is no
+          anonymous access: unauthenticated requests receive <span className="font-mono">401</span>.
+          Row-level security in PostgreSQL then decides what that account may see and change, so a
+          token cannot be used to exceed its role. Responses are returned{" "}
+          <span className="font-mono">no-store</span> because records may contain personal data.
+        </p>
+
         <h2 className="mt-16 font-display text-3xl text-brand">Examples</h2>
         <div className="gold-rule mt-3 mb-6" />
         <pre className="overflow-x-auto bg-brand-deep p-6 font-mono text-xs leading-relaxed text-brand-foreground">
 {`# Production servers in EMEA, three fields only
 curl "$BASE/api/public/now/table/cmdb_ci_server\\
+  -H "Authorization: Bearer $TOKEN" \\
 ?sysparm_query=environment=Production^region=EMEA\\
 &sysparm_fields=hostname,application_name,eol_date&sysparm_limit=10"
 
 # SQL instances running Enterprise edition
-curl "$BASE/api/public/now/table/cmdb_ci_db_mssql_instance?sysparm_query=editionLIKEEnterprise"
+curl -H "Authorization: Bearer $TOKEN" \\
+  "$BASE/api/public/now/table/cmdb_ci_db_mssql_instance?sysparm_query=editionLIKEEnterprise"
 
-# Update a record (bearer token of a signed-in user)
+# Update a record (requires the editor or admin role)
 curl -X PATCH "$BASE/api/public/now/table/cmdb_ci_server/<sys_id>" \\
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \\
   -d '{"status":"Decommission planned"}'`}
         </pre>
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Reads are open; every write requires a bearer token and is enforced by row-level security
-          in the database, not just at the edge.
+          Every configuration change is written to an immutable audit trail with the acting
+          account, timestamp and the exact fields that changed.
         </p>
       </section>
     </PageShell>
