@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
-import { instancesQuery, serversQuery } from "@/lib/cmdb-data";
+import { accessPointsQuery, instancesQuery, serversQuery, switchesQuery } from "@/lib/cmdb-data";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/")({
@@ -45,8 +45,12 @@ function Index() {
 
   const servers = useQuery({ ...serversQuery, enabled: !!user });
   const instances = useQuery({ ...instancesQuery, enabled: !!user });
+  const switches = useQuery({ ...switchesQuery, enabled: !!user });
+  const accessPoints = useQuery({ ...accessPointsQuery, enabled: !!user });
   const serverRows = servers.data ?? [];
   const instanceRows = instances.data ?? [];
+  const switchRows = switches.data ?? [];
+  const apRows = accessPoints.data ?? [];
 
   const production = serverRows.filter((r) => r["environment"] === "Production").length;
   const eolSoon = [...serverRows, ...instanceRows].filter((r) => {
@@ -57,6 +61,8 @@ function Index() {
   const stats = [
     { value: serverRows.length, label: "Server CIs" },
     { value: instanceRows.length, label: "SQL instances" },
+    { value: switchRows.length, label: "Network switches" },
+    { value: apRows.length, label: "Access points" },
     { value: production, label: "Production servers" },
     { value: eolSoon, label: "Approaching EOL" },
   ];
@@ -71,8 +77,8 @@ function Index() {
           <span className="text-brand">mapped in sync.</span>
         </h1>
         <p className="mt-8 max-w-xl text-lg leading-relaxed font-medium opacity-90">
-          Two configuration item classes, ninety-one attributes, one API. Modelled on the
-          inventory your teams already maintain — with a developer-first Table API.
+          Four configuration item classes — servers, SQL instances, switches and access points —
+          exportable to CSV or JSON, and served by a developer-first Table API.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
           <Link to="/servers" className="btn-accent px-8 py-4">
@@ -86,7 +92,7 @@ function Index() {
 
       {user ? (
         <section className="border-y-2 border-foreground bg-sand">
-          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-4 md:divide-x-2 lg:px-10">
+          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-3 lg:grid-cols-5 lg:divide-x-2 lg:px-10">
             {stats.map((s) => (
               <div key={s.label} className="px-2 py-3 md:px-8 md:first:pl-0">
                 <p className="font-display text-5xl text-brand">{s.value}</p>
@@ -176,6 +182,40 @@ function Index() {
               <div className="font-display text-5xl">47</div>
               <div className="eyebrow mt-2 opacity-50">Metadata fields</div>
             </div>
+          </Link>
+
+          <Link
+            to="/switches"
+            className="brutal-card brutal-lift group flex min-h-[260px] flex-col justify-between p-8"
+          >
+            <div>
+              <span className="font-mono text-[10px] font-bold tracking-[0.16em] text-gold uppercase">
+                cmdb_ci_netgear_switch
+              </span>
+              <h3 className="mt-6 text-3xl uppercase">Network switches</h3>
+              <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
+                Core, distribution and access layer — ports, PoE, stacks, uplinks, VLANs, firmware
+                levels and config backup posture.
+              </p>
+            </div>
+            <div className="mt-8 font-display text-5xl text-brand">39</div>
+          </Link>
+
+          <Link
+            to="/access-points"
+            className="brutal-card brutal-lift group flex min-h-[260px] flex-col justify-between p-8 md:col-span-2"
+          >
+            <div>
+              <span className="font-mono text-[10px] font-bold tracking-[0.16em] text-gold uppercase">
+                cmdb_ci_wap
+              </span>
+              <h3 className="mt-6 text-3xl uppercase md:text-4xl">Wireless access points</h3>
+              <p className="mt-4 max-w-md text-sm leading-relaxed font-medium text-muted-foreground">
+                Controllers, SSIDs, radio bands and channel width, client capacity, and the exact
+                PoE switch port every radio hangs off.
+              </p>
+            </div>
+            <div className="mt-8 font-display text-5xl text-brand">40</div>
           </Link>
 
           <div className="brutal-border min-w-0 flex flex-col items-start justify-between gap-8 border-dashed p-8 md:col-span-3 md:flex-row md:items-center">

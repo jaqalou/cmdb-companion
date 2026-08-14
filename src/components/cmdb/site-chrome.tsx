@@ -7,6 +7,8 @@ const NAV = [
   { to: "/", label: "Overview" },
   { to: "/servers", label: "Servers" },
   { to: "/databases", label: "SQL Instances" },
+  { to: "/switches", label: "Switches" },
+  { to: "/access-points", label: "Access Points" },
   { to: "/api", label: "Table API" },
 ];
 
@@ -104,6 +106,16 @@ export function SiteFooter() {
             <li>
               <Link to="/databases" className="font-mono hover:text-gold">
                 cmdb_ci_db_mssql_instance
+              </Link>
+            </li>
+            <li>
+              <Link to="/switches" className="font-mono hover:text-gold">
+                cmdb_ci_netgear_switch
+              </Link>
+            </li>
+            <li>
+              <Link to="/access-points" className="font-mono hover:text-gold">
+                cmdb_ci_wap
               </Link>
             </li>
           </ul>

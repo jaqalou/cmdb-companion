@@ -58,6 +58,8 @@ function ServersPage() {
           { field: "sla", label: "SLA" },
         ]}
         isLoading={isLoading}
+        exportFields={SERVER_FIELDS}
+        exportName="cmdb_ci_server"
       />
     </PageShell>
   );
