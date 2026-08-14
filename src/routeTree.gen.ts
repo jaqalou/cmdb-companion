@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ApiRouteImport } from './routes/api'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDatabasesIndexRouteImport } from './routes/_authenticated/databases/index'
 import { Route as AuthenticatedDatabasesSysIdRouteImport } from './routes/_authenticated/databases/$sysId'
 import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authenticated/servers/index'
@@ -23,34 +25,43 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRoute = ApiRouteImport.update({
   id: '/api',
   path: '/api',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDatabasesIndexRoute =
   AuthenticatedDatabasesIndexRouteImport.update({
-    id: '/_authenticated/databases/',
+    id: '/databases/',
     path: '/databases/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDatabasesSysIdRoute =
   AuthenticatedDatabasesSysIdRouteImport.update({
-    id: '/_authenticated/databases/$sysId',
+    id: '/databases/$sysId',
     path: '/databases/$sysId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedServersIndexRoute =
   AuthenticatedServersIndexRouteImport.update({
-    id: '/_authenticated/servers/',
+    id: '/servers/',
     path: '/servers/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedServersSysIdRoute =
   AuthenticatedServersSysIdRouteImport.update({
-    id: '/_authenticated/servers/$sysId',
+    id: '/servers/$sysId',
     path: '/servers/$sysId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiPublicNowTableTableRoute = ApiPublicNowTableTableRouteImport.update({
   id: '/public/now/table/$table',
@@ -67,6 +78,7 @@ const ApiPublicNowTableTableSysIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
+  '/auth': typeof AuthRoute
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/databases/': typeof AuthenticatedDatabasesIndexRoute
@@ -77,6 +89,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
+  '/auth': typeof AuthRoute
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/databases': typeof AuthenticatedDatabasesIndexRoute
@@ -87,7 +100,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/api': typeof ApiRouteWithChildren
+  '/auth': typeof AuthRoute
   '/_authenticated/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/_authenticated/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/_authenticated/databases/': typeof AuthenticatedDatabasesIndexRoute
@@ -100,6 +115,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/api'
+    | '/auth'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/databases/'
@@ -110,6 +126,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/api'
+    | '/auth'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/databases'
@@ -119,7 +136,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/api'
+    | '/auth'
     | '/_authenticated/databases/$sysId'
     | '/_authenticated/servers/$sysId'
     | '/_authenticated/databases/'
@@ -130,11 +149,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApiRoute: typeof ApiRouteWithChildren
-  AuthenticatedDatabasesSysIdRoute: typeof AuthenticatedDatabasesSysIdRoute
-  AuthenticatedServersSysIdRoute: typeof AuthenticatedServersSysIdRoute
-  AuthenticatedDatabasesIndexRoute: typeof AuthenticatedDatabasesIndexRoute
-  AuthenticatedServersIndexRoute: typeof AuthenticatedServersIndexRoute
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -146,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api': {
       id: '/api'
       path: '/api'
@@ -153,33 +177,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/databases/': {
       id: '/_authenticated/databases/'
       path: '/databases'
       fullPath: '/databases/'
       preLoaderRoute: typeof AuthenticatedDatabasesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/databases/$sysId': {
       id: '/_authenticated/databases/$sysId'
       path: '/databases/$sysId'
       fullPath: '/databases/$sysId'
       preLoaderRoute: typeof AuthenticatedDatabasesSysIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/servers/': {
       id: '/_authenticated/servers/'
       path: '/servers'
       fullPath: '/servers/'
       preLoaderRoute: typeof AuthenticatedServersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/servers/$sysId': {
       id: '/_authenticated/servers/$sysId'
       path: '/servers/$sysId'
       fullPath: '/servers/$sysId'
       preLoaderRoute: typeof AuthenticatedServersSysIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/now/table/$table': {
       id: '/api/public/now/table/$table'
@@ -197,6 +228,23 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDatabasesSysIdRoute: typeof AuthenticatedDatabasesSysIdRoute
+  AuthenticatedServersSysIdRoute: typeof AuthenticatedServersSysIdRoute
+  AuthenticatedDatabasesIndexRoute: typeof AuthenticatedDatabasesIndexRoute
+  AuthenticatedServersIndexRoute: typeof AuthenticatedServersIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDatabasesSysIdRoute: AuthenticatedDatabasesSysIdRoute,
+  AuthenticatedServersSysIdRoute: AuthenticatedServersSysIdRoute,
+  AuthenticatedDatabasesIndexRoute: AuthenticatedDatabasesIndexRoute,
+  AuthenticatedServersIndexRoute: AuthenticatedServersIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface ApiPublicNowTableTableRouteChildren {
   ApiPublicNowTableTableSysIdRoute: typeof ApiPublicNowTableTableSysIdRoute
@@ -224,11 +272,9 @@ const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApiRoute: ApiRouteWithChildren,
-  AuthenticatedDatabasesSysIdRoute: AuthenticatedDatabasesSysIdRoute,
-  AuthenticatedServersSysIdRoute: AuthenticatedServersSysIdRoute,
-  AuthenticatedDatabasesIndexRoute: AuthenticatedDatabasesIndexRoute,
-  AuthenticatedServersIndexRoute: AuthenticatedServersIndexRoute,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
