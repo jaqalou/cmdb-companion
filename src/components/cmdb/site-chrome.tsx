@@ -103,12 +103,23 @@ export function SiteFooter() {
               </Link>
             </li>
             <li className="font-mono text-xs">/api/public/now/table/&#123;table&#125;</li>
+            <li>
+              <Link to="/privacy" className="hover:text-gold">
+                Privacy &amp; data protection
+              </Link>
+            </li>
+            <li>
+              <Link to="/security" className="hover:text-gold">
+                Security &amp; NIS2 measures
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
       <div className="border-t border-brand-foreground/10">
-        <div className="mx-auto max-w-[1400px] px-6 py-6 text-xs text-brand-foreground/50 lg:px-10">
-          Nordbryg Group IT — internal configuration management platform.
+        <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-xs text-brand-foreground/50 lg:px-10">
+          <span>Nordbryg Group IT — internal configuration management platform.</span>
+          <span>Access is authenticated, role-based and logged.</span>
         </div>
       </div>
     </footer>
