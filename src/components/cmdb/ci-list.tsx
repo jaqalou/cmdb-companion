@@ -46,14 +46,14 @@ export function CiList({ records, columns, detailTo, facets, isLoading }: Props)
 
   return (
     <div>
-      <div className="flex flex-wrap items-end gap-4 border-y border-border bg-sand/60 px-6 py-5 lg:px-10">
+      <div className="flex flex-wrap items-end gap-4 border-y-2 border-foreground bg-sand px-6 py-5 lg:px-10">
         <div className="min-w-[240px] flex-1">
           <label className="eyebrow text-muted-foreground">Search all fields</label>
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="hostname, application, owner, IP…"
-            className="mt-2 h-11 rounded-none border-border bg-background"
+            className="mt-2 h-11 rounded-none border-2 border-foreground bg-background"
           />
         </div>
         {facetValues.map((f) => (
@@ -64,7 +64,7 @@ export function CiList({ records, columns, detailTo, facets, isLoading }: Props)
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, [f.field]: e.target.value }))
               }
-              className="mt-2 h-11 min-w-[160px] border border-border bg-background px-3 text-sm"
+              className="mt-2 h-11 min-w-[160px] border-2 border-foreground bg-background px-3 text-sm font-medium"
             >
               <option value="">All</option>
               {f.options.map((o) => (
@@ -75,7 +75,7 @@ export function CiList({ records, columns, detailTo, facets, isLoading }: Props)
             </select>
           </div>
         ))}
-        <p className="pb-3 text-sm text-muted-foreground">
+        <p className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
           {filtered.length} of {records.length} records
         </p>
       </div>
@@ -83,11 +83,11 @@ export function CiList({ records, columns, detailTo, facets, isLoading }: Props)
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] border-collapse text-sm">
           <thead>
-            <tr className="bg-brand-deep text-brand-foreground">
+            <tr className="border-b-2 border-foreground bg-foreground text-background">
               {columns.map((c) => (
                 <th
                   key={c.name}
-                  className="whitespace-nowrap px-5 py-4 text-left text-[11px] font-medium uppercase tracking-[0.14em]"
+                  className="whitespace-nowrap px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.16em]"
                 >
                   {c.label}
                 </th>
@@ -111,13 +111,13 @@ export function CiList({ records, columns, detailTo, facets, isLoading }: Props)
               </tr>
             )}
             {filtered.map((r) => (
-              <tr key={String(r["sys_id"])} className="border-b border-border hover:bg-sand/70">
+              <tr key={String(r["sys_id"])} className="border-b border-foreground/15 hover:bg-sand">
                 {columns.map((c, i) => (
                   <td
                     key={c.name}
                     className={
                       i === 0
-                        ? "whitespace-nowrap px-5 py-4 font-mono text-[13px] font-medium text-brand"
+                        ? "whitespace-nowrap px-5 py-4 font-mono text-[13px] font-bold text-brand"
                         : "whitespace-nowrap px-5 py-4 text-foreground/80"
                     }
                   >
@@ -128,7 +128,7 @@ export function CiList({ records, columns, detailTo, facets, isLoading }: Props)
                   <Link
                     to={detailTo}
                     params={{ sysId: String(r["sys_id"]) }}
-                    className="text-xs uppercase tracking-[0.18em] text-brand underline-offset-4 hover:text-gold hover:underline"
+                    className="text-[11px] font-bold uppercase tracking-[0.18em] underline-offset-4 hover:text-gold hover:underline"
                   >
                     Open
                   </Link>

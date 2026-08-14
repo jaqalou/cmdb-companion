@@ -93,9 +93,9 @@ function AuthPage() {
 
   return (
     <PageShell>
-      <section className="mx-auto flex max-w-md flex-col px-6 py-24">
-        <p className="eyebrow text-muted-foreground">Restricted system</p>
-        <h1 className="mt-4 font-display text-4xl text-brand">
+      <section className="brutal-card mx-auto my-24 flex max-w-md flex-col p-8 md:p-10">
+        <p className="eyebrow text-gold">Restricted system</p>
+        <h1 className="mt-4 text-4xl uppercase">
           {mode === "signin" ? "Sign in" : "Create account"}
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -112,7 +112,7 @@ function AuthPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full border border-border bg-card px-4 py-3 text-sm outline-none focus:border-gold"
+              className="mt-2 w-full border-2 border-foreground bg-background px-4 py-3 text-sm outline-none focus:border-gold"
             />
           </label>
           <label className="block">
@@ -124,7 +124,7 @@ function AuthPage() {
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full border border-border bg-card px-4 py-3 text-sm outline-none focus:border-gold"
+              className="mt-2 w-full border-2 border-foreground bg-background px-4 py-3 text-sm outline-none focus:border-gold"
             />
             {mode === "signup" && (
               <span className="mt-2 block text-xs text-muted-foreground">
@@ -132,32 +132,24 @@ function AuthPage() {
               </span>
             )}
           </label>
-          <button
-            type="submit"
-            disabled={busy}
-            className="w-full bg-brand px-6 py-4 text-xs uppercase tracking-[0.2em] text-brand-foreground disabled:opacity-60"
-          >
+          <button type="submit" disabled={busy} className="btn-accent w-full px-6 py-4 disabled:opacity-60">
             {mode === "signin" ? "Sign in" : "Create account"}
           </button>
         </form>
 
-        <div className="my-8 flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
+        <div className="my-8 flex items-center gap-4 text-[11px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
+          <span className="h-0.5 flex-1 bg-foreground/20" />
           or
-          <span className="h-px flex-1 bg-border" />
+          <span className="h-0.5 flex-1 bg-foreground/20" />
         </div>
 
-        <button
-          onClick={google}
-          disabled={busy}
-          className="w-full border border-border px-6 py-4 text-xs uppercase tracking-[0.2em] text-brand transition-colors hover:border-gold disabled:opacity-60"
-        >
+        <button onClick={google} disabled={busy} className="btn-outline w-full px-6 py-4 disabled:opacity-60">
           Continue with Google
         </button>
 
         <button
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-8 text-sm text-muted-foreground underline underline-offset-4 hover:text-brand"
+          className="mt-8 text-sm text-muted-foreground underline underline-offset-4 hover:text-gold"
         >
           {mode === "signin" ? "Need an account? Register" : "Already registered? Sign in"}
         </button>

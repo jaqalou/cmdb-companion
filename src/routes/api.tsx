@@ -69,7 +69,7 @@ function ApiDocs() {
       <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10">
         <h2 className="font-display text-3xl text-brand">Endpoints</h2>
         <div className="gold-rule mt-3 mb-6" />
-        <div className="divide-y divide-border border border-border bg-card">
+        <div className="divide-y-2 divide-foreground border-2 border-foreground bg-card">
           {ENDPOINTS.map((e) => (
             <div key={e.method + e.path} className="flex flex-wrap items-center gap-4 px-6 py-5">
               <span className="w-20 font-mono text-xs font-semibold uppercase text-gold-foreground bg-gold px-2 py-1 text-center">
@@ -85,7 +85,7 @@ function ApiDocs() {
           <div>
             <h2 className="font-display text-3xl text-brand">Query parameters</h2>
             <div className="gold-rule mt-3 mb-6" />
-            <dl className="divide-y divide-border">
+            <dl className="divide-y-2 divide-foreground">
               {PARAMS.map(([k, v]) => (
                 <div key={k} className="grid grid-cols-2 gap-4 py-3 text-sm">
                   <dt className="font-mono text-brand">{k}</dt>
@@ -97,7 +97,7 @@ function ApiDocs() {
           <div>
             <h2 className="font-display text-3xl text-brand">Encoded query operators</h2>
             <div className="gold-rule mt-3 mb-6" />
-            <dl className="divide-y divide-border">
+            <dl className="divide-y-2 divide-foreground">
               {OPERATORS.map(([k, v]) => (
                 <div key={k} className="grid grid-cols-2 gap-4 py-3 text-sm">
                   <dt className="font-mono text-brand">{k}</dt>

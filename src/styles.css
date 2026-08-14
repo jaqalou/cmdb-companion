@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-display: "Playfair Display", Georgia, serif;
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 /*
@@ -74,32 +74,34 @@
 }
 
 :root {
-  --radius: 0.25rem;
-  --background: oklch(0.982 0.008 95);
-  --foreground: oklch(0.245 0.038 158);
+  --radius: 0rem;
+  /* Canvas #FAF7F2 · Ink #151513 · Tangerine #FF6B35 · Deep green #2B6B5A */
+  --background: oklch(0.971 0.007 85);
+  --foreground: oklch(0.201 0.004 96);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.245 0.038 158);
+  --card-foreground: oklch(0.201 0.004 96);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.245 0.038 158);
-  --primary: oklch(0.362 0.086 156);
-  --primary-foreground: oklch(0.982 0.008 95);
-  --secondary: oklch(0.945 0.018 95);
-  --secondary-foreground: oklch(0.302 0.07 156);
-  --muted: oklch(0.948 0.012 120);
-  --muted-foreground: oklch(0.512 0.026 150);
-  --accent: oklch(0.93 0.032 95);
-  --accent-foreground: oklch(0.302 0.07 156);
+  --popover-foreground: oklch(0.201 0.004 96);
+  --primary: oklch(0.694 0.184 41);
+  --primary-foreground: oklch(0.201 0.004 96);
+  --secondary: oklch(0.938 0.012 88);
+  --secondary-foreground: oklch(0.201 0.004 96);
+  --muted: oklch(0.938 0.012 88);
+  --muted-foreground: oklch(0.486 0.012 92);
+  --accent: oklch(0.694 0.184 41);
+  --accent-foreground: oklch(0.201 0.004 96);
   --destructive: oklch(0.52 0.19 27);
   --destructive-foreground: oklch(0.985 0.005 95);
-  --border: oklch(0.888 0.016 120);
-  --input: oklch(0.888 0.016 120);
-  --ring: oklch(0.362 0.086 156);
-  --brand: oklch(0.362 0.086 156);
-  --brand-deep: oklch(0.222 0.055 158);
-  --brand-foreground: oklch(0.982 0.008 95);
-  --gold: oklch(0.762 0.108 78);
-  --gold-foreground: oklch(0.222 0.055 158);
-  --sand: oklch(0.945 0.022 92);
+  --border: oklch(0.201 0.004 96);
+  --input: oklch(0.201 0.004 96);
+  --ring: oklch(0.694 0.184 41);
+  /* Legacy token names kept so every surface stays in one palette. */
+  --brand: oklch(0.452 0.062 168);
+  --brand-deep: oklch(0.201 0.004 96);
+  --brand-foreground: oklch(0.971 0.007 85);
+  --gold: oklch(0.694 0.184 41);
+  --gold-foreground: oklch(0.201 0.004 96);
+  --sand: oklch(0.943 0.015 88);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -116,25 +118,25 @@
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
+  --background: oklch(0.171 0.004 96);
+  --foreground: oklch(0.971 0.007 85);
+  --card: oklch(0.221 0.004 96);
+  --card-foreground: oklch(0.971 0.007 85);
+  --popover: oklch(0.221 0.004 96);
+  --popover-foreground: oklch(0.971 0.007 85);
+  --primary: oklch(0.72 0.184 41);
+  --primary-foreground: oklch(0.171 0.004 96);
+  --secondary: oklch(0.27 0.006 96);
+  --secondary-foreground: oklch(0.971 0.007 85);
+  --muted: oklch(0.27 0.006 96);
+  --muted-foreground: oklch(0.72 0.008 92);
+  --accent: oklch(0.72 0.184 41);
+  --accent-foreground: oklch(0.171 0.004 96);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
+  --border: oklch(0.971 0.007 85);
+  --input: oklch(0.971 0.007 85);
+  --ring: oklch(0.72 0.184 41);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -148,12 +150,12 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
-  --brand: oklch(0.52 0.1 156);
-  --brand-deep: oklch(0.18 0.04 158);
-  --brand-foreground: oklch(0.982 0.008 95);
-  --gold: oklch(0.79 0.11 78);
-  --gold-foreground: oklch(0.18 0.04 158);
-  --sand: oklch(0.28 0.02 92);
+  --brand: oklch(0.56 0.072 168);
+  --brand-deep: oklch(0.171 0.004 96);
+  --brand-foreground: oklch(0.971 0.007 85);
+  --gold: oklch(0.72 0.184 41);
+  --gold-foreground: oklch(0.171 0.004 96);
+  --sand: oklch(0.24 0.006 92);
 }
 
 @layer base {
@@ -166,40 +168,138 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  html {
+    overflow-x: hidden;
   }
 
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    letter-spacing: -0.015em;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-gold-foreground);
   }
 }
 
 @utility eyebrow {
-  font-size: 0.6875rem;
-  letter-spacing: 0.22em;
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 @utility surface-brand {
-  background-image: linear-gradient(
-    155deg,
-    var(--color-brand-deep) 0%,
-    var(--color-brand) 70%,
-    var(--color-brand-deep) 100%
-  );
+  background-color: var(--color-brand-deep);
   color: var(--color-brand-foreground);
 }
 
 @utility gold-rule {
-  background-image: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-gold) 20%,
-    var(--color-gold) 80%,
-    transparent
-  );
-  height: 1px;
+  background-color: var(--color-gold);
+  height: 2px;
+}
+
+/* Neo-brutalist building blocks: hard 2px ink outlines and solid offset shadows. */
+@utility brutal-border {
+  border: 2px solid var(--color-foreground);
+}
+
+@utility brutal-shadow {
+  box-shadow: 8px 8px 0 0 var(--color-foreground);
+}
+
+@utility brutal-shadow-sm {
+  box-shadow: 4px 4px 0 0 var(--color-foreground);
+}
+
+@utility brutal-shadow-accent {
+  box-shadow: 8px 8px 0 0 var(--color-gold);
+}
+
+@utility brutal-card {
+  border: 2px solid var(--color-foreground);
+  background-color: var(--color-card);
+  box-shadow: 8px 8px 0 0 var(--color-foreground);
+}
+
+@utility brutal-lift {
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+
+  &:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 11px 11px 0 0 var(--color-foreground);
+  }
+}
+
+@utility btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-foreground);
+  background-color: var(--color-gold);
+  color: var(--color-gold-foreground);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 0 var(--color-foreground);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 var(--color-foreground);
+  }
+}
+
+@utility btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-foreground);
+  background-color: transparent;
+  color: var(--color-foreground);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+
+  &:hover {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+}
+
+@utility marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 32s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }

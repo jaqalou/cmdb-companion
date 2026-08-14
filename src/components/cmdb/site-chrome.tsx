@@ -20,18 +20,17 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 surface-brand">
-      <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-6 lg:px-10">
-        <Link to="/" className="flex flex-col leading-none">
-          <span className="font-display text-2xl italic tracking-tight">Nordbryg</span>
-          <span className="eyebrow mt-1 text-gold">Configuration Management</span>
+    <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background">
+      <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10">
+        <Link to="/" className="font-display text-2xl uppercase tracking-tighter">
+          Nordbryg<span className="text-gold">.</span>
         </Link>
-        <nav className="hidden items-center gap-10 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="text-sm tracking-wide text-brand-foreground/75 transition-colors hover:text-gold [&.active]:text-gold"
+              className="text-[11px] font-bold uppercase tracking-[0.15em] transition-colors hover:text-gold [&.active]:text-gold"
               activeOptions={{ exact: item.to === "/" }}
             >
               {item.label}
@@ -39,56 +38,71 @@ export function SiteHeader() {
           ))}
         </nav>
         {user ? (
-          <div className="hidden items-center gap-5 lg:flex">
-            <span className="text-right text-xs leading-tight text-brand-foreground/60">
+          <div className="hidden items-center gap-4 lg:flex">
+            <span className="text-right text-[11px] leading-tight text-muted-foreground">
               {user.email}
-              <span className="block uppercase tracking-[0.2em] text-gold">
+              <span className="block font-bold uppercase tracking-[0.18em] text-gold">
                 {roles[0] ?? "pending access"}
               </span>
             </span>
-            <button
-              onClick={signOut}
-              className="border border-gold/60 px-5 py-2 text-xs uppercase tracking-[0.2em] text-gold transition-colors hover:bg-gold hover:text-gold-foreground"
-            >
+            <button onClick={signOut} className="btn-outline px-5 py-2">
               Sign out
             </button>
           </div>
         ) : (
-          <Link
-            to="/auth"
-            className="hidden border border-gold/60 px-5 py-2 text-xs tracking-[0.2em] uppercase text-gold transition-colors hover:bg-gold hover:text-gold-foreground lg:inline-block"
-          >
+          <Link to="/auth" className="btn-outline hidden px-5 py-2 lg:inline-flex">
             Sign in
           </Link>
         )}
       </div>
-      <div className="gold-rule" />
+      <div className="flex items-center gap-5 overflow-x-auto border-t-2 border-foreground px-6 py-3 md:hidden">
+        {NAV.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className="shrink-0 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors hover:text-gold [&.active]:text-gold"
+            activeOptions={{ exact: item.to === "/" }}
+          >
+            {item.label}
+          </Link>
+        ))}
+        {user ? (
+          <button onClick={signOut} className="ml-auto shrink-0 text-[10px] font-bold tracking-[0.15em] text-gold uppercase">
+            Sign out
+          </button>
+        ) : (
+          <Link to="/auth" className="ml-auto shrink-0 text-[10px] font-bold tracking-[0.15em] text-gold uppercase">
+            Sign in
+          </Link>
+        )}
+      </div>
     </header>
   );
 }
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 surface-brand">
-      <div className="gold-rule" />
+    <footer className="mt-24 border-t-2 border-foreground bg-background">
       <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-16 md:grid-cols-3 lg:px-10">
         <div>
-          <p className="font-display text-3xl italic">Nordbryg CMDB</p>
-          <p className="mt-4 max-w-sm text-sm text-brand-foreground/70">
+          <p className="font-display text-3xl uppercase tracking-tighter">
+            Nordbryg<span className="text-gold">.</span>
+          </p>
+          <p className="mt-4 max-w-sm text-sm text-muted-foreground">
             A single, trusted record of every server and database instance across the group —
             brewed from the same tables your integrations already speak to.
           </p>
         </div>
         <div>
           <p className="eyebrow text-gold">Configuration Items</p>
-          <ul className="mt-4 space-y-2 text-sm text-brand-foreground/70">
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>
-              <Link to="/servers" className="hover:text-gold">
+              <Link to="/servers" className="font-mono hover:text-gold">
                 cmdb_ci_server
               </Link>
             </li>
             <li>
-              <Link to="/databases" className="hover:text-gold">
+              <Link to="/databases" className="font-mono hover:text-gold">
                 cmdb_ci_db_mssql_instance
               </Link>
             </li>
@@ -96,7 +110,7 @@ export function SiteFooter() {
         </div>
         <div>
           <p className="eyebrow text-gold">Integration</p>
-          <ul className="mt-4 space-y-2 text-sm text-brand-foreground/70">
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>
               <Link to="/api" className="hover:text-gold">
                 Table API reference
@@ -116,8 +130,8 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-brand-foreground/10">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-xs text-brand-foreground/50 lg:px-10">
+      <div className="border-t-2 border-foreground">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:px-10">
           <span>Nordbryg Group IT — internal configuration management platform.</span>
           <span>Access is authenticated, role-based and logged.</span>
         </div>
