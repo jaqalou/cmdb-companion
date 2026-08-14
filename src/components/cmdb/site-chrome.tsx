@@ -1,4 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { to: "/", label: "Overview" },
@@ -8,6 +11,14 @@ const NAV = [
 ];
 
 export function SiteHeader() {
+  const { user, roles } = useAuth();
+  const navigate = useNavigate();
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  }
+
   return (
     <header className="sticky top-0 z-40 surface-brand">
       <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-6 lg:px-10">
@@ -27,12 +38,29 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link
-          to="/api"
-          className="hidden border border-gold/60 px-5 py-2 text-xs tracking-[0.2em] uppercase text-gold transition-colors hover:bg-gold hover:text-gold-foreground lg:inline-block"
-        >
-          Developers
-        </Link>
+        {user ? (
+          <div className="hidden items-center gap-5 lg:flex">
+            <span className="text-right text-xs leading-tight text-brand-foreground/60">
+              {user.email}
+              <span className="block uppercase tracking-[0.2em] text-gold">
+                {roles[0] ?? "pending access"}
+              </span>
+            </span>
+            <button
+              onClick={signOut}
+              className="border border-gold/60 px-5 py-2 text-xs uppercase tracking-[0.2em] text-gold transition-colors hover:bg-gold hover:text-gold-foreground"
+            >
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/auth"
+            className="hidden border border-gold/60 px-5 py-2 text-xs tracking-[0.2em] uppercase text-gold transition-colors hover:bg-gold hover:text-gold-foreground lg:inline-block"
+          >
+            Sign in
+          </Link>
+        )}
       </div>
       <div className="gold-rule" />
     </header>
