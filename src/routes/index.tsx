@@ -92,7 +92,7 @@ function Index() {
 
       {user ? (
         <section className="border-y-2 border-foreground bg-sand">
-          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-4 md:divide-x-2 lg:px-10">
+          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-3 lg:grid-cols-5 lg:divide-x-2 lg:px-10">
             {stats.map((s) => (
               <div key={s.label} className="px-2 py-3 md:px-8 md:first:pl-0">
                 <p className="font-display text-5xl text-brand">{s.value}</p>
