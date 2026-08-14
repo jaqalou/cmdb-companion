@@ -18,7 +18,7 @@ export const Route = createFileRoute("/auth")({
       {
         name: "description",
         content:
-          "Authenticate to access the configuration management database. Access is restricted to authorised CB Assets personnel.",
+          "Authenticate to access the configuration management database. Access is restricted to authorised CB personnel.",
       },
       { property: "og:title", content: "Sign in — CB Assets" },
       { property: "og:description", content: "Restricted access to the CB Assets." },

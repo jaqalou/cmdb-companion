@@ -83,9 +83,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Internal configuration management database for CB Assets Group IT, with a ServiceNow-style Table API.",
+          "Internal configuration management database for CB Group IT, with a ServiceNow-style Table API.",
       },
-      { name: "author", content: "CB Assets Group IT" },
+      { name: "author", content: "CB Group IT" },
       { property: "og:title", content: "CB Assets" },
       {
         property: "og:description",

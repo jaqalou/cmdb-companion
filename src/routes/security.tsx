@@ -109,7 +109,7 @@ function SecurityPage() {
           <div className="gold-rule mt-3 mb-6" />
           <p className="text-muted-foreground">
             If you believe you have found a security weakness in this platform, report it to the
-            CB Assets Group IT security team before disclosing it elsewhere. Include the affected
+            CB Group IT security team before disclosing it elsewhere. Include the affected
             URL, the steps to reproduce and the impact you observed. The security contact address
             and response targets should be confirmed by the security owner and added here.
           </p>

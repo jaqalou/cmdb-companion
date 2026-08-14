@@ -144,7 +144,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t-2 border-foreground">
         <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:px-10">
-          <span>CB Assets Group IT — internal configuration management platform.</span>
+          <span>CB Group IT — internal configuration management platform.</span>
           <span>Access is authenticated, role-based and logged.</span>
         </div>
       </div>
