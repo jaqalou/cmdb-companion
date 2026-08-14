@@ -11,10 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRouteImport } from './routes/api'
-import { Route as DatabasesIndexRouteImport } from './routes/databases/index'
-import { Route as DatabasesSysIdRouteImport } from './routes/databases/$sysId'
-import { Route as ServersIndexRouteImport } from './routes/servers/index'
-import { Route as ServersSysIdRouteImport } from './routes/servers/$sysId'
+import { Route as AuthenticatedDatabasesIndexRouteImport } from './routes/_authenticated/databases/index'
+import { Route as AuthenticatedDatabasesSysIdRouteImport } from './routes/_authenticated/databases/$sysId'
+import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authenticated/servers/index'
+import { Route as AuthenticatedServersSysIdRouteImport } from './routes/_authenticated/servers/$sysId'
 import { Route as ApiPublicNowTableTableRouteImport } from './routes/api/public/now/table/$table'
 import { Route as ApiPublicNowTableTableSysIdRouteImport } from './routes/api/public/now/table/$table.$sysId'
 
@@ -28,26 +28,30 @@ const ApiRoute = ApiRouteImport.update({
   path: '/api',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DatabasesIndexRoute = DatabasesIndexRouteImport.update({
-  id: '/databases/',
-  path: '/databases/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DatabasesSysIdRoute = DatabasesSysIdRouteImport.update({
-  id: '/databases/$sysId',
-  path: '/databases/$sysId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServersIndexRoute = ServersIndexRouteImport.update({
-  id: '/servers/',
-  path: '/servers/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServersSysIdRoute = ServersSysIdRouteImport.update({
-  id: '/servers/$sysId',
-  path: '/servers/$sysId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedDatabasesIndexRoute =
+  AuthenticatedDatabasesIndexRouteImport.update({
+    id: '/_authenticated/databases/',
+    path: '/databases/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedDatabasesSysIdRoute =
+  AuthenticatedDatabasesSysIdRouteImport.update({
+    id: '/_authenticated/databases/$sysId',
+    path: '/databases/$sysId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedServersIndexRoute =
+  AuthenticatedServersIndexRouteImport.update({
+    id: '/_authenticated/servers/',
+    path: '/servers/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedServersSysIdRoute =
+  AuthenticatedServersSysIdRouteImport.update({
+    id: '/_authenticated/servers/$sysId',
+    path: '/servers/$sysId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicNowTableTableRoute = ApiPublicNowTableTableRouteImport.update({
   id: '/public/now/table/$table',
   path: '/public/now/table/$table',
@@ -63,20 +67,20 @@ const ApiPublicNowTableTableSysIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
-  '/databases/$sysId': typeof DatabasesSysIdRoute
-  '/servers/$sysId': typeof ServersSysIdRoute
-  '/databases/': typeof DatabasesIndexRoute
-  '/servers/': typeof ServersIndexRoute
+  '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
+  '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
+  '/databases/': typeof AuthenticatedDatabasesIndexRoute
+  '/servers/': typeof AuthenticatedServersIndexRoute
   '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
   '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
-  '/databases/$sysId': typeof DatabasesSysIdRoute
-  '/servers/$sysId': typeof ServersSysIdRoute
-  '/databases': typeof DatabasesIndexRoute
-  '/servers': typeof ServersIndexRoute
+  '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
+  '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
+  '/databases': typeof AuthenticatedDatabasesIndexRoute
+  '/servers': typeof AuthenticatedServersIndexRoute
   '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
   '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
@@ -84,10 +88,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
-  '/databases/$sysId': typeof DatabasesSysIdRoute
-  '/servers/$sysId': typeof ServersSysIdRoute
-  '/databases/': typeof DatabasesIndexRoute
-  '/servers/': typeof ServersIndexRoute
+  '/_authenticated/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
+  '/_authenticated/servers/$sysId': typeof AuthenticatedServersSysIdRoute
+  '/_authenticated/databases/': typeof AuthenticatedDatabasesIndexRoute
+  '/_authenticated/servers/': typeof AuthenticatedServersIndexRoute
   '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
   '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
@@ -116,10 +120,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/api'
-    | '/databases/$sysId'
-    | '/servers/$sysId'
-    | '/databases/'
-    | '/servers/'
+    | '/_authenticated/databases/$sysId'
+    | '/_authenticated/servers/$sysId'
+    | '/_authenticated/databases/'
+    | '/_authenticated/servers/'
     | '/api/public/now/table/$table'
     | '/api/public/now/table/$table/$sysId'
   fileRoutesById: FileRoutesById
@@ -127,10 +131,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiRoute: typeof ApiRouteWithChildren
-  DatabasesSysIdRoute: typeof DatabasesSysIdRoute
-  ServersSysIdRoute: typeof ServersSysIdRoute
-  DatabasesIndexRoute: typeof DatabasesIndexRoute
-  ServersIndexRoute: typeof ServersIndexRoute
+  AuthenticatedDatabasesSysIdRoute: typeof AuthenticatedDatabasesSysIdRoute
+  AuthenticatedServersSysIdRoute: typeof AuthenticatedServersSysIdRoute
+  AuthenticatedDatabasesIndexRoute: typeof AuthenticatedDatabasesIndexRoute
+  AuthenticatedServersIndexRoute: typeof AuthenticatedServersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -149,32 +153,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/databases/': {
-      id: '/databases/'
+    '/_authenticated/databases/': {
+      id: '/_authenticated/databases/'
       path: '/databases'
       fullPath: '/databases/'
-      preLoaderRoute: typeof DatabasesIndexRouteImport
+      preLoaderRoute: typeof AuthenticatedDatabasesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/databases/$sysId': {
-      id: '/databases/$sysId'
+    '/_authenticated/databases/$sysId': {
+      id: '/_authenticated/databases/$sysId'
       path: '/databases/$sysId'
       fullPath: '/databases/$sysId'
-      preLoaderRoute: typeof DatabasesSysIdRouteImport
+      preLoaderRoute: typeof AuthenticatedDatabasesSysIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/servers/': {
-      id: '/servers/'
+    '/_authenticated/servers/': {
+      id: '/_authenticated/servers/'
       path: '/servers'
       fullPath: '/servers/'
-      preLoaderRoute: typeof ServersIndexRouteImport
+      preLoaderRoute: typeof AuthenticatedServersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/servers/$sysId': {
-      id: '/servers/$sysId'
+    '/_authenticated/servers/$sysId': {
+      id: '/_authenticated/servers/$sysId'
       path: '/servers/$sysId'
       fullPath: '/servers/$sysId'
-      preLoaderRoute: typeof ServersSysIdRouteImport
+      preLoaderRoute: typeof AuthenticatedServersSysIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/now/table/$table': {
@@ -221,10 +225,10 @@ const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiRoute: ApiRouteWithChildren,
-  DatabasesSysIdRoute: DatabasesSysIdRoute,
-  ServersSysIdRoute: ServersSysIdRoute,
-  DatabasesIndexRoute: DatabasesIndexRoute,
-  ServersIndexRoute: ServersIndexRoute,
+  AuthenticatedDatabasesSysIdRoute: AuthenticatedDatabasesSysIdRoute,
+  AuthenticatedServersSysIdRoute: AuthenticatedServersSysIdRoute,
+  AuthenticatedDatabasesIndexRoute: AuthenticatedDatabasesIndexRoute,
+  AuthenticatedServersIndexRoute: AuthenticatedServersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

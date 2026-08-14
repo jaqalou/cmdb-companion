@@ -6,7 +6,7 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 import { serversQuery } from "@/lib/cmdb-data";
 import { SERVER_FIELDS } from "@/lib/cmdb-schema";
 
-export const Route = createFileRoute("/servers/")({
+export const Route = createFileRoute("/_authenticated/servers/")({
   head: () => ({
     meta: [
       { title: "Server CI Class — Nordbryg CMDB" },
