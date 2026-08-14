@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiRouteImport } from './routes/api'
 import { Route as DatabasesIndexRouteImport } from './routes/databases/index'
 import { Route as DatabasesSysIdRouteImport } from './routes/databases/$sysId'
 import { Route as ServersIndexRouteImport } from './routes/servers/index'
@@ -20,6 +21,11 @@ import { Route as ApiPublicNowTableTableSysIdRouteImport } from './routes/api/pu
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRoute = ApiRouteImport.update({
+  id: '/api',
+  path: '/api',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DatabasesIndexRoute = DatabasesIndexRouteImport.update({
@@ -43,9 +49,9 @@ const ServersSysIdRoute = ServersSysIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicNowTableTableRoute = ApiPublicNowTableTableRouteImport.update({
-  id: '/api/public/now/table/$table',
-  path: '/api/public/now/table/$table',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/now/table/$table',
+  path: '/public/now/table/$table',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicNowTableTableSysIdRoute =
   ApiPublicNowTableTableSysIdRouteImport.update({
@@ -56,6 +62,7 @@ const ApiPublicNowTableTableSysIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api': typeof ApiRouteWithChildren
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
   '/databases/': typeof DatabasesIndexRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api': typeof ApiRouteWithChildren
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
   '/databases': typeof DatabasesIndexRoute
@@ -75,6 +83,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api': typeof ApiRouteWithChildren
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
   '/databases/': typeof DatabasesIndexRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/databases/'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/databases'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/databases/'
@@ -114,11 +126,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiRoute: typeof ApiRouteWithChildren
   DatabasesSysIdRoute: typeof DatabasesSysIdRoute
   ServersSysIdRoute: typeof ServersSysIdRoute
   DatabasesIndexRoute: typeof DatabasesIndexRoute
   ServersIndexRoute: typeof ServersIndexRoute
-  ApiPublicNowTableTableRoute: typeof ApiPublicNowTableTableRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -128,6 +140,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api': {
+      id: '/api'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof ApiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/databases/': {
@@ -160,10 +179,10 @@ declare module '@tanstack/react-router' {
     }
     '/api/public/now/table/$table': {
       id: '/api/public/now/table/$table'
-      path: '/api/public/now/table/$table'
+      path: '/public/now/table/$table'
       fullPath: '/api/public/now/table/$table'
       preLoaderRoute: typeof ApiPublicNowTableTableRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/now/table/$table/$sysId': {
       id: '/api/public/now/table/$table/$sysId'
@@ -189,13 +208,23 @@ const ApiPublicNowTableTableRouteWithChildren =
     ApiPublicNowTableTableRouteChildren,
   )
 
+interface ApiRouteChildren {
+  ApiPublicNowTableTableRoute: typeof ApiPublicNowTableTableRouteWithChildren
+}
+
+const ApiRouteChildren: ApiRouteChildren = {
+  ApiPublicNowTableTableRoute: ApiPublicNowTableTableRouteWithChildren,
+}
+
+const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiRoute: ApiRouteWithChildren,
   DatabasesSysIdRoute: DatabasesSysIdRoute,
   ServersSysIdRoute: ServersSysIdRoute,
   DatabasesIndexRoute: DatabasesIndexRoute,
   ServersIndexRoute: ServersIndexRoute,
-  ApiPublicNowTableTableRoute: ApiPublicNowTableTableRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
