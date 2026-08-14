@@ -215,6 +215,144 @@ export type Database = {
         }
         Relationships: []
       }
+      cmdb_ci_netgear_switch: {
+        Row: {
+          app_id: string | null
+          application_name: string | null
+          backup_status: string | null
+          business_functions: string | null
+          commission_ritm: string | null
+          deployment_date: string | null
+          environment: string | null
+          eol_date: string | null
+          firmware_version: string | null
+          gcc_managed: string | null
+          hostname: string
+          iit_ot: string | null
+          ip_gateway: string | null
+          maintenance_schedule: string | null
+          management_ip: string | null
+          management_vlan: string | null
+          manufacturer: string | null
+          model: string | null
+          monitoring: string | null
+          os_lifecycle: string | null
+          poe_capable: string | null
+          port_count: number | null
+          region: string | null
+          remarks: string | null
+          serial_number: string | null
+          site_address: string | null
+          sla: string | null
+          snmp_version: string | null
+          stack_member_count: number | null
+          stack_name: string | null
+          status: string | null
+          support_cycle: string | null
+          support_team: string | null
+          switch_role: string | null
+          sys_class_name: string
+          sys_created_on: string
+          sys_id: string
+          sys_updated_on: string
+          technical_owner: string | null
+          uplink_device: string | null
+          uplink_port: string | null
+          vlan_count: number | null
+          vm_location: string | null
+        }
+        Insert: {
+          app_id?: string | null
+          application_name?: string | null
+          backup_status?: string | null
+          business_functions?: string | null
+          commission_ritm?: string | null
+          deployment_date?: string | null
+          environment?: string | null
+          eol_date?: string | null
+          firmware_version?: string | null
+          gcc_managed?: string | null
+          hostname: string
+          iit_ot?: string | null
+          ip_gateway?: string | null
+          maintenance_schedule?: string | null
+          management_ip?: string | null
+          management_vlan?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          monitoring?: string | null
+          os_lifecycle?: string | null
+          poe_capable?: string | null
+          port_count?: number | null
+          region?: string | null
+          remarks?: string | null
+          serial_number?: string | null
+          site_address?: string | null
+          sla?: string | null
+          snmp_version?: string | null
+          stack_member_count?: number | null
+          stack_name?: string | null
+          status?: string | null
+          support_cycle?: string | null
+          support_team?: string | null
+          switch_role?: string | null
+          sys_class_name?: string
+          sys_created_on?: string
+          sys_id?: string
+          sys_updated_on?: string
+          technical_owner?: string | null
+          uplink_device?: string | null
+          uplink_port?: string | null
+          vlan_count?: number | null
+          vm_location?: string | null
+        }
+        Update: {
+          app_id?: string | null
+          application_name?: string | null
+          backup_status?: string | null
+          business_functions?: string | null
+          commission_ritm?: string | null
+          deployment_date?: string | null
+          environment?: string | null
+          eol_date?: string | null
+          firmware_version?: string | null
+          gcc_managed?: string | null
+          hostname?: string
+          iit_ot?: string | null
+          ip_gateway?: string | null
+          maintenance_schedule?: string | null
+          management_ip?: string | null
+          management_vlan?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          monitoring?: string | null
+          os_lifecycle?: string | null
+          poe_capable?: string | null
+          port_count?: number | null
+          region?: string | null
+          remarks?: string | null
+          serial_number?: string | null
+          site_address?: string | null
+          sla?: string | null
+          snmp_version?: string | null
+          stack_member_count?: number | null
+          stack_name?: string | null
+          status?: string | null
+          support_cycle?: string | null
+          support_team?: string | null
+          switch_role?: string | null
+          sys_class_name?: string
+          sys_created_on?: string
+          sys_id?: string
+          sys_updated_on?: string
+          technical_owner?: string | null
+          uplink_device?: string | null
+          uplink_port?: string | null
+          vlan_count?: number | null
+          vm_location?: string | null
+        }
+        Relationships: []
+      }
       cmdb_ci_server: {
         Row: {
           app_id: string | null
@@ -365,6 +503,147 @@ export type Database = {
           virtual_hostname?: string | null
           vm_location?: string | null
           vm_size?: string | null
+        }
+        Relationships: []
+      }
+      cmdb_ci_wap: {
+        Row: {
+          ap_name: string
+          app_id: string | null
+          application_name: string | null
+          business_functions: string | null
+          channel_width: string | null
+          client_capacity: number | null
+          commission_ritm: string | null
+          controller_ip: string | null
+          controller_name: string | null
+          deployment_date: string | null
+          environment: string | null
+          eol_date: string | null
+          firmware_version: string | null
+          floor_zone: string | null
+          gcc_managed: string | null
+          iit_ot: string | null
+          mac_address: string | null
+          maintenance_schedule: string | null
+          management_ip: string | null
+          management_vlan: string | null
+          manufacturer: string | null
+          model: string | null
+          monitoring: string | null
+          os_lifecycle: string | null
+          poe_port: string | null
+          poe_switch: string | null
+          radio_bands: string | null
+          region: string | null
+          remarks: string | null
+          serial_number: string | null
+          site_address: string | null
+          sla: string | null
+          ssid_list: string | null
+          status: string | null
+          support_cycle: string | null
+          support_team: string | null
+          sys_class_name: string
+          sys_created_on: string
+          sys_id: string
+          sys_updated_on: string
+          technical_owner: string | null
+          tx_power: string | null
+          vm_location: string | null
+          wifi_standard: string | null
+        }
+        Insert: {
+          ap_name: string
+          app_id?: string | null
+          application_name?: string | null
+          business_functions?: string | null
+          channel_width?: string | null
+          client_capacity?: number | null
+          commission_ritm?: string | null
+          controller_ip?: string | null
+          controller_name?: string | null
+          deployment_date?: string | null
+          environment?: string | null
+          eol_date?: string | null
+          firmware_version?: string | null
+          floor_zone?: string | null
+          gcc_managed?: string | null
+          iit_ot?: string | null
+          mac_address?: string | null
+          maintenance_schedule?: string | null
+          management_ip?: string | null
+          management_vlan?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          monitoring?: string | null
+          os_lifecycle?: string | null
+          poe_port?: string | null
+          poe_switch?: string | null
+          radio_bands?: string | null
+          region?: string | null
+          remarks?: string | null
+          serial_number?: string | null
+          site_address?: string | null
+          sla?: string | null
+          ssid_list?: string | null
+          status?: string | null
+          support_cycle?: string | null
+          support_team?: string | null
+          sys_class_name?: string
+          sys_created_on?: string
+          sys_id?: string
+          sys_updated_on?: string
+          technical_owner?: string | null
+          tx_power?: string | null
+          vm_location?: string | null
+          wifi_standard?: string | null
+        }
+        Update: {
+          ap_name?: string
+          app_id?: string | null
+          application_name?: string | null
+          business_functions?: string | null
+          channel_width?: string | null
+          client_capacity?: number | null
+          commission_ritm?: string | null
+          controller_ip?: string | null
+          controller_name?: string | null
+          deployment_date?: string | null
+          environment?: string | null
+          eol_date?: string | null
+          firmware_version?: string | null
+          floor_zone?: string | null
+          gcc_managed?: string | null
+          iit_ot?: string | null
+          mac_address?: string | null
+          maintenance_schedule?: string | null
+          management_ip?: string | null
+          management_vlan?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          monitoring?: string | null
+          os_lifecycle?: string | null
+          poe_port?: string | null
+          poe_switch?: string | null
+          radio_bands?: string | null
+          region?: string | null
+          remarks?: string | null
+          serial_number?: string | null
+          site_address?: string | null
+          sla?: string | null
+          ssid_list?: string | null
+          status?: string | null
+          support_cycle?: string | null
+          support_team?: string | null
+          sys_class_name?: string
+          sys_created_on?: string
+          sys_id?: string
+          sys_updated_on?: string
+          technical_owner?: string | null
+          tx_power?: string | null
+          vm_location?: string | null
+          wifi_standard?: string | null
         }
         Relationships: []
       }
