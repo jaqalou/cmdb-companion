@@ -9,16 +9,16 @@ import { WAP_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/access-points/")({
   head: () => ({
     meta: [
-      { title: "Access Point CI Class — Nordbryg CMDB" },
+      { title: "Access Point CI Class — CB Assets" },
       {
         name: "description",
         content:
           "Browse every wireless access point: model, firmware, controller, SSIDs, radio bands, PoE switch port and lifecycle.",
       },
-      { property: "og:title", content: "Access Point CI Class — Nordbryg CMDB" },
+      { property: "og:title", content: "Access Point CI Class — CB Assets" },
       {
         property: "og:description",
-        content: "Search, filter and export the wireless inventory in the Nordbryg CMDB.",
+        content: "Search, filter and export the wireless inventory in CB Assets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

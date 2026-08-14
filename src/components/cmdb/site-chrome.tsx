@@ -25,7 +25,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background">
       <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10">
         <Link to="/" className="font-display text-2xl uppercase tracking-tighter">
-          Nordbryg<span className="text-gold">.</span>
+          CB Assets<span className="text-gold">.</span>
         </Link>
         <nav className="hidden items-center gap-8 md:flex">
           {NAV.map((item) => (
@@ -88,7 +88,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-16 md:grid-cols-3 lg:px-10">
         <div>
           <p className="font-display text-3xl uppercase tracking-tighter">
-            Nordbryg<span className="text-gold">.</span>
+            CB Assets<span className="text-gold">.</span>
           </p>
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
             A single, trusted record of every server and database instance across the group —
@@ -144,7 +144,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t-2 border-foreground">
         <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:px-10">
-          <span>Nordbryg Group IT — internal configuration management platform.</span>
+          <span>CB Group IT — internal configuration management platform.</span>
           <span>Access is authenticated, role-based and logged.</span>
         </div>
       </div>

@@ -5,13 +5,13 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 export const Route = createFileRoute("/api")({
   head: () => ({
     meta: [
-      { title: "Table API Reference — Nordbryg CMDB" },
+      { title: "Table API Reference — CB Assets" },
       {
         name: "description",
         content:
           "ServiceNow-style Table API for the CMDB: encoded queries, field selection, pagination and record CRUD over REST.",
       },
-      { property: "og:title", content: "Table API Reference — Nordbryg CMDB" },
+      { property: "og:title", content: "Table API Reference — CB Assets" },
       {
         property: "og:description",
         content: "REST endpoints, encoded query operators and examples for the CMDB Table API.",

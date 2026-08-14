@@ -9,13 +9,13 @@ import { WAP_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/access-points/$sysId")({
   head: () => ({
     meta: [
-      { title: "Access point record — Nordbryg CMDB" },
+      { title: "Access point record — CB Assets" },
       {
         name: "description",
         content:
           "Full configuration item record for a single wireless access point, with all CMDB attributes.",
       },
-      { property: "og:title", content: "Access point record — Nordbryg CMDB" },
+      { property: "og:title", content: "Access point record — CB Assets" },
       { property: "og:description", content: "All CMDB attributes for this access point record." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

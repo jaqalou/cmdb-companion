@@ -9,12 +9,12 @@ import { INSTANCE_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/databases/$sysId")({
   head: () => ({
     meta: [
-      { title: "SQL instance record — Nordbryg CMDB" },
+      { title: "SQL instance record — CB Assets" },
       {
         name: "description",
         content: "Full configuration item record for a single SQL Server instance.",
       },
-      { property: "og:title", content: "SQL instance record — Nordbryg CMDB" },
+      { property: "og:title", content: "SQL instance record — CB Assets" },
       { property: "og:description", content: "All CMDB attributes for this SQL instance." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

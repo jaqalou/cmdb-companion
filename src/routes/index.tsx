@@ -9,13 +9,13 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Nordbryg CMDB — Configuration Management Platform" },
+      { title: "CB Assets — Configuration Management Platform" },
       {
         name: "description",
         content:
           "One trusted record of every server and SQL instance across the group, with a ServiceNow-style Table API for integrations.",
       },
-      { property: "og:title", content: "Nordbryg CMDB — Configuration Management Platform" },
+      { property: "og:title", content: "CB Assets — Configuration Management Platform" },
       {
         property: "og:description",
         content:
@@ -121,7 +121,7 @@ function Index() {
           </div>
           <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 border-t-2 border-foreground px-6 py-10 lg:px-10">
             <p className="max-w-xl text-sm font-medium">
-              Configuration records contain asset and personal data. Sign in with your Nordbryg
+              Configuration records contain asset and personal data. Sign in with your CB Assets
               account to view the inventory — access is role-based and every change is logged.
             </p>
             <Link to="/auth" className="btn-accent px-8 py-4">

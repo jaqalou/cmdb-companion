@@ -9,16 +9,16 @@ import { INSTANCE_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/databases/")({
   head: () => ({
     meta: [
-      { title: "SQL Instance CI Class — Nordbryg CMDB" },
+      { title: "SQL Instance CI Class — CB Assets" },
       {
         name: "description",
         content:
           "Browse every SQL Server instance: edition, build, port, capacity, backup schedule, service accounts and monitoring.",
       },
-      { property: "og:title", content: "SQL Instance CI Class — Nordbryg CMDB" },
+      { property: "og:title", content: "SQL Instance CI Class — CB Assets" },
       {
         property: "og:description",
-        content: "Search and filter the SQL inventory in the Nordbryg CMDB.",
+        content: "Search and filter the SQL inventory in CB Assets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

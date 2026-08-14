@@ -9,13 +9,13 @@ import { SWITCH_FIELDS } from "@/lib/cmdb-schema";
 export const Route = createFileRoute("/_authenticated/switches/$sysId")({
   head: () => ({
     meta: [
-      { title: "Network switch record — Nordbryg CMDB" },
+      { title: "Network switch record — CB Assets" },
       {
         name: "description",
         content:
           "Full configuration item record for a single network switch, with all CMDB attributes.",
       },
-      { property: "og:title", content: "Network switch record — Nordbryg CMDB" },
+      { property: "og:title", content: "Network switch record — CB Assets" },
       { property: "og:description", content: "All CMDB attributes for this switch record." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

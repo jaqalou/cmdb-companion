@@ -5,13 +5,13 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 export const Route = createFileRoute("/security")({
   head: () => ({
     meta: [
-      { title: "Security & NIS2 Measures — Nordbryg CMDB" },
+      { title: "Security & NIS2 Measures — CB Assets" },
       {
         name: "description",
         content:
           "Technical and organisational security measures implemented in the CMDB, mapped to NIS2 Article 21 risk-management obligations.",
       },
-      { property: "og:title", content: "Security & NIS2 Measures — Nordbryg CMDB" },
+      { property: "og:title", content: "Security & NIS2 Measures — CB Assets" },
       {
         property: "og:description",
         content: "Access control, logging, encryption and asset management mapped to NIS2 Art. 21.",
@@ -109,7 +109,7 @@ function SecurityPage() {
           <div className="gold-rule mt-3 mb-6" />
           <p className="text-muted-foreground">
             If you believe you have found a security weakness in this platform, report it to the
-            Nordbryg Group IT security team before disclosing it elsewhere. Include the affected
+            CB Group IT security team before disclosing it elsewhere. Include the affected
             URL, the steps to reproduce and the impact you observed. The security contact address
             and response targets should be confirmed by the security owner and added here.
           </p>
