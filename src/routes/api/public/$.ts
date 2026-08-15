@@ -1,5 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { API_DIALECTS } from "@/lib/cmdb-api/config";
+import {
+  resolveSnowTable,
+  snowDelete,
+  snowError,
+  snowGet,
+  snowInsert,
+  snowList,
+  snowUpdate,
+} from "@/lib/servicenow-api";
 import {
   addItems,
   deleteItem,
@@ -33,7 +43,40 @@ async function readBody(request: Request) {
 
 async function handler({ request, params }: Ctx) {
   const parts = segments(params);
+  const url0 = new URL(request.url);
+  const token0 = sessionToken(request);
+
+  // ServiceNow Table API: /api/public/now/table/{table}[/{sys_id}]
+  if (parts[0] === "now") {
+    if (!API_DIALECTS.servicenow)
+      return snowError("Not available", "ServiceNow dialect is disabled", 404);
+    if (parts[1] !== "table" || !parts[2])
+      return snowError("Invalid endpoint", "Expected /api/public/now/table/{table}", 404);
+    const cls = resolveSnowTable(parts[2]);
+    if (!cls) return snowError("Invalid table", `Table ${parts[2]} is not exposed`, 404);
+    const sysId = parts[3];
+    switch (request.method.toUpperCase()) {
+      case "GET":
+        return sysId
+          ? snowGet(cls.table, sysId, url0, token0)
+          : snowList(cls.table, url0, token0);
+      case "POST":
+        return snowInsert(cls.table, await readBody(request), token0);
+      case "PUT":
+      case "PATCH":
+        if (!sysId) return snowError("Invalid request", "A sys_id is required for updates", 400);
+        return snowUpdate(cls.table, sysId, await readBody(request), token0);
+      case "DELETE":
+        if (!sysId) return snowError("Invalid request", "A sys_id is required for deletes", 400);
+        return snowDelete(cls.table, sysId, token0);
+      default:
+        return snowError("Method not allowed", request.method, 405);
+    }
+  }
+
   if (parts[0] !== "apirest.php") return NOT_FOUND();
+  if (!API_DIALECTS.glpi)
+    return glpiError("ERROR_RESOURCE_NOT_FOUND", "GLPI dialect is disabled", 404);
 
   const url = new URL(request.url);
   const token = sessionToken(request);
