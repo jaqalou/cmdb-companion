@@ -101,9 +101,27 @@ function ApiDocs() {
           ))}
         </div>
 
-        <h2 className="mt-14 font-display text-3xl text-brand">Itemtypes</h2>
+        <h2 className="mt-14 font-display text-3xl text-brand">ServiceNow-compatible mode</h2>
         <div className="gold-rule mt-3 mb-6" />
-        <p className="sr-only">Itemtype to table mapping</p>
+        <p className="mb-6 max-w-3xl text-sm text-muted-foreground">
+          Both dialects run on one shared data core, so moving to ServiceNow is a routing change
+          rather than a rewrite. The Table API is live in parallel with GLPI: same tables, same
+          role-based access, ServiceNow request and response envelopes
+          (<span className="font-mono">sysparm_query</span>, <span className="font-mono">result</span>).
+        </p>
+        <div className="divide-y divide-foreground/10 border border-foreground/10 bg-card">
+          {SNOW_ENDPOINTS.map((e) => (
+            <div key={e.method + e.path} className="flex flex-wrap items-center gap-4 px-6 py-5">
+              <span className="w-20 font-mono text-xs font-semibold uppercase text-gold-foreground bg-gold px-2 py-1 text-center">
+                {e.method}
+              </span>
+              <span className="font-mono text-sm text-brand">{e.path}</span>
+              <span className="text-sm text-muted-foreground">{e.desc}</span>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="mt-14 font-display text-3xl text-brand">Itemtypes</h2>
         <div className="gold-rule mt-3 mb-6" />
         <dl className="divide-y divide-foreground/10 border border-foreground/10 bg-card rounded-[var(--radius)] px-6">
           {ITEMTYPE_ROWS.map(([itemtype, table]) => (
