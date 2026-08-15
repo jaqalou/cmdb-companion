@@ -254,7 +254,11 @@ export function CiList({
                         : "data-cell text-foreground/80"
                     }
                   >
-                    {value(r, c.name)}
+                    {i !== 0 && CHIP_FIELDS.has(c.name) && value(r, c.name) !== "—" ? (
+                      <span className="chip">{value(r, c.name)}</span>
+                    ) : (
+                      value(r, c.name)
+                    )}
                   </td>
                 ))}
                 <td className="data-cell text-right">
