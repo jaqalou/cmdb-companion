@@ -27,6 +27,18 @@ function value(record: CiRecord, field: string) {
   return v === null || v === undefined || v === "" ? "—" : String(v);
 }
 
+/** GLPI renders categorical columns as soft pills rather than plain text. */
+const CHIP_FIELDS = new Set([
+  "environment",
+  "status",
+  "region",
+  "sla",
+  "switch_role",
+  "edition",
+  "criticality",
+  "wifi_standard",
+]);
+
 export function CiList({
   records,
   columns,
@@ -242,7 +254,11 @@ export function CiList({
                         : "data-cell text-foreground/80"
                     }
                   >
-                    {value(r, c.name)}
+                    {i !== 0 && CHIP_FIELDS.has(c.name) && value(r, c.name) !== "—" ? (
+                      <span className="chip">{value(r, c.name)}</span>
+                    ) : (
+                      value(r, c.name)
+                    )}
                   </td>
                 ))}
                 <td className="data-cell text-right">
