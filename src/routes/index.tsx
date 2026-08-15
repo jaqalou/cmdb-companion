@@ -59,12 +59,12 @@ function Index() {
   }).length;
 
   const stats = [
-    { value: serverRows.length, label: "Server CIs" },
-    { value: instanceRows.length, label: "SQL instances" },
-    { value: switchRows.length, label: "Network switches" },
-    { value: apRows.length, label: "Access points" },
-    { value: production, label: "Production servers" },
-    { value: eolSoon, label: "Approaching EOL" },
+    { value: serverRows.length, label: "Server CIs", tone: "#fde68a" },
+    { value: instanceRows.length, label: "SQL instances", tone: "#bbf7d0" },
+    { value: switchRows.length, label: "Network switches", tone: "#fed7aa" },
+    { value: apRows.length, label: "Access points", tone: "#bfdbfe" },
+    { value: production, label: "Production servers", tone: "#e9d5ff" },
+    { value: eolSoon, label: "Approaching EOL", tone: "#fecaca" },
   ];
 
   return (
@@ -92,9 +92,9 @@ function Index() {
         <section className="mx-auto max-w-[1400px] px-6 pt-6 lg:px-8">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
             {stats.map((s) => (
-              <div key={s.label} className="brutal-card p-4">
-                <p className="font-display text-3xl text-primary">{s.value}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
+              <div key={s.label} className="kpi-tile" style={{ backgroundColor: s.tone }}>
+                <p className="font-display text-3xl font-bold">{s.value}</p>
+                <p className="mt-1 text-xs font-medium opacity-80">{s.label}</p>
               </div>
             ))}
           </div>
