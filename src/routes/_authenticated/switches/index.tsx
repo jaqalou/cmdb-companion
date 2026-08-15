@@ -44,11 +44,11 @@ function SwitchesPage() {
 
   return (
     <PageShell>
-      <section className="surface-brand">
-        <div className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10">
-          <p className="eyebrow text-gold">cmdb_ci_netgear_switch</p>
-          <h1 className="mt-4 font-display text-5xl md:text-6xl">Network Switches</h1>
-          <p className="mt-4 max-w-2xl text-brand-foreground/70">
+      <section className="border-b border-border bg-card">
+        <div className="mx-auto max-w-[1400px] px-6 py-5 lg:px-8">
+          <p className="eyebrow text-muted-foreground">cmdb_ci_netgear_switch</p>
+          <h1 className="mt-1 font-display text-2xl">Network Switches</h1>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Core, distribution and access layer — port counts, stacks, uplinks, VLANs, firmware
             levels and config backup posture across every site.
           </p>

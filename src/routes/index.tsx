@@ -69,167 +69,113 @@ function Index() {
 
   return (
     <PageShell>
-      <section className="mx-auto max-w-[1400px] px-6 pt-20 pb-16 lg:px-10 lg:pt-28">
-        <p className="eyebrow text-gold">Group IT · Configuration Management Database</p>
-        <h1 className="mt-6 text-[clamp(1.3rem,5.5vw,4rem)] leading-[0.92] uppercase">
-          Infrastructure
-          <br />
-          <span className="text-brand">mapped in sync.</span>
-        </h1>
-        <p className="mt-8 max-w-xl text-lg leading-relaxed font-medium opacity-90">
-          Four configuration item classes — servers, SQL instances, switches and access points —
-          exportable to CSV or JSON, and served by a developer-first, GLPI-compatible REST API.
-        </p>
-        <div className="mt-10 flex flex-wrap gap-4">
-          <Link to="/servers" className="btn-accent px-8 py-4">
-            Explore assets
-          </Link>
-          <Link to="/api" className="btn-outline px-8 py-4">
-            API reference
-          </Link>
+      <section className="border-b border-border bg-card">
+        <div className="mx-auto max-w-[1400px] px-6 py-5 lg:px-8">
+          <p className="eyebrow text-muted-foreground">Group IT · Configuration Management</p>
+          <h1 className="mt-1 font-display text-2xl">Asset inventory dashboard</h1>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            Four configuration item classes — servers, SQL instances, switches and access points —
+            exportable to CSV or JSON and served by a GLPI-compatible REST API.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link to="/servers" className="btn-accent h-9 px-4">
+              Browse assets
+            </Link>
+            <Link to="/api" className="btn-outline h-9 px-4">
+              API reference
+            </Link>
+          </div>
         </div>
       </section>
 
       {user ? (
-        <section className="border-y border-foreground/10 bg-sand">
-          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-3 lg:grid-cols-5 lg:divide-x lg:px-10">
+        <section className="mx-auto max-w-[1400px] px-6 pt-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
             {stats.map((s) => (
-              <div key={s.label} className="px-2 py-3 md:px-8 md:first:pl-0">
-                <p className="font-display text-5xl text-brand">{s.value}</p>
-                <p className="eyebrow mt-3 text-muted-foreground">{s.label}</p>
+              <div key={s.label} className="brutal-card p-4">
+                <p className="font-display text-3xl text-primary">{s.value}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
               </div>
             ))}
           </div>
         </section>
       ) : (
-        <section className="border-y border-foreground/10 bg-brand text-brand-foreground">
-          <div className="overflow-hidden py-4" aria-hidden="true">
-            <div className="marquee-track gap-10 text-[11px] font-bold tracking-[0.25em] whitespace-nowrap uppercase">
-              {Array.from({ length: 2 }).map((_, block) => (
-                <div key={block} className="flex gap-10">
-                  {Array.from({ length: 4 }).map((__, i) => (
-                    <span key={i} className="flex gap-10">
-                      <span>Restricted access context</span>
-                      <span>•</span>
-                      <span>Authentication required for live data</span>
-                      <span>•</span>
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 border-t border-foreground/10 px-6 py-10 lg:px-10">
-            <p className="max-w-xl text-sm font-medium">
+        <section className="mx-auto max-w-[1400px] px-6 pt-6 lg:px-8">
+          <div className="brutal-card flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-primary p-4">
+            <p className="max-w-xl text-sm text-muted-foreground">
               Configuration records contain asset and personal data. Sign in with your CB Assets
               account to view the inventory — access is role-based and every change is logged.
             </p>
-            <Link to="/auth" className="btn-accent px-8 py-4">
+            <Link to="/auth" className="btn-accent h-9 px-4">
               Sign in to continue
             </Link>
           </div>
         </section>
       )}
 
-      <section className="mx-auto max-w-[1400px] px-6 py-24 lg:px-10">
-        <p className="eyebrow text-muted-foreground">Configuration item classes</p>
-        <h2 className="mt-4 text-4xl uppercase md:text-5xl">Modelled from your inventory</h2>
+      <section className="mx-auto max-w-[1400px] px-6 py-6 lg:px-8">
+        <h2 className="font-display text-base font-semibold">Configuration item classes</h2>
 
-        <div className="mt-12 grid gap-8 [&>*]:min-w-0 md:grid-cols-3">
-          <Link
-            to="/servers"
-            className="brutal-card brutal-lift group flex min-h-[320px] flex-col justify-between p-8 md:col-span-2"
-          >
-            <div>
-              <div className="mb-6 flex items-start justify-between">
-                <span className="border border-gold px-2 py-1 font-mono text-[10px] font-bold tracking-[0.16em] text-gold uppercase">
-                  cmdb_ci_server
-                </span>
-                <span className="h-3 w-3 rounded-full bg-foreground" />
-              </div>
-              <h3 className="text-4xl uppercase md:text-5xl">Core server infrastructure</h3>
-              <p className="mt-4 max-w-md font-medium text-muted-foreground">
-                Hostname, region, environment and SLA tags, technical owner, VM sizing, OS
-                lifecycle, EOL dates, maintenance windows and backup status.
-              </p>
-            </div>
-            <div className="mt-8 flex items-end justify-between">
+        <div className="mt-3 grid gap-4 [&>*]:min-w-0 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              to: "/servers" as const,
+              table: "cmdb_ci_server",
+              title: "Servers",
+              count: 44,
+              text: "Hostname, region, environment and SLA tags, technical owner, VM sizing, OS lifecycle, EOL dates, maintenance windows and backup status.",
+            },
+            {
+              to: "/databases" as const,
+              table: "cmdb_ci_db_mssql_instance",
+              title: "SQL Server instances",
+              count: 47,
+              text: "Instance and listener names, edition and build, port, CPU, cores and memory, backup chains, CheckDB jobs, service accounts and monitoring.",
+            },
+            {
+              to: "/switches" as const,
+              table: "cmdb_ci_netgear_switch",
+              title: "Network switches",
+              count: 39,
+              text: "Core, distribution and access layer — ports, PoE, stacks, uplinks, VLANs, firmware levels and config backup posture.",
+            },
+            {
+              to: "/access-points" as const,
+              table: "cmdb_ci_wap",
+              title: "Wireless access points",
+              count: 40,
+              text: "Controllers, SSIDs, radio bands and channel width, client capacity, and the exact PoE switch port every radio hangs off.",
+            },
+          ].map((c) => (
+            <Link
+              key={c.table}
+              to={c.to}
+              className="brutal-card brutal-lift flex flex-col justify-between p-4"
+            >
               <div>
-                <span className="font-display text-6xl text-brand">44</span>
-                <span className="eyebrow mt-1 block">Standardised attributes</span>
+                <span className="font-mono text-[11px] text-primary">{c.table}</span>
+                <h3 className="mt-2 font-display text-lg">{c.title}</h3>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{c.text}</p>
               </div>
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-foreground/10 transition-colors group-hover:bg-gold">
-                →
-              </span>
-            </div>
-          </Link>
-
-          <Link
-            to="/databases"
-            className="brutal-shadow-accent brutal-lift brutal-border flex flex-col justify-between bg-foreground p-8 text-background"
-          >
-            <div>
-              <span className="font-mono text-[10px] font-bold tracking-[0.16em] text-gold uppercase">
-                cmdb_ci_db_mssql_instance
-              </span>
-              <h3 className="mt-6 text-3xl uppercase">SQL Server instances</h3>
-              <p className="mt-4 text-sm leading-relaxed font-medium opacity-70">
-                Instance and listener names, edition and build, port, CPU, cores and memory,
-                backup chains, CheckDB and index jobs, service accounts and monitoring.
+              <p className="mt-4 text-xs text-muted-foreground">
+                <span className="font-display text-xl text-foreground">{c.count}</span> attributes
               </p>
-            </div>
-            <div className="mt-12">
-              <div className="font-display text-5xl">47</div>
-              <div className="eyebrow mt-2 opacity-50">Metadata fields</div>
-            </div>
-          </Link>
+            </Link>
+          ))}
+        </div>
 
-          <Link
-            to="/switches"
-            className="brutal-card brutal-lift group flex min-h-[260px] flex-col justify-between p-8"
-          >
-            <div>
-              <span className="font-mono text-[10px] font-bold tracking-[0.16em] text-gold uppercase">
-                cmdb_ci_netgear_switch
-              </span>
-              <h3 className="mt-6 text-3xl uppercase">Network switches</h3>
-              <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
-                Core, distribution and access layer — ports, PoE, stacks, uplinks, VLANs, firmware
-                levels and config backup posture.
-              </p>
-            </div>
-            <div className="mt-8 font-display text-5xl text-brand">39</div>
-          </Link>
-
-          <Link
-            to="/access-points"
-            className="brutal-card brutal-lift group flex min-h-[260px] flex-col justify-between p-8 md:col-span-2"
-          >
-            <div>
-              <span className="font-mono text-[10px] font-bold tracking-[0.16em] text-gold uppercase">
-                cmdb_ci_wap
-              </span>
-              <h3 className="mt-6 text-3xl uppercase md:text-4xl">Wireless access points</h3>
-              <p className="mt-4 max-w-md text-sm leading-relaxed font-medium text-muted-foreground">
-                Controllers, SSIDs, radio bands and channel width, client capacity, and the exact
-                PoE switch port every radio hangs off.
-              </p>
-            </div>
-            <div className="mt-8 font-display text-5xl text-brand">40</div>
-          </Link>
-
-          <div className="brutal-border min-w-0 flex flex-col items-start justify-between gap-8 border-dashed p-8 md:col-span-3 md:flex-row md:items-center">
+        <div className="brutal-card mt-4 flex flex-col items-start justify-between gap-4 p-4 md:flex-row md:items-center">
             <div className="max-w-md">
-              <h3 className="text-2xl uppercase">GLPI API integration</h3>
-              <p className="mt-2 text-sm font-medium text-muted-foreground">
+              <h3 className="font-display text-base font-semibold">GLPI API integration</h3>
+              <p className="mt-1 text-[13px] text-muted-foreground">
                 The same <span className="font-mono">apirest.php</span> URL shape, itemtypes and
                 criteria your GLPI scripts already speak.
               </p>
-              <Link to="/api" className="btn-outline mt-6 px-6 py-3">
+              <Link to="/api" className="btn-outline mt-3 h-9 px-4">
                 Read the reference
               </Link>
             </div>
-            <pre className="brutal-border brutal-shadow-sm w-full min-w-0 max-w-full overflow-x-auto bg-card p-5 font-mono text-xs leading-relaxed md:w-auto">
+            <pre className="w-full min-w-0 max-w-full overflow-x-auto rounded-md bg-brand-deep p-4 font-mono text-xs leading-relaxed text-brand-foreground md:w-auto">
 {`GET /api/public/apirest.php/search/Computer
     ?criteria[0][field]=environment
     &criteria[0][searchtype]=equals
@@ -237,7 +183,6 @@ function Index() {
     &forcedisplay=hostname,application_name,eol_date
     &range=0-9`}
             </pre>
-          </div>
         </div>
       </section>
     </PageShell>

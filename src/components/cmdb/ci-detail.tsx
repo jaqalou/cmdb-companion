@@ -21,25 +21,29 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
 
   return (
     <div>
-      <section className="border-b border-foreground/10 bg-foreground text-background">
-        <div className="mx-auto max-w-[1400px] px-6 py-14 lg:px-10">
-          <Link to={backTo} className="eyebrow text-gold hover:underline">
-            ← {backLabel}
-          </Link>
-          <h1 className="mt-6 text-5xl uppercase md:text-6xl">{title}</h1>
-          <p className="mt-3 font-medium opacity-70">{subtitle}</p>
-          <dl className="mt-8 grid gap-6 border-t-2 border-background/20 pt-6 text-sm sm:grid-cols-3">
+      <section className="border-b border-border bg-card">
+        <div className="mx-auto max-w-[1400px] px-6 py-5 lg:px-8">
+          <nav className="flex items-center gap-2 text-[12px] text-muted-foreground">
+            <Link to={backTo} className="hover:text-primary hover:underline">
+              {backLabel}
+            </Link>
+            <span>/</span>
+            <span className="font-mono">{sysId.slice(0, 8)}</span>
+          </nav>
+          <h1 className="mt-1 font-display text-2xl">{title}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+          <dl className="mt-4 grid gap-4 border-t border-border pt-3 text-sm sm:grid-cols-3">
             <div>
-              <dt className="eyebrow text-gold">sys_id</dt>
-              <dd className="mt-2 font-mono text-xs break-all opacity-80">{sysId}</dd>
+              <dt className="eyebrow text-muted-foreground">sys_id</dt>
+              <dd className="mt-1 font-mono text-xs break-all">{sysId}</dd>
             </div>
             <div>
-              <dt className="eyebrow text-gold">Class</dt>
-              <dd className="mt-2 font-mono text-xs opacity-80">{table}</dd>
+              <dt className="eyebrow text-muted-foreground">Class</dt>
+              <dd className="mt-1 font-mono text-xs">{table}</dd>
             </div>
             <div>
-              <dt className="eyebrow text-gold">Last updated</dt>
-              <dd className="mt-2 opacity-80">
+              <dt className="eyebrow text-muted-foreground">Last updated</dt>
+              <dd className="mt-1 text-xs">
                 {new Date(String(record["sys_updated_on"])).toLocaleString()}
               </dd>
             </div>
@@ -47,15 +51,16 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10">
-        <div className="grid gap-12 lg:grid-cols-2">
+      <section className="mx-auto max-w-[1400px] px-6 py-6 lg:px-8">
+        <div className="grid gap-5 lg:grid-cols-2">
           {groups.map((g) => (
-            <div key={g.group} className="brutal-card p-6">
-              <h2 className="text-2xl uppercase">{g.group}</h2>
-              <div className="gold-rule mt-3 mb-5" />
-              <dl className="divide-y divide-foreground/10">
+            <div key={g.group} className="brutal-card overflow-hidden">
+              <h2 className="border-b border-border bg-secondary px-4 py-2 text-[13px] font-semibold uppercase tracking-[0.06em]">
+                {g.group}
+              </h2>
+              <dl className="divide-y divide-border">
                 {g.fields.map((f) => (
-                  <div key={f.name} className="grid grid-cols-2 gap-4 py-3 text-sm">
+                  <div key={f.name} className="grid grid-cols-2 gap-4 px-4 py-2 text-[13px]">
                     <dt className="text-muted-foreground">{f.label}</dt>
                     <dd className="font-medium text-foreground">
                       {record[f.name] === null || record[f.name] === undefined || record[f.name] === ""
@@ -69,9 +74,9 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
           ))}
         </div>
 
-        <div className="brutal-card mt-16 p-6">
+        <div className="brutal-card mt-6 p-4">
           <p className="eyebrow text-muted-foreground">Fetch this record via the REST API</p>
-          <pre className="mt-4 overflow-x-auto border border-foreground/10 bg-foreground p-5 font-mono text-xs text-background">
+          <pre className="mt-2 overflow-x-auto rounded-md bg-brand-deep p-4 font-mono text-xs text-brand-foreground">
 {`GET /api/public/apirest.php/${TABLE_TO_ITEMTYPE[table] ?? table}/${sysId}`}
           </pre>
         </div>
