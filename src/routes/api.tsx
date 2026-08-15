@@ -41,6 +41,14 @@ const ITEMTYPE_ROWS = [
   ["AccessPoint", "cmdb_ci_wap"],
 ];
 
+const SNOW_ENDPOINTS = [
+  { method: "GET", path: "/api/public/now/table/{table}", desc: "List records with sysparm_query, sysparm_fields, sysparm_limit, sysparm_offset." },
+  { method: "GET", path: "/api/public/now/table/{table}/{sys_id}", desc: "Retrieve one record." },
+  { method: "POST", path: "/api/public/now/table/{table}", desc: "Insert a record (plain JSON body)." },
+  { method: "PATCH", path: "/api/public/now/table/{table}/{sys_id}", desc: "Update a record." },
+  { method: "DELETE", path: "/api/public/now/table/{table}/{sys_id}", desc: "Delete a record (204 on success)." },
+];
+
 const PARAMS = [
   ["range", "Inclusive slice of results, e.g. 0-49 (max 1000 per call)"],
   ["forcedisplay", "Comma-separated list of fields to return"],
@@ -83,6 +91,26 @@ function ApiDocs() {
         <div className="gold-rule mt-3 mb-6" />
         <div className="divide-y divide-foreground/10 border border-foreground/10 bg-card">
           {ENDPOINTS.map((e) => (
+            <div key={e.method + e.path} className="flex flex-wrap items-center gap-4 px-6 py-5">
+              <span className="w-20 font-mono text-xs font-semibold uppercase text-gold-foreground bg-gold px-2 py-1 text-center">
+                {e.method}
+              </span>
+              <span className="font-mono text-sm text-brand">{e.path}</span>
+              <span className="text-sm text-muted-foreground">{e.desc}</span>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="mt-14 font-display text-3xl text-brand">ServiceNow-compatible mode</h2>
+        <div className="gold-rule mt-3 mb-6" />
+        <p className="mb-6 max-w-3xl text-sm text-muted-foreground">
+          Both dialects run on one shared data core, so moving to ServiceNow is a routing change
+          rather than a rewrite. The Table API is live in parallel with GLPI: same tables, same
+          role-based access, ServiceNow request and response envelopes
+          (<span className="font-mono">sysparm_query</span>, <span className="font-mono">result</span>).
+        </p>
+        <div className="divide-y divide-foreground/10 border border-foreground/10 bg-card">
+          {SNOW_ENDPOINTS.map((e) => (
             <div key={e.method + e.path} className="flex flex-wrap items-center gap-4 px-6 py-5">
               <span className="w-20 font-mono text-xs font-semibold uppercase text-gold-foreground bg-gold px-2 py-1 text-center">
                 {e.method}
