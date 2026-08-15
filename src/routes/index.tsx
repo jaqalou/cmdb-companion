@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "One trusted record of every server and SQL instance across the group, with a ServiceNow-style Table API for integrations.",
+          "One trusted record of every server and SQL instance across the group, with a GLPI-compatible REST API for integrations.",
       },
       { property: "og:title", content: "CB Assets — Configuration Management Platform" },
       {
@@ -78,7 +78,7 @@ function Index() {
         </h1>
         <p className="mt-8 max-w-xl text-lg leading-relaxed font-medium opacity-90">
           Four configuration item classes — servers, SQL instances, switches and access points —
-          exportable to CSV or JSON, and served by a developer-first Table API.
+          exportable to CSV or JSON, and served by a developer-first, GLPI-compatible REST API.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
           <Link to="/servers" className="btn-accent px-8 py-4">
@@ -220,20 +220,22 @@ function Index() {
 
           <div className="brutal-border min-w-0 flex flex-col items-start justify-between gap-8 border-dashed p-8 md:col-span-3 md:flex-row md:items-center">
             <div className="max-w-md">
-              <h3 className="text-2xl uppercase">Table API integration</h3>
+              <h3 className="text-2xl uppercase">GLPI API integration</h3>
               <p className="mt-2 text-sm font-medium text-muted-foreground">
-                The same URL shape and <span className="font-mono">sysparm_</span> parameters your
-                scripts already use, returning the standard result envelope.
+                The same <span className="font-mono">apirest.php</span> URL shape, itemtypes and
+                criteria your GLPI scripts already speak.
               </p>
               <Link to="/api" className="btn-outline mt-6 px-6 py-3">
                 Read the reference
               </Link>
             </div>
             <pre className="brutal-border brutal-shadow-sm w-full min-w-0 max-w-full overflow-x-auto bg-card p-5 font-mono text-xs leading-relaxed md:w-auto">
-{`GET /api/public/now/table/cmdb_ci_server
-    ?sysparm_query=environment=Production^region=EMEA
-    &sysparm_fields=hostname,application_name,eol_date
-    &sysparm_limit=10`}
+{`GET /api/public/apirest.php/search/Computer
+    ?criteria[0][field]=environment
+    &criteria[0][searchtype]=equals
+    &criteria[0][value]=Production
+    &forcedisplay=hostname,application_name,eol_date
+    &range=0-9`}
             </pre>
           </div>
         </div>
