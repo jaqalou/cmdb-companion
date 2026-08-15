@@ -72,7 +72,7 @@ function PrivacyPage() {
         <div>
           <h2 className="font-display text-3xl text-brand">Record of processing</h2>
           <div className="gold-rule mt-3 mb-6" />
-          <div className="overflow-x-auto border-2 border-foreground">
+          <div className="overflow-x-auto border border-foreground/10">
             <table className="w-full min-w-[860px] text-left text-sm">
               <thead className="bg-sand">
                 <tr>
@@ -83,7 +83,7 @@ function PrivacyPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y-2 divide-foreground bg-card">
+              <tbody className="divide-y divide-foreground/10 bg-card">
                 {REGISTER.map((row) => (
                   <tr key={row[0]}>
                     {row.map((cell, i) => (
@@ -108,7 +108,7 @@ function PrivacyPage() {
         <div>
           <h2 className="font-display text-3xl text-brand">Your rights</h2>
           <div className="gold-rule mt-3 mb-6" />
-          <dl className="max-w-3xl divide-y-2 divide-foreground">
+          <dl className="max-w-3xl divide-y divide-foreground/10">
             {RIGHTS.map(([right, detail]) => (
               <div key={right} className="py-4">
                 <dt className="font-medium text-brand">{right}</dt>

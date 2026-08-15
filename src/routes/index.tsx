@@ -13,13 +13,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "One trusted record of every server and SQL instance across the group, with a ServiceNow-style Table API for integrations.",
+          "One trusted record of every server and SQL instance across the group, with a GLPI-compatible REST API for integrations.",
       },
       { property: "og:title", content: "CB Assets — Configuration Management Platform" },
       {
         property: "og:description",
         content:
-          "Browse servers and SQL instances, filter by environment and region, and integrate via the Table API.",
+          "Browse servers and SQL instances, filter by environment and region, and integrate via the GLPI-compatible REST API.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -78,7 +78,7 @@ function Index() {
         </h1>
         <p className="mt-8 max-w-xl text-lg leading-relaxed font-medium opacity-90">
           Four configuration item classes — servers, SQL instances, switches and access points —
-          exportable to CSV or JSON, and served by a developer-first Table API.
+          exportable to CSV or JSON, and served by a developer-first, GLPI-compatible REST API.
         </p>
         <div className="mt-10 flex flex-wrap gap-4">
           <Link to="/servers" className="btn-accent px-8 py-4">
@@ -91,8 +91,8 @@ function Index() {
       </section>
 
       {user ? (
-        <section className="border-y-2 border-foreground bg-sand">
-          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-3 lg:grid-cols-5 lg:divide-x-2 lg:px-10">
+        <section className="border-y border-foreground/10 bg-sand">
+          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-3 lg:grid-cols-5 lg:divide-x lg:px-10">
             {stats.map((s) => (
               <div key={s.label} className="px-2 py-3 md:px-8 md:first:pl-0">
                 <p className="font-display text-5xl text-brand">{s.value}</p>
@@ -102,7 +102,7 @@ function Index() {
           </div>
         </section>
       ) : (
-        <section className="border-y-2 border-foreground bg-brand text-brand-foreground">
+        <section className="border-y border-foreground/10 bg-brand text-brand-foreground">
           <div className="overflow-hidden py-4" aria-hidden="true">
             <div className="marquee-track gap-10 text-[11px] font-bold tracking-[0.25em] whitespace-nowrap uppercase">
               {Array.from({ length: 2 }).map((_, block) => (
@@ -119,7 +119,7 @@ function Index() {
               ))}
             </div>
           </div>
-          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 border-t-2 border-foreground px-6 py-10 lg:px-10">
+          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 border-t border-foreground/10 px-6 py-10 lg:px-10">
             <p className="max-w-xl text-sm font-medium">
               Configuration records contain asset and personal data. Sign in with your CB Assets
               account to view the inventory — access is role-based and every change is logged.
@@ -158,7 +158,7 @@ function Index() {
                 <span className="font-display text-6xl text-brand">44</span>
                 <span className="eyebrow mt-1 block">Standardised attributes</span>
               </div>
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-foreground transition-colors group-hover:bg-gold">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-foreground/10 transition-colors group-hover:bg-gold">
                 →
               </span>
             </div>
@@ -220,20 +220,22 @@ function Index() {
 
           <div className="brutal-border min-w-0 flex flex-col items-start justify-between gap-8 border-dashed p-8 md:col-span-3 md:flex-row md:items-center">
             <div className="max-w-md">
-              <h3 className="text-2xl uppercase">Table API integration</h3>
+              <h3 className="text-2xl uppercase">GLPI API integration</h3>
               <p className="mt-2 text-sm font-medium text-muted-foreground">
-                The same URL shape and <span className="font-mono">sysparm_</span> parameters your
-                scripts already use, returning the standard result envelope.
+                The same <span className="font-mono">apirest.php</span> URL shape, itemtypes and
+                criteria your GLPI scripts already speak.
               </p>
               <Link to="/api" className="btn-outline mt-6 px-6 py-3">
                 Read the reference
               </Link>
             </div>
             <pre className="brutal-border brutal-shadow-sm w-full min-w-0 max-w-full overflow-x-auto bg-card p-5 font-mono text-xs leading-relaxed md:w-auto">
-{`GET /api/public/now/table/cmdb_ci_server
-    ?sysparm_query=environment=Production^region=EMEA
-    &sysparm_fields=hostname,application_name,eol_date
-    &sysparm_limit=10`}
+{`GET /api/public/apirest.php/search/Computer
+    ?criteria[0][field]=environment
+    &criteria[0][searchtype]=equals
+    &criteria[0][value]=Production
+    &forcedisplay=hostname,application_name,eol_date
+    &range=0-9`}
             </pre>
           </div>
         </div>

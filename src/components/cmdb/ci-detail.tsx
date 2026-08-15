@@ -13,13 +13,15 @@ type Props = {
   backLabel: string;
 };
 
+import { TABLE_TO_ITEMTYPE } from "@/lib/glpi-itemtypes";
+
 export function CiDetail({ record, fields, table, title, subtitle, backTo, backLabel }: Props) {
   const groups = groupFields(fields);
   const sysId = String(record["sys_id"]);
 
   return (
     <div>
-      <section className="border-b-2 border-foreground bg-foreground text-background">
+      <section className="border-b border-foreground/10 bg-foreground text-background">
         <div className="mx-auto max-w-[1400px] px-6 py-14 lg:px-10">
           <Link to={backTo} className="eyebrow text-gold hover:underline">
             ← {backLabel}
@@ -68,9 +70,9 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
         </div>
 
         <div className="brutal-card mt-16 p-6">
-          <p className="eyebrow text-muted-foreground">Fetch this record via the Table API</p>
-          <pre className="mt-4 overflow-x-auto border-2 border-foreground bg-foreground p-5 font-mono text-xs text-background">
-{`GET /api/public/now/table/${table}/${sysId}`}
+          <p className="eyebrow text-muted-foreground">Fetch this record via the REST API</p>
+          <pre className="mt-4 overflow-x-auto border border-foreground/10 bg-foreground p-5 font-mono text-xs text-background">
+{`GET /api/public/apirest.php/${TABLE_TO_ITEMTYPE[table] ?? table}/${sysId}`}
           </pre>
         </div>
       </section>

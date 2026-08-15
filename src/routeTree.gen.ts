@@ -23,8 +23,7 @@ import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedServersSysIdRouteImport } from './routes/_authenticated/servers/$sysId'
 import { Route as AuthenticatedSwitchesIndexRouteImport } from './routes/_authenticated/switches/index'
 import { Route as AuthenticatedSwitchesSysIdRouteImport } from './routes/_authenticated/switches/$sysId'
-import { Route as ApiPublicNowTableTableRouteImport } from './routes/api/public/now/table/$table'
-import { Route as ApiPublicNowTableTableSysIdRouteImport } from './routes/api/public/now/table/$table.$sysId'
+import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -103,17 +102,11 @@ const AuthenticatedSwitchesSysIdRoute =
     path: '/switches/$sysId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const ApiPublicNowTableTableRoute = ApiPublicNowTableTableRouteImport.update({
-  id: '/public/now/table/$table',
-  path: '/public/now/table/$table',
+const ApiPublicSplatRoute = ApiPublicSplatRouteImport.update({
+  id: '/public/$',
+  path: '/public/$',
   getParentRoute: () => ApiRoute,
 } as any)
-const ApiPublicNowTableTableSysIdRoute =
-  ApiPublicNowTableTableSysIdRouteImport.update({
-    id: '/$sysId',
-    path: '/$sysId',
-    getParentRoute: () => ApiPublicNowTableTableRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -125,12 +118,11 @@ export interface FileRoutesByFullPath {
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/api/public/$': typeof ApiPublicSplatRoute
   '/access-points/': typeof AuthenticatedAccessPointsIndexRoute
   '/databases/': typeof AuthenticatedDatabasesIndexRoute
   '/servers/': typeof AuthenticatedServersIndexRoute
   '/switches/': typeof AuthenticatedSwitchesIndexRoute
-  '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
-  '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,12 +134,11 @@ export interface FileRoutesByTo {
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/api/public/$': typeof ApiPublicSplatRoute
   '/access-points': typeof AuthenticatedAccessPointsIndexRoute
   '/databases': typeof AuthenticatedDatabasesIndexRoute
   '/servers': typeof AuthenticatedServersIndexRoute
   '/switches': typeof AuthenticatedSwitchesIndexRoute
-  '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
-  '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,12 +152,11 @@ export interface FileRoutesById {
   '/_authenticated/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/_authenticated/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/_authenticated/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/api/public/$': typeof ApiPublicSplatRoute
   '/_authenticated/access-points/': typeof AuthenticatedAccessPointsIndexRoute
   '/_authenticated/databases/': typeof AuthenticatedDatabasesIndexRoute
   '/_authenticated/servers/': typeof AuthenticatedServersIndexRoute
   '/_authenticated/switches/': typeof AuthenticatedSwitchesIndexRoute
-  '/api/public/now/table/$table': typeof ApiPublicNowTableTableRouteWithChildren
-  '/api/public/now/table/$table/$sysId': typeof ApiPublicNowTableTableSysIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,12 +170,11 @@ export interface FileRouteTypes {
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
+    | '/api/public/$'
     | '/access-points/'
     | '/databases/'
     | '/servers/'
     | '/switches/'
-    | '/api/public/now/table/$table'
-    | '/api/public/now/table/$table/$sysId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -197,12 +186,11 @@ export interface FileRouteTypes {
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
+    | '/api/public/$'
     | '/access-points'
     | '/databases'
     | '/servers'
     | '/switches'
-    | '/api/public/now/table/$table'
-    | '/api/public/now/table/$table/$sysId'
   id:
     | '__root__'
     | '/'
@@ -215,12 +203,11 @@ export interface FileRouteTypes {
     | '/_authenticated/databases/$sysId'
     | '/_authenticated/servers/$sysId'
     | '/_authenticated/switches/$sysId'
+    | '/api/public/$'
     | '/_authenticated/access-points/'
     | '/_authenticated/databases/'
     | '/_authenticated/servers/'
     | '/_authenticated/switches/'
-    | '/api/public/now/table/$table'
-    | '/api/public/now/table/$table/$sysId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -332,19 +319,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSwitchesSysIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/now/table/$table': {
-      id: '/api/public/now/table/$table'
-      path: '/public/now/table/$table'
-      fullPath: '/api/public/now/table/$table'
-      preLoaderRoute: typeof ApiPublicNowTableTableRouteImport
+    '/api/public/$': {
+      id: '/api/public/$'
+      path: '/public/$'
+      fullPath: '/api/public/$'
+      preLoaderRoute: typeof ApiPublicSplatRouteImport
       parentRoute: typeof ApiRoute
-    }
-    '/api/public/now/table/$table/$sysId': {
-      id: '/api/public/now/table/$table/$sysId'
-      path: '/$sysId'
-      fullPath: '/api/public/now/table/$table/$sysId'
-      preLoaderRoute: typeof ApiPublicNowTableTableSysIdRouteImport
-      parentRoute: typeof ApiPublicNowTableTableRoute
     }
   }
 }
@@ -374,26 +354,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface ApiPublicNowTableTableRouteChildren {
-  ApiPublicNowTableTableSysIdRoute: typeof ApiPublicNowTableTableSysIdRoute
-}
-
-const ApiPublicNowTableTableRouteChildren: ApiPublicNowTableTableRouteChildren =
-  {
-    ApiPublicNowTableTableSysIdRoute: ApiPublicNowTableTableSysIdRoute,
-  }
-
-const ApiPublicNowTableTableRouteWithChildren =
-  ApiPublicNowTableTableRoute._addFileChildren(
-    ApiPublicNowTableTableRouteChildren,
-  )
-
 interface ApiRouteChildren {
-  ApiPublicNowTableTableRoute: typeof ApiPublicNowTableTableRouteWithChildren
+  ApiPublicSplatRoute: typeof ApiPublicSplatRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
-  ApiPublicNowTableTableRoute: ApiPublicNowTableTableRouteWithChildren,
+  ApiPublicSplatRoute: ApiPublicSplatRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
