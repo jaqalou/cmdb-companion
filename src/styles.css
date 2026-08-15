@@ -118,25 +118,25 @@
 }
 
 .dark {
-  --background: oklch(0.171 0.004 96);
-  --foreground: oklch(0.971 0.007 85);
-  --card: oklch(0.221 0.004 96);
-  --card-foreground: oklch(0.971 0.007 85);
-  --popover: oklch(0.221 0.004 96);
-  --popover-foreground: oklch(0.971 0.007 85);
-  --primary: oklch(0.72 0.184 41);
-  --primary-foreground: oklch(0.171 0.004 96);
-  --secondary: oklch(0.27 0.006 96);
-  --secondary-foreground: oklch(0.971 0.007 85);
-  --muted: oklch(0.27 0.006 96);
-  --muted-foreground: oklch(0.72 0.008 92);
-  --accent: oklch(0.72 0.184 41);
-  --accent-foreground: oklch(0.171 0.004 96);
+  --background: oklch(0.196 0.018 262);
+  --foreground: oklch(0.95 0.004 250);
+  --card: oklch(0.245 0.02 262);
+  --card-foreground: oklch(0.95 0.004 250);
+  --popover: oklch(0.245 0.02 262);
+  --popover-foreground: oklch(0.95 0.004 250);
+  --primary: oklch(0.66 0.145 253);
+  --primary-foreground: oklch(0.16 0.02 262);
+  --secondary: oklch(0.3 0.02 262);
+  --secondary-foreground: oklch(0.95 0.004 250);
+  --muted: oklch(0.3 0.02 262);
+  --muted-foreground: oklch(0.72 0.014 255);
+  --accent: oklch(0.66 0.145 253);
+  --accent-foreground: oklch(0.16 0.02 262);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.971 0.007 85);
-  --input: oklch(0.971 0.007 85);
-  --ring: oklch(0.72 0.184 41);
+  --border: oklch(0.34 0.02 262);
+  --input: oklch(0.34 0.02 262);
+  --ring: oklch(0.66 0.145 253);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -150,12 +150,12 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
-  --brand: oklch(0.56 0.072 168);
-  --brand-deep: oklch(0.171 0.004 96);
-  --brand-foreground: oklch(0.971 0.007 85);
-  --gold: oklch(0.72 0.184 41);
-  --gold-foreground: oklch(0.171 0.004 96);
-  --sand: oklch(0.24 0.006 92);
+  --brand: oklch(0.66 0.145 253);
+  --brand-deep: oklch(0.196 0.018 262);
+  --brand-foreground: oklch(0.95 0.004 250);
+  --gold: oklch(0.66 0.145 253);
+  --gold-foreground: oklch(0.16 0.02 262);
+  --sand: oklch(0.26 0.02 262);
 }
 
 @layer base {
