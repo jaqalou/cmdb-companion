@@ -125,66 +125,64 @@ export function SiteHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t border-foreground/10 bg-background">
-      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-16 md:grid-cols-3 lg:px-10">
+    <footer className="mt-12 border-t border-border bg-card">
+      <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-10 md:grid-cols-3 lg:px-8">
         <div>
-          <p className="font-display text-3xl uppercase tracking-tighter">
-            CB Assets<span className="text-gold">.</span>
-          </p>
-          <p className="mt-4 max-w-sm text-sm text-muted-foreground">
+          <p className="font-display text-lg font-semibold">CB Assets</p>
+          <p className="mt-3 max-w-sm text-sm text-muted-foreground">
             A single, trusted record of every server and database instance across the group —
             brewed from the same tables your integrations already speak to.
           </p>
         </div>
         <div>
-          <p className="eyebrow text-gold">Configuration Items</p>
-          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <p className="eyebrow text-muted-foreground">Configuration Items</p>
+          <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
             <li>
-              <Link to="/servers" className="font-mono hover:text-gold">
+              <Link to="/servers" className="font-mono hover:text-primary">
                 cmdb_ci_server
               </Link>
             </li>
             <li>
-              <Link to="/databases" className="font-mono hover:text-gold">
+              <Link to="/databases" className="font-mono hover:text-primary">
                 cmdb_ci_db_mssql_instance
               </Link>
             </li>
             <li>
-              <Link to="/switches" className="font-mono hover:text-gold">
+              <Link to="/switches" className="font-mono hover:text-primary">
                 cmdb_ci_netgear_switch
               </Link>
             </li>
             <li>
-              <Link to="/access-points" className="font-mono hover:text-gold">
+              <Link to="/access-points" className="font-mono hover:text-primary">
                 cmdb_ci_wap
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <p className="eyebrow text-gold">Integration</p>
-          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <p className="eyebrow text-muted-foreground">Integration</p>
+          <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
             <li>
-              <Link to="/api" className="hover:text-gold">
+              <Link to="/api" className="hover:text-primary">
                 REST API reference
               </Link>
             </li>
             <li className="font-mono text-xs">/api/public/apirest.php/&#123;itemtype&#125;</li>
             <li>
-              <Link to="/privacy" className="hover:text-gold">
+              <Link to="/privacy" className="hover:text-primary">
                 Privacy &amp; data protection
               </Link>
             </li>
             <li>
-              <Link to="/security" className="hover:text-gold">
+              <Link to="/security" className="hover:text-primary">
                 Security &amp; NIS2 measures
               </Link>
             </li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-foreground/10">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:px-10">
+      <div className="border-t border-border">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground lg:px-8">
           <span>CB Group IT — internal configuration management platform.</span>
           <span>Access is authenticated, role-based and logged.</span>
         </div>
@@ -194,11 +192,47 @@ export function SiteFooter() {
 }
 
 export function PageShell({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="flex-1">{children}</main>
-      <SiteFooter />
+    <div className="min-h-screen bg-background lg:flex">
+      <aside className="app-sidebar hidden w-60 shrink-0 flex-col lg:sticky lg:top-0 lg:flex lg:h-screen">
+        <Wordmark />
+        <SidebarNav />
+        <p className="border-t border-white/10 px-4 py-3 text-[10px] text-brand-foreground/40">
+          GLPI-compatible REST API
+        </p>
+      </aside>
+
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-brand-deep/60"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+          <aside className="app-sidebar absolute inset-y-0 left-0 flex w-64 flex-col">
+            <div className="flex items-center justify-between">
+              <Wordmark />
+              <button
+                type="button"
+                aria-label="Close menu"
+                onClick={() => setOpen(false)}
+                className="mr-3 text-brand-foreground/70"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+            <SidebarNav onNavigate={() => setOpen(false)} />
+          </aside>
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <SiteHeader onOpenMenu={() => setOpen(true)} />
+        <main className="flex-1">{children}</main>
+        <SiteFooter />
+      </div>
     </div>
   );
 }
