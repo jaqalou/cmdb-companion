@@ -41,6 +41,14 @@ const ITEMTYPE_ROWS = [
   ["AccessPoint", "cmdb_ci_wap"],
 ];
 
+const SNOW_ENDPOINTS = [
+  { method: "GET", path: "/api/public/now/table/{table}", desc: "List records with sysparm_query, sysparm_fields, sysparm_limit, sysparm_offset." },
+  { method: "GET", path: "/api/public/now/table/{table}/{sys_id}", desc: "Retrieve one record." },
+  { method: "POST", path: "/api/public/now/table/{table}", desc: "Insert a record (plain JSON body)." },
+  { method: "PATCH", path: "/api/public/now/table/{table}/{sys_id}", desc: "Update a record." },
+  { method: "DELETE", path: "/api/public/now/table/{table}/{sys_id}", desc: "Delete a record (204 on success)." },
+];
+
 const PARAMS = [
   ["range", "Inclusive slice of results, e.g. 0-49 (max 1000 per call)"],
   ["forcedisplay", "Comma-separated list of fields to return"],
