@@ -100,14 +100,14 @@ export function CiList({
 
   return (
     <div>
-      <div className="flex flex-wrap items-end gap-4 border-y border-foreground/10 bg-sand px-6 py-5 lg:px-10">
-        <div className="min-w-[240px] flex-1">
+      <div className="flex flex-wrap items-end gap-3 border-b border-border bg-sand px-6 py-3 lg:px-8">
+        <div className="min-w-[220px] flex-1">
           <label className="eyebrow text-muted-foreground">Search all fields</label>
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="hostname, application, owner, IP…"
-            className="mt-2 h-11 rounded-none border border-foreground/10 bg-background"
+            className="mt-1 h-9 rounded-md border-border bg-card text-[13px]"
           />
         </div>
         {facetValues.map((f) => (
@@ -118,7 +118,7 @@ export function CiList({
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, [f.field]: e.target.value }))
               }
-              className="mt-2 h-11 min-w-[160px] border border-foreground/10 bg-background px-3 text-sm font-medium"
+              className="field-input mt-1 block min-w-[150px]"
             >
               <option value="">All</option>
               {f.options.map((o) => (
@@ -129,18 +129,18 @@ export function CiList({
             </select>
           </div>
         ))}
-        <p className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+        <p className="pb-2 text-[11px] font-medium text-muted-foreground">
           {filtered.length} of {records.length} records
         </p>
       </div>
 
-      <div className="flex flex-wrap items-end gap-4 border-b border-foreground/10 px-6 py-5 lg:px-10">
+      <div className="flex flex-wrap items-end gap-3 border-b border-border bg-card px-6 py-3 lg:px-8">
         <div>
           <label className="eyebrow text-muted-foreground">Download scope</label>
           <select
             value={scope}
             onChange={(e) => setScope(e.target.value as typeof scope)}
-            className="mt-2 h-11 min-w-[220px] border border-foreground/10 bg-background px-3 text-sm font-medium"
+            className="field-input mt-1 block min-w-[210px]"
           >
             <option value="all">All records ({records.length})</option>
             <option value="filtered">Current filter ({filtered.length})</option>
@@ -152,7 +152,7 @@ export function CiList({
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value as typeof format)}
-            className="mt-2 h-11 min-w-[120px] border border-foreground/10 bg-background px-3 text-sm font-medium"
+            className="field-input mt-1 block min-w-[110px]"
           >
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
@@ -162,7 +162,7 @@ export function CiList({
           type="button"
           onClick={download}
           disabled={scopeRecords.length === 0}
-          className="btn-outline h-11 px-6 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-accent h-9 px-4 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Download {scopeRecords.length} record{scopeRecords.length === 1 ? "" : "s"}
         </button>
@@ -170,64 +170,67 @@ export function CiList({
           <button
             type="button"
             onClick={() => setSelected([])}
-            className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground underline-offset-4 hover:text-gold hover:underline"
+            className="pb-2 text-[11px] font-medium text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
           >
             Clear selection
           </button>
         )}
-        <p className="pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+        <p className="pb-2 text-[11px] font-medium text-muted-foreground">
           Exports include all {exportFields.length} attributes
         </p>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-card">
         <table className="w-full min-w-[900px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-foreground/10 bg-foreground text-background">
-              <th className="w-10 px-5 py-4 text-left">
+            <tr className="border-b border-border bg-secondary text-foreground">
+              <th className="w-10 px-3 py-2 text-left">
                 <input
                   type="checkbox"
                   aria-label="Select all visible records"
                   checked={allFilteredSelected}
                   onChange={toggleAll}
-                  className="size-4 accent-gold"
+                  className="size-3.5 accent-[var(--color-primary)]"
                 />
               </th>
               {columns.map((c) => (
                 <th
                   key={c.name}
-                  className="whitespace-nowrap px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.16em]"
+                  className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground"
                 >
                   {c.label}
                 </th>
               ))}
-              <th className="px-5 py-4" />
+              <th className="px-3 py-2" />
             </tr>
           </thead>
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={columns.length + 2} className="px-5 py-10 text-muted-foreground">
+                <td colSpan={columns.length + 2} className="px-3 py-8 text-muted-foreground">
                   Loading configuration items…
                 </td>
               </tr>
             )}
             {!isLoading && filtered.length === 0 && (
               <tr>
-                <td colSpan={columns.length + 2} className="px-5 py-10 text-muted-foreground">
+                <td colSpan={columns.length + 2} className="px-3 py-8 text-muted-foreground">
                   No configuration items match the current filters.
                 </td>
               </tr>
             )}
-            {filtered.map((r) => (
-              <tr key={String(r["sys_id"])} className="border-b border-foreground/15 hover:bg-sand">
-                <td className="px-5 py-4">
+            {filtered.map((r, rowIndex) => (
+              <tr
+                key={String(r["sys_id"])}
+                className={`border-b border-border hover:bg-primary/5 ${rowIndex % 2 ? "bg-sand" : ""}`}
+              >
+                <td className="data-cell">
                   <input
                     type="checkbox"
                     aria-label={`Select ${String(r[columns[0]!.name] ?? r["sys_id"])}`}
                     checked={selectedSet.has(String(r["sys_id"]))}
                     onChange={() => toggle(String(r["sys_id"]))}
-                    className="size-4 accent-gold"
+                    className="size-3.5 accent-[var(--color-primary)]"
                   />
                 </td>
                 {columns.map((c, i) => (
@@ -235,18 +238,18 @@ export function CiList({
                     key={c.name}
                     className={
                       i === 0
-                        ? "whitespace-nowrap px-5 py-4 font-mono text-[13px] font-bold text-brand"
-                        : "whitespace-nowrap px-5 py-4 text-foreground/80"
+                        ? "data-cell font-mono font-semibold text-primary"
+                        : "data-cell text-foreground/80"
                     }
                   >
                     {value(r, c.name)}
                   </td>
                 ))}
-                <td className="whitespace-nowrap px-5 py-4 text-right">
+                <td className="data-cell text-right">
                   <Link
                     to={detailTo}
                     params={{ sysId: String(r["sys_id"]) }}
-                    className="text-[11px] font-bold uppercase tracking-[0.18em] underline-offset-4 hover:text-gold hover:underline"
+                    className="text-[12px] font-semibold text-primary underline-offset-4 hover:underline"
                   >
                     Open
                   </Link>
