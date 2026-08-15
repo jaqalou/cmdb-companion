@@ -125,10 +125,10 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li>
               <Link to="/api" className="hover:text-gold">
-                Table API reference
+                REST API reference
               </Link>
             </li>
-            <li className="font-mono text-xs">/api/public/now/table/&#123;table&#125;</li>
+            <li className="font-mono text-xs">/api/public/apirest.php/&#123;itemtype&#125;</li>
             <li>
               <Link to="/privacy" className="hover:text-gold">
                 Privacy &amp; data protection
