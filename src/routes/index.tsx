@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Browse servers and SQL instances, filter by environment and region, and integrate via the Table API.",
+          "Browse servers and SQL instances, filter by environment and region, and integrate via the GLPI-compatible REST API.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -149,7 +149,7 @@ export async function getItems(table: string, url: URL, token: string | null) {
 
   const { data, error, count } = await query.range(from, to);
   if (error) return glpiError("ERROR_SQL", error.message, 400);
-  const rows = (data ?? []).map((r) => withId(r as Record<string, unknown>));
+  const rows = (data ?? []).map((r) => withId(r as unknown as Record<string, unknown>));
   const last = from + Math.max(rows.length - 1, 0);
   return json(rows, rows.length ? 200 : 200, {
     "Content-Range": `${from}-${last}/${count ?? rows.length}`,
@@ -168,7 +168,7 @@ export async function getItem(table: string, id: string, url: URL, token: string
     .maybeSingle();
   if (error) return glpiError("ERROR_SQL", error.message, 400);
   if (!data) return glpiError("ERROR_ITEM_NOT_FOUND", `Item ${id} not found`, 404);
-  return json(withId(data as Record<string, unknown>));
+  return json(withId(data as unknown as Record<string, unknown>));
 }
 
 /** GET /apirest.php/search/{itemtype} */
@@ -187,7 +187,7 @@ export async function searchItems(table: string, url: URL, token: string | null)
 
   const { data, error, count } = await query.range(from, to);
   if (error) return glpiError("ERROR_SQL", error.message, 400);
-  const rows = (data ?? []).map((r) => withId(r as Record<string, unknown>));
+  const rows = (data ?? []).map((r) => withId(r as unknown as Record<string, unknown>));
   return json(
     {
       totalcount: count ?? rows.length,
@@ -205,8 +205,8 @@ type ItemPayload = { input?: unknown } | unknown;
 
 /** GLPI wraps writes in an `input` envelope: {"input": {...}} or {"input": [...]}. */
 function unwrapInput(body: ItemPayload) {
-  if (body && typeof body === "object" && "input" in (body as Record<string, unknown>))
-    return (body as Record<string, unknown>)["input"];
+  if (body && typeof body === "object" && "input" in (body as unknown as Record<string, unknown>))
+    return (body as unknown as Record<string, unknown>)["input"];
   return body;
 }
 
@@ -219,7 +219,7 @@ export async function addItems(table: string, body: unknown, token: string | nul
   const { data, error } = await supabase.from(table).insert(rows as never).select();
   if (error) return glpiError("ERROR_SQL", error.message, 400);
   const result = (data ?? []).map((r) => ({
-    id: (r as Record<string, unknown>)["sys_id"],
+    id: (r as unknown as Record<string, unknown>)["sys_id"],
     message: "",
   }));
   return json(Array.isArray(input) ? result : (result[0] ?? {}), 201);

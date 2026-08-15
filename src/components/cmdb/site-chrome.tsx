@@ -9,7 +9,7 @@ const NAV = [
   { to: "/databases", label: "SQL Instances" },
   { to: "/switches", label: "Switches" },
   { to: "/access-points", label: "Access Points" },
-  { to: "/api", label: "Table API" },
+  { to: "/api", label: "REST API" },
 ];
 
 export function SiteHeader() {
