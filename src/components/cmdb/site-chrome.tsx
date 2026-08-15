@@ -1,18 +1,85 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import {
+  BookOpen,
+  Database,
+  Gauge,
+  LogOut,
+  Menu,
+  Network,
+  Server,
+  ShieldCheck,
+  Wifi,
+  X,
+} from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 
-const NAV = [
-  { to: "/", label: "Overview" },
-  { to: "/servers", label: "Servers" },
-  { to: "/databases", label: "SQL Instances" },
-  { to: "/switches", label: "Switches" },
-  { to: "/access-points", label: "Access Points" },
-  { to: "/api", label: "REST API" },
+const MENU: { group: string; items: { to: string; label: string; icon: typeof Server }[] }[] = [
+  {
+    group: "Dashboard",
+    items: [{ to: "/", label: "Overview", icon: Gauge }],
+  },
+  {
+    group: "Assets",
+    items: [
+      { to: "/servers", label: "Servers", icon: Server },
+      { to: "/databases", label: "SQL Instances", icon: Database },
+      { to: "/switches", label: "Switches", icon: Network },
+      { to: "/access-points", label: "Access Points", icon: Wifi },
+    ],
+  },
+  {
+    group: "Tools",
+    items: [
+      { to: "/api", label: "REST API", icon: BookOpen },
+      { to: "/security", label: "Security", icon: ShieldCheck },
+    ],
+  },
 ];
 
-export function SiteHeader() {
+function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <nav className="flex-1 overflow-y-auto py-3">
+      {MENU.map((section) => (
+        <div key={section.group} className="mb-4">
+          <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-foreground/40">
+            {section.group}
+          </p>
+          {section.items.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={onNavigate}
+              className="sidebar-link"
+              activeOptions={{ exact: item.to === "/" }}
+            >
+              <item.icon className="size-4 shrink-0" aria-hidden="true" />
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+function Wordmark() {
+  return (
+    <Link
+      to="/"
+      className="flex h-14 shrink-0 items-center gap-2 border-b border-white/10 px-4 font-display text-lg font-semibold tracking-tight text-brand-foreground"
+    >
+      <span className="grid size-7 place-items-center rounded bg-primary text-xs font-bold text-primary-foreground">
+        CB
+      </span>
+      CB Assets
+    </Link>
+  );
+}
+
+export function SiteHeader({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { user, roles } = useAuth();
   const navigate = useNavigate();
 
@@ -22,58 +89,32 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="glass-bar sticky top-0 z-40 border-b border-foreground/10">
-      <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10">
-        <Link to="/" className="font-display text-2xl uppercase tracking-tighter">
-          CB Assets<span className="text-gold">.</span>
-        </Link>
-        <nav className="hidden items-center gap-8 md:flex">
-          {NAV.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="text-[11px] font-bold uppercase tracking-[0.15em] transition-colors hover:text-gold [&.active]:text-gold"
-              activeOptions={{ exact: item.to === "/" }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+    <header className="glass-bar sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border px-4 lg:px-6">
+      <button
+        type="button"
+        onClick={onOpenMenu}
+        aria-label="Open menu"
+        className="btn-outline size-9 lg:hidden"
+      >
+        <Menu className="size-4" />
+      </button>
+      <p className="text-sm font-semibold">Configuration Management Database</p>
+      <div className="ml-auto flex items-center gap-3">
         {user ? (
-          <div className="hidden items-center gap-4 lg:flex">
-            <span className="text-right text-[11px] leading-tight text-muted-foreground">
+          <>
+            <span className="hidden text-right text-[11px] leading-tight text-muted-foreground sm:block">
               {user.email}
-              <span className="block font-bold uppercase tracking-[0.18em] text-gold">
+              <span className="block font-semibold uppercase tracking-[0.1em] text-primary">
                 {roles[0] ?? "pending access"}
               </span>
             </span>
-            <button onClick={signOut} className="btn-outline px-5 py-2">
+            <button onClick={signOut} className="btn-outline h-9 gap-2 px-3">
+              <LogOut className="size-3.5" />
               Sign out
             </button>
-          </div>
+          </>
         ) : (
-          <Link to="/auth" className="btn-outline hidden px-5 py-2 lg:inline-flex">
-            Sign in
-          </Link>
-        )}
-      </div>
-      <div className="flex items-center gap-5 overflow-x-auto border-t border-foreground/10 px-6 py-3 md:hidden">
-        {NAV.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className="shrink-0 text-[10px] font-bold tracking-[0.15em] uppercase transition-colors hover:text-gold [&.active]:text-gold"
-            activeOptions={{ exact: item.to === "/" }}
-          >
-            {item.label}
-          </Link>
-        ))}
-        {user ? (
-          <button onClick={signOut} className="ml-auto shrink-0 text-[10px] font-bold tracking-[0.15em] text-gold uppercase">
-            Sign out
-          </button>
-        ) : (
-          <Link to="/auth" className="ml-auto shrink-0 text-[10px] font-bold tracking-[0.15em] text-gold uppercase">
+          <Link to="/auth" className="btn-accent h-9 px-4">
             Sign in
           </Link>
         )}
