@@ -22,7 +22,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background">
+    <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background">
       <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10">
         <Link to="/" className="font-display text-2xl uppercase tracking-tighter">
           CB Assets<span className="text-gold">.</span>
@@ -57,7 +57,7 @@ export function SiteHeader() {
           </Link>
         )}
       </div>
-      <div className="flex items-center gap-5 overflow-x-auto border-t-2 border-foreground px-6 py-3 md:hidden">
+      <div className="flex items-center gap-5 overflow-x-auto border-t border-foreground/10 px-6 py-3 md:hidden">
         {NAV.map((item) => (
           <Link
             key={item.to}
@@ -84,7 +84,7 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-24 border-t-2 border-foreground bg-background">
+    <footer className="mt-24 border-t border-foreground/10 bg-background">
       <div className="mx-auto grid max-w-[1400px] gap-10 px-6 py-16 md:grid-cols-3 lg:px-10">
         <div>
           <p className="font-display text-3xl uppercase tracking-tighter">
@@ -142,7 +142,7 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t-2 border-foreground">
+      <div className="border-t border-foreground/10">
         <div className="mx-auto flex max-w-[1400px] flex-wrap gap-x-6 gap-y-2 px-6 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground lg:px-10">
           <span>CB Group IT — internal configuration management platform.</span>
           <span>Access is authenticated, role-based and logged.</span>

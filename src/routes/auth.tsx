@@ -112,7 +112,7 @@ function AuthPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full border-2 border-foreground bg-background px-4 py-3 text-sm outline-none focus:border-gold"
+              className="mt-2 w-full border border-foreground/10 bg-background px-4 py-3 text-sm outline-none focus:border-gold"
             />
           </label>
           <label className="block">
@@ -124,7 +124,7 @@ function AuthPage() {
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full border-2 border-foreground bg-background px-4 py-3 text-sm outline-none focus:border-gold"
+              className="mt-2 w-full border border-foreground/10 bg-background px-4 py-3 text-sm outline-none focus:border-gold"
             />
             {mode === "signup" && (
               <span className="mt-2 block text-xs text-muted-foreground">

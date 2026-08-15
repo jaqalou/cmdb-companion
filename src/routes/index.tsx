@@ -91,8 +91,8 @@ function Index() {
       </section>
 
       {user ? (
-        <section className="border-y-2 border-foreground bg-sand">
-          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-3 lg:grid-cols-5 lg:divide-x-2 lg:px-10">
+        <section className="border-y border-foreground/10 bg-sand">
+          <div className="mx-auto grid max-w-[1400px] grid-cols-2 divide-foreground px-6 py-10 md:grid-cols-3 lg:grid-cols-5 lg:divide-x lg:px-10">
             {stats.map((s) => (
               <div key={s.label} className="px-2 py-3 md:px-8 md:first:pl-0">
                 <p className="font-display text-5xl text-brand">{s.value}</p>
@@ -102,7 +102,7 @@ function Index() {
           </div>
         </section>
       ) : (
-        <section className="border-y-2 border-foreground bg-brand text-brand-foreground">
+        <section className="border-y border-foreground/10 bg-brand text-brand-foreground">
           <div className="overflow-hidden py-4" aria-hidden="true">
             <div className="marquee-track gap-10 text-[11px] font-bold tracking-[0.25em] whitespace-nowrap uppercase">
               {Array.from({ length: 2 }).map((_, block) => (
@@ -119,7 +119,7 @@ function Index() {
               ))}
             </div>
           </div>
-          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 border-t-2 border-foreground px-6 py-10 lg:px-10">
+          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 border-t border-foreground/10 px-6 py-10 lg:px-10">
             <p className="max-w-xl text-sm font-medium">
               Configuration records contain asset and personal data. Sign in with your CB Assets
               account to view the inventory — access is role-based and every change is logged.
@@ -158,7 +158,7 @@ function Index() {
                 <span className="font-display text-6xl text-brand">44</span>
                 <span className="eyebrow mt-1 block">Standardised attributes</span>
               </div>
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-foreground transition-colors group-hover:bg-gold">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-foreground/10 transition-colors group-hover:bg-gold">
                 →
               </span>
             </div>

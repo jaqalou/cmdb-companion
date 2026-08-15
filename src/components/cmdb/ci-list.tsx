@@ -100,14 +100,14 @@ export function CiList({
 
   return (
     <div>
-      <div className="flex flex-wrap items-end gap-4 border-y-2 border-foreground bg-sand px-6 py-5 lg:px-10">
+      <div className="flex flex-wrap items-end gap-4 border-y border-foreground/10 bg-sand px-6 py-5 lg:px-10">
         <div className="min-w-[240px] flex-1">
           <label className="eyebrow text-muted-foreground">Search all fields</label>
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="hostname, application, owner, IP…"
-            className="mt-2 h-11 rounded-none border-2 border-foreground bg-background"
+            className="mt-2 h-11 rounded-none border border-foreground/10 bg-background"
           />
         </div>
         {facetValues.map((f) => (
@@ -118,7 +118,7 @@ export function CiList({
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, [f.field]: e.target.value }))
               }
-              className="mt-2 h-11 min-w-[160px] border-2 border-foreground bg-background px-3 text-sm font-medium"
+              className="mt-2 h-11 min-w-[160px] border border-foreground/10 bg-background px-3 text-sm font-medium"
             >
               <option value="">All</option>
               {f.options.map((o) => (
@@ -134,13 +134,13 @@ export function CiList({
         </p>
       </div>
 
-      <div className="flex flex-wrap items-end gap-4 border-b-2 border-foreground px-6 py-5 lg:px-10">
+      <div className="flex flex-wrap items-end gap-4 border-b border-foreground/10 px-6 py-5 lg:px-10">
         <div>
           <label className="eyebrow text-muted-foreground">Download scope</label>
           <select
             value={scope}
             onChange={(e) => setScope(e.target.value as typeof scope)}
-            className="mt-2 h-11 min-w-[220px] border-2 border-foreground bg-background px-3 text-sm font-medium"
+            className="mt-2 h-11 min-w-[220px] border border-foreground/10 bg-background px-3 text-sm font-medium"
           >
             <option value="all">All records ({records.length})</option>
             <option value="filtered">Current filter ({filtered.length})</option>
@@ -152,7 +152,7 @@ export function CiList({
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value as typeof format)}
-            className="mt-2 h-11 min-w-[120px] border-2 border-foreground bg-background px-3 text-sm font-medium"
+            className="mt-2 h-11 min-w-[120px] border border-foreground/10 bg-background px-3 text-sm font-medium"
           >
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
@@ -183,7 +183,7 @@ export function CiList({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] border-collapse text-sm">
           <thead>
-            <tr className="border-b-2 border-foreground bg-foreground text-background">
+            <tr className="border-b border-foreground/10 bg-foreground text-background">
               <th className="w-10 px-5 py-4 text-left">
                 <input
                   type="checkbox"
