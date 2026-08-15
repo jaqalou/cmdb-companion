@@ -23,6 +23,7 @@ import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedServersSysIdRouteImport } from './routes/_authenticated/servers/$sysId'
 import { Route as AuthenticatedSwitchesIndexRouteImport } from './routes/_authenticated/switches/index'
 import { Route as AuthenticatedSwitchesSysIdRouteImport } from './routes/_authenticated/switches/$sysId'
+import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -101,10 +102,15 @@ const AuthenticatedSwitchesSysIdRoute =
     path: '/switches/$sysId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicSplatRoute = ApiPublicSplatRouteImport.update({
+  id: '/public/$',
+  path: '/public/$',
+  getParentRoute: () => ApiRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api': typeof ApiRoute
+  '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/api/public/$': typeof ApiPublicSplatRoute
   '/access-points/': typeof AuthenticatedAccessPointsIndexRoute
   '/databases/': typeof AuthenticatedDatabasesIndexRoute
   '/servers/': typeof AuthenticatedServersIndexRoute
@@ -119,7 +126,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api': typeof ApiRoute
+  '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/api/public/$': typeof ApiPublicSplatRoute
   '/access-points': typeof AuthenticatedAccessPointsIndexRoute
   '/databases': typeof AuthenticatedDatabasesIndexRoute
   '/servers': typeof AuthenticatedServersIndexRoute
@@ -136,7 +144,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/api': typeof ApiRoute
+  '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/_authenticated/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
   '/_authenticated/servers/$sysId': typeof AuthenticatedServersSysIdRoute
   '/_authenticated/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/api/public/$': typeof ApiPublicSplatRoute
   '/_authenticated/access-points/': typeof AuthenticatedAccessPointsIndexRoute
   '/_authenticated/databases/': typeof AuthenticatedDatabasesIndexRoute
   '/_authenticated/servers/': typeof AuthenticatedServersIndexRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
+    | '/api/public/$'
     | '/access-points/'
     | '/databases/'
     | '/servers/'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
+    | '/api/public/$'
     | '/access-points'
     | '/databases'
     | '/servers'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/_authenticated/databases/$sysId'
     | '/_authenticated/servers/$sysId'
     | '/_authenticated/switches/$sysId'
+    | '/api/public/$'
     | '/_authenticated/access-points/'
     | '/_authenticated/databases/'
     | '/_authenticated/servers/'
@@ -201,7 +213,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  ApiRoute: typeof ApiRoute
+  ApiRoute: typeof ApiRouteWithChildren
   AuthRoute: typeof AuthRoute
   PrivacyRoute: typeof PrivacyRoute
   SecurityRoute: typeof SecurityRoute
@@ -307,6 +319,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSwitchesSysIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/$': {
+      id: '/api/public/$'
+      path: '/public/$'
+      fullPath: '/api/public/$'
+      preLoaderRoute: typeof ApiPublicSplatRouteImport
+      parentRoute: typeof ApiRoute
+    }
   }
 }
 
@@ -335,10 +354,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ApiRouteChildren {
+  ApiPublicSplatRoute: typeof ApiPublicSplatRoute
+}
+
+const ApiRouteChildren: ApiRouteChildren = {
+  ApiPublicSplatRoute: ApiPublicSplatRoute,
+}
+
+const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  ApiRoute: ApiRoute,
+  ApiRoute: ApiRouteWithChildren,
   AuthRoute: AuthRoute,
   PrivacyRoute: PrivacyRoute,
   SecurityRoute: SecurityRoute,

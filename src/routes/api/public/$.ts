@@ -11,6 +11,7 @@ import {
   resolveItemtype,
   searchItems,
   sessionToken,
+  updateItem,
 } from "@/lib/glpi-api";
 
 type Ctx = { request: Request; params: { _splat?: string } };
@@ -80,12 +81,7 @@ async function handler({ request, params }: Ctx) {
     case "PUT":
     case "PATCH": {
       if (!id) return glpiError("ERROR_BAD_ARRAY", "An item id is required for updates", 400);
-      return (await import("@/lib/glpi-api")).updateItem(
-        target.table,
-        id,
-        await readBody(request),
-        token,
-      );
+      return updateItem(target.table, id, await readBody(request), token);
     }
     case "DELETE":
       if (!id) return glpiError("ERROR_BAD_ARRAY", "An item id is required for deletes", 400);
@@ -106,5 +102,3 @@ export const Route = createFileRoute("/api/public/$")({
     },
   },
 });
-
-export { addItems, deleteItem, getItem, getItems, searchItems };
