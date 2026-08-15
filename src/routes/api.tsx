@@ -103,6 +103,8 @@ function ApiDocs() {
 
         <h2 className="mt-14 font-display text-3xl text-brand">Itemtypes</h2>
         <div className="gold-rule mt-3 mb-6" />
+        <p className="sr-only">Itemtype to table mapping</p>
+        <div className="gold-rule mt-3 mb-6" />
         <dl className="divide-y divide-foreground/10 border border-foreground/10 bg-card rounded-[var(--radius)] px-6">
           {ITEMTYPE_ROWS.map(([itemtype, table]) => (
             <div key={itemtype} className="grid grid-cols-2 gap-4 py-3 text-sm">
