@@ -22,7 +22,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background">
+    <header className="glass-bar sticky top-0 z-40 border-b border-foreground/10">
       <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10">
         <Link to="/" className="font-display text-2xl uppercase tracking-tighter">
           CB Assets<span className="text-gold">.</span>
