@@ -10,28 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SecurityRouteImport } from './routes/security'
-import { Route as AuthenticatedAccessPointsIndexRouteImport } from './routes/_authenticated/access-points/index'
-import { Route as AuthenticatedAccessPointsSysIdRouteImport } from './routes/_authenticated/access-points/$sysId'
-import { Route as AuthenticatedDatabasesIndexRouteImport } from './routes/_authenticated/databases/index'
-import { Route as AuthenticatedDatabasesSysIdRouteImport } from './routes/_authenticated/databases/$sysId'
-import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authenticated/servers/index'
-import { Route as AuthenticatedServersSysIdRouteImport } from './routes/_authenticated/servers/$sysId'
-import { Route as AuthenticatedSwitchesIndexRouteImport } from './routes/_authenticated/switches/index'
-import { Route as AuthenticatedSwitchesSysIdRouteImport } from './routes/_authenticated/switches/$sysId'
+import { Route as AccessPointsIndexRouteImport } from './routes/access-points/index'
+import { Route as AccessPointsSysIdRouteImport } from './routes/access-points/$sysId'
+import { Route as DatabasesIndexRouteImport } from './routes/databases/index'
+import { Route as DatabasesSysIdRouteImport } from './routes/databases/$sysId'
+import { Route as ServersIndexRouteImport } from './routes/servers/index'
+import { Route as ServersSysIdRouteImport } from './routes/servers/$sysId'
+import { Route as SwitchesIndexRouteImport } from './routes/switches/index'
+import { Route as SwitchesSysIdRouteImport } from './routes/switches/$sysId'
 import { Route as ApiPublicSplatRouteImport } from './routes/api/public/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRoute = ApiRouteImport.update({
@@ -54,54 +49,46 @@ const SecurityRoute = SecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAccessPointsIndexRoute =
-  AuthenticatedAccessPointsIndexRouteImport.update({
-    id: '/access-points/',
-    path: '/access-points/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccessPointsSysIdRoute =
-  AuthenticatedAccessPointsSysIdRouteImport.update({
-    id: '/access-points/$sysId',
-    path: '/access-points/$sysId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedDatabasesIndexRoute =
-  AuthenticatedDatabasesIndexRouteImport.update({
-    id: '/databases/',
-    path: '/databases/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedDatabasesSysIdRoute =
-  AuthenticatedDatabasesSysIdRouteImport.update({
-    id: '/databases/$sysId',
-    path: '/databases/$sysId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedServersIndexRoute =
-  AuthenticatedServersIndexRouteImport.update({
-    id: '/servers/',
-    path: '/servers/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedServersSysIdRoute =
-  AuthenticatedServersSysIdRouteImport.update({
-    id: '/servers/$sysId',
-    path: '/servers/$sysId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSwitchesIndexRoute =
-  AuthenticatedSwitchesIndexRouteImport.update({
-    id: '/switches/',
-    path: '/switches/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSwitchesSysIdRoute =
-  AuthenticatedSwitchesSysIdRouteImport.update({
-    id: '/switches/$sysId',
-    path: '/switches/$sysId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
+const AccessPointsIndexRoute = AccessPointsIndexRouteImport.update({
+  id: '/access-points/',
+  path: '/access-points/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccessPointsSysIdRoute = AccessPointsSysIdRouteImport.update({
+  id: '/access-points/$sysId',
+  path: '/access-points/$sysId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatabasesIndexRoute = DatabasesIndexRouteImport.update({
+  id: '/databases/',
+  path: '/databases/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatabasesSysIdRoute = DatabasesSysIdRouteImport.update({
+  id: '/databases/$sysId',
+  path: '/databases/$sysId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServersIndexRoute = ServersIndexRouteImport.update({
+  id: '/servers/',
+  path: '/servers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServersSysIdRoute = ServersSysIdRouteImport.update({
+  id: '/servers/$sysId',
+  path: '/servers/$sysId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SwitchesIndexRoute = SwitchesIndexRouteImport.update({
+  id: '/switches/',
+  path: '/switches/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SwitchesSysIdRoute = SwitchesSysIdRouteImport.update({
+  id: '/switches/$sysId',
+  path: '/switches/$sysId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSplatRoute = ApiPublicSplatRouteImport.update({
   id: '/public/$',
   path: '/public/$',
@@ -114,15 +101,15 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
-  '/access-points/$sysId': typeof AuthenticatedAccessPointsSysIdRoute
-  '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
-  '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
-  '/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/databases/$sysId': typeof DatabasesSysIdRoute
+  '/servers/$sysId': typeof ServersSysIdRoute
+  '/switches/$sysId': typeof SwitchesSysIdRoute
+  '/access-points/': typeof AccessPointsIndexRoute
+  '/databases/': typeof DatabasesIndexRoute
+  '/servers/': typeof ServersIndexRoute
+  '/switches/': typeof SwitchesIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
-  '/access-points/': typeof AuthenticatedAccessPointsIndexRoute
-  '/databases/': typeof AuthenticatedDatabasesIndexRoute
-  '/servers/': typeof AuthenticatedServersIndexRoute
-  '/switches/': typeof AuthenticatedSwitchesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -130,33 +117,32 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
-  '/access-points/$sysId': typeof AuthenticatedAccessPointsSysIdRoute
-  '/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
-  '/servers/$sysId': typeof AuthenticatedServersSysIdRoute
-  '/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/databases/$sysId': typeof DatabasesSysIdRoute
+  '/servers/$sysId': typeof ServersSysIdRoute
+  '/switches/$sysId': typeof SwitchesSysIdRoute
+  '/access-points': typeof AccessPointsIndexRoute
+  '/databases': typeof DatabasesIndexRoute
+  '/servers': typeof ServersIndexRoute
+  '/switches': typeof SwitchesIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
-  '/access-points': typeof AuthenticatedAccessPointsIndexRoute
-  '/databases': typeof AuthenticatedDatabasesIndexRoute
-  '/servers': typeof AuthenticatedServersIndexRoute
-  '/switches': typeof AuthenticatedSwitchesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
-  '/_authenticated/access-points/$sysId': typeof AuthenticatedAccessPointsSysIdRoute
-  '/_authenticated/databases/$sysId': typeof AuthenticatedDatabasesSysIdRoute
-  '/_authenticated/servers/$sysId': typeof AuthenticatedServersSysIdRoute
-  '/_authenticated/switches/$sysId': typeof AuthenticatedSwitchesSysIdRoute
+  '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/databases/$sysId': typeof DatabasesSysIdRoute
+  '/servers/$sysId': typeof ServersSysIdRoute
+  '/switches/$sysId': typeof SwitchesSysIdRoute
+  '/access-points/': typeof AccessPointsIndexRoute
+  '/databases/': typeof DatabasesIndexRoute
+  '/servers/': typeof ServersIndexRoute
+  '/switches/': typeof SwitchesIndexRoute
   '/api/public/$': typeof ApiPublicSplatRoute
-  '/_authenticated/access-points/': typeof AuthenticatedAccessPointsIndexRoute
-  '/_authenticated/databases/': typeof AuthenticatedDatabasesIndexRoute
-  '/_authenticated/servers/': typeof AuthenticatedServersIndexRoute
-  '/_authenticated/switches/': typeof AuthenticatedSwitchesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -170,11 +156,11 @@ export interface FileRouteTypes {
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
-    | '/api/public/$'
     | '/access-points/'
     | '/databases/'
     | '/servers/'
     | '/switches/'
+    | '/api/public/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -186,37 +172,43 @@ export interface FileRouteTypes {
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
-    | '/api/public/$'
     | '/access-points'
     | '/databases'
     | '/servers'
     | '/switches'
+    | '/api/public/$'
   id:
     | '__root__'
     | '/'
-    | '/_authenticated'
     | '/api'
     | '/auth'
     | '/privacy'
     | '/security'
-    | '/_authenticated/access-points/$sysId'
-    | '/_authenticated/databases/$sysId'
-    | '/_authenticated/servers/$sysId'
-    | '/_authenticated/switches/$sysId'
+    | '/access-points/$sysId'
+    | '/databases/$sysId'
+    | '/servers/$sysId'
+    | '/switches/$sysId'
+    | '/access-points/'
+    | '/databases/'
+    | '/servers/'
+    | '/switches/'
     | '/api/public/$'
-    | '/_authenticated/access-points/'
-    | '/_authenticated/databases/'
-    | '/_authenticated/servers/'
-    | '/_authenticated/switches/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApiRoute: typeof ApiRouteWithChildren
   AuthRoute: typeof AuthRoute
   PrivacyRoute: typeof PrivacyRoute
   SecurityRoute: typeof SecurityRoute
+  AccessPointsSysIdRoute: typeof AccessPointsSysIdRoute
+  DatabasesSysIdRoute: typeof DatabasesSysIdRoute
+  ServersSysIdRoute: typeof ServersSysIdRoute
+  SwitchesSysIdRoute: typeof SwitchesSysIdRoute
+  AccessPointsIndexRoute: typeof AccessPointsIndexRoute
+  DatabasesIndexRoute: typeof DatabasesIndexRoute
+  ServersIndexRoute: typeof ServersIndexRoute
+  SwitchesIndexRoute: typeof SwitchesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -226,13 +218,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api': {
@@ -263,61 +248,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SecurityRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/access-points/': {
-      id: '/_authenticated/access-points/'
+    '/access-points/': {
+      id: '/access-points/'
       path: '/access-points'
       fullPath: '/access-points/'
-      preLoaderRoute: typeof AuthenticatedAccessPointsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AccessPointsIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/access-points/$sysId': {
-      id: '/_authenticated/access-points/$sysId'
+    '/access-points/$sysId': {
+      id: '/access-points/$sysId'
       path: '/access-points/$sysId'
       fullPath: '/access-points/$sysId'
-      preLoaderRoute: typeof AuthenticatedAccessPointsSysIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AccessPointsSysIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/databases/': {
-      id: '/_authenticated/databases/'
+    '/databases/': {
+      id: '/databases/'
       path: '/databases'
       fullPath: '/databases/'
-      preLoaderRoute: typeof AuthenticatedDatabasesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof DatabasesIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/databases/$sysId': {
-      id: '/_authenticated/databases/$sysId'
+    '/databases/$sysId': {
+      id: '/databases/$sysId'
       path: '/databases/$sysId'
       fullPath: '/databases/$sysId'
-      preLoaderRoute: typeof AuthenticatedDatabasesSysIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof DatabasesSysIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/servers/': {
-      id: '/_authenticated/servers/'
+    '/servers/': {
+      id: '/servers/'
       path: '/servers'
       fullPath: '/servers/'
-      preLoaderRoute: typeof AuthenticatedServersIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof ServersIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/servers/$sysId': {
-      id: '/_authenticated/servers/$sysId'
+    '/servers/$sysId': {
+      id: '/servers/$sysId'
       path: '/servers/$sysId'
       fullPath: '/servers/$sysId'
-      preLoaderRoute: typeof AuthenticatedServersSysIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof ServersSysIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/switches/': {
-      id: '/_authenticated/switches/'
+    '/switches/': {
+      id: '/switches/'
       path: '/switches'
       fullPath: '/switches/'
-      preLoaderRoute: typeof AuthenticatedSwitchesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof SwitchesIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/switches/$sysId': {
-      id: '/_authenticated/switches/$sysId'
+    '/switches/$sysId': {
+      id: '/switches/$sysId'
       path: '/switches/$sysId'
       fullPath: '/switches/$sysId'
-      preLoaderRoute: typeof AuthenticatedSwitchesSysIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof SwitchesSysIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/$': {
       id: '/api/public/$'
@@ -328,31 +313,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAccessPointsSysIdRoute: typeof AuthenticatedAccessPointsSysIdRoute
-  AuthenticatedDatabasesSysIdRoute: typeof AuthenticatedDatabasesSysIdRoute
-  AuthenticatedServersSysIdRoute: typeof AuthenticatedServersSysIdRoute
-  AuthenticatedSwitchesSysIdRoute: typeof AuthenticatedSwitchesSysIdRoute
-  AuthenticatedAccessPointsIndexRoute: typeof AuthenticatedAccessPointsIndexRoute
-  AuthenticatedDatabasesIndexRoute: typeof AuthenticatedDatabasesIndexRoute
-  AuthenticatedServersIndexRoute: typeof AuthenticatedServersIndexRoute
-  AuthenticatedSwitchesIndexRoute: typeof AuthenticatedSwitchesIndexRoute
-}
-
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAccessPointsSysIdRoute: AuthenticatedAccessPointsSysIdRoute,
-  AuthenticatedDatabasesSysIdRoute: AuthenticatedDatabasesSysIdRoute,
-  AuthenticatedServersSysIdRoute: AuthenticatedServersSysIdRoute,
-  AuthenticatedSwitchesSysIdRoute: AuthenticatedSwitchesSysIdRoute,
-  AuthenticatedAccessPointsIndexRoute: AuthenticatedAccessPointsIndexRoute,
-  AuthenticatedDatabasesIndexRoute: AuthenticatedDatabasesIndexRoute,
-  AuthenticatedServersIndexRoute: AuthenticatedServersIndexRoute,
-  AuthenticatedSwitchesIndexRoute: AuthenticatedSwitchesIndexRoute,
-}
-
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface ApiRouteChildren {
   ApiPublicSplatRoute: typeof ApiPublicSplatRoute
@@ -366,11 +326,18 @@ const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApiRoute: ApiRouteWithChildren,
   AuthRoute: AuthRoute,
   PrivacyRoute: PrivacyRoute,
   SecurityRoute: SecurityRoute,
+  AccessPointsSysIdRoute: AccessPointsSysIdRoute,
+  DatabasesSysIdRoute: DatabasesSysIdRoute,
+  ServersSysIdRoute: ServersSysIdRoute,
+  SwitchesSysIdRoute: SwitchesSysIdRoute,
+  AccessPointsIndexRoute: AccessPointsIndexRoute,
+  DatabasesIndexRoute: DatabasesIndexRoute,
+  ServersIndexRoute: ServersIndexRoute,
+  SwitchesIndexRoute: SwitchesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
