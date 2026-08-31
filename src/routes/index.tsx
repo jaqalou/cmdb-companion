@@ -43,10 +43,11 @@ function Index() {
     }
   }, [user, navigate]);
 
-  const servers = useQuery({ ...serversQuery, enabled: !!user });
-  const instances = useQuery({ ...instancesQuery, enabled: !!user });
-  const switches = useQuery({ ...switchesQuery, enabled: !!user });
-  const accessPoints = useQuery({ ...accessPointsQuery, enabled: !!user });
+  const servers = useQuery(serversQuery);
+  const instances = useQuery(instancesQuery);
+  const switches = useQuery(switchesQuery);
+  const accessPoints = useQuery(accessPointsQuery);
+
   const serverRows = servers.data ?? [];
   const instanceRows = instances.data ?? [];
   const switchRows = switches.data ?? [];
