@@ -6,7 +6,7 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 import { switchesQuery } from "@/lib/cmdb-data";
 import { SWITCH_FIELDS } from "@/lib/cmdb-schema";
 
-export const Route = createFileRoute("/_authenticated/switches/$sysId")({
+export const Route = createFileRoute("/switches/$sysId")({
   head: () => ({
     meta: [
       { title: "Network switch record — CB Assets" },

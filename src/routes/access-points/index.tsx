@@ -6,7 +6,7 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 import { accessPointsQuery } from "@/lib/cmdb-data";
 import { WAP_FIELDS } from "@/lib/cmdb-schema";
 
-export const Route = createFileRoute("/_authenticated/access-points/")({
+export const Route = createFileRoute("/access-points/")({
   head: () => ({
     meta: [
       { title: "Access Point CI Class — CB Assets" },

@@ -6,7 +6,7 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 import { switchesQuery } from "@/lib/cmdb-data";
 import { SWITCH_FIELDS } from "@/lib/cmdb-schema";
 
-export const Route = createFileRoute("/_authenticated/switches/")({
+export const Route = createFileRoute("/switches/")({
   head: () => ({
     meta: [
       { title: "Network Switch CI Class — CB Assets" },
