@@ -6,7 +6,7 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 import { instancesQuery } from "@/lib/cmdb-data";
 import { INSTANCE_FIELDS } from "@/lib/cmdb-schema";
 
-export const Route = createFileRoute("/_authenticated/databases/$sysId")({
+export const Route = createFileRoute("/databases/$sysId")({
   head: () => ({
     meta: [
       { title: "SQL instance record — CB Assets" },
