@@ -89,30 +89,28 @@ function Index() {
         </div>
       </section>
 
-      {user ? (
-        <section className="mx-auto max-w-[1400px] px-6 pt-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-            {stats.map((s) => (
-              <div key={s.label} className="kpi-tile" style={{ backgroundColor: s.tone }}>
-                <p className="font-display text-3xl font-bold">{s.value}</p>
-                <p className="mt-1 text-xs font-medium opacity-80">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : (
-        <section className="mx-auto max-w-[1400px] px-6 pt-6 lg:px-8">
-          <div className="brutal-card flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-primary p-4">
+      <section className="mx-auto max-w-[1400px] px-6 pt-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+          {stats.map((s) => (
+            <div key={s.label} className="kpi-tile" style={{ backgroundColor: s.tone }}>
+              <p className="font-display text-3xl font-bold">{s.value}</p>
+              <p className="mt-1 text-xs font-medium opacity-80">{s.label}</p>
+            </div>
+          ))}
+        </div>
+        {!user && (
+          <div className="brutal-card mt-4 flex flex-wrap items-center justify-between gap-4 border-l-4 border-l-primary p-4">
             <p className="max-w-xl text-sm text-muted-foreground">
-              Configuration records contain asset and personal data. Sign in with your CB Assets
-              account to view the inventory — access is role-based and every change is logged.
+              Browsing is open to everyone. Sign in with your CB Assets account to create or modify
+              configuration items — write access is role-based and every change is logged.
             </p>
             <Link to="/auth" className="btn-accent h-9 px-4">
-              Sign in to continue
+              Sign in to edit
             </Link>
           </div>
-        </section>
-      )}
+        )}
+      </section>
+
 
       <section className="mx-auto max-w-[1400px] px-6 py-6 lg:px-8">
         <h2 className="font-display text-base font-semibold">Configuration item classes</h2>
