@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as NewRouteImport } from './routes/new'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as AccessPointsIndexRouteImport } from './routes/access-points/index'
@@ -37,6 +38,11 @@ const ApiRoute = ApiRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewRoute = NewRouteImport.update({
+  id: '/new',
+  path: '/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
+  '/new': typeof NewRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
+  '/new': typeof NewRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
   '/auth': typeof AuthRoute
+  '/new': typeof NewRoute
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/auth'
+    | '/new'
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/auth'
+    | '/new'
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/auth'
+    | '/new'
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
@@ -199,6 +211,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiRoute: typeof ApiRouteWithChildren
   AuthRoute: typeof AuthRoute
+  NewRoute: typeof NewRoute
   PrivacyRoute: typeof PrivacyRoute
   SecurityRoute: typeof SecurityRoute
   AccessPointsSysIdRoute: typeof AccessPointsSysIdRoute
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new': {
+      id: '/new'
+      path: '/new'
+      fullPath: '/new'
+      preLoaderRoute: typeof NewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -328,6 +348,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiRoute: ApiRouteWithChildren,
   AuthRoute: AuthRoute,
+  NewRoute: NewRoute,
   PrivacyRoute: PrivacyRoute,
   SecurityRoute: SecurityRoute,
   AccessPointsSysIdRoute: AccessPointsSysIdRoute,

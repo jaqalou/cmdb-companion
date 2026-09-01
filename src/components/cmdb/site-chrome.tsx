@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   Network,
+  Plus,
   Server,
   ShieldCheck,
   Wifi,
@@ -28,6 +29,7 @@ const MENU: { group: string; items: { to: string; label: string; icon: typeof Se
       { to: "/databases", label: "SQL Instances", icon: Database },
       { to: "/switches", label: "Switches", icon: Network },
       { to: "/access-points", label: "Access Points", icon: Wifi },
+      { to: "/new", label: "Add Item", icon: Plus },
     ],
   },
   {
