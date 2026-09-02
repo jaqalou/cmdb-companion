@@ -164,19 +164,20 @@ function UsersAdminPage() {
                     <th className="px-4 py-2.5 font-semibold">Created</th>
                     <th className="px-4 py-2.5 font-semibold">Last sign-in</th>
                     <th className="px-4 py-2.5 font-semibold">Permissions</th>
+                    <th className="px-4 py-2.5 font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.isLoading && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-muted-foreground">
+                      <td colSpan={6} className="px-4 py-6 text-muted-foreground">
                         Loading accounts…
                       </td>
                     </tr>
                   )}
                   {users.isError && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-destructive">
+                      <td colSpan={6} className="px-4 py-6 text-destructive">
                         {users.error instanceof Error ? users.error.message : "Could not load users"}
                       </td>
                     </tr>
