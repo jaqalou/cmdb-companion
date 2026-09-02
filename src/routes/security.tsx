@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
+
 
 export const Route = createFileRoute("/security")({
   head: () => ({
