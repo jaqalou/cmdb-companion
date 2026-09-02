@@ -261,8 +261,10 @@ function UsersAdminPage() {
 
             <p className="mt-4 max-w-3xl text-xs text-muted-foreground">
               Role changes are applied immediately and are written to the append-only audit trail
-              through the database. Removing your own administrator role is blocked to avoid
-              locking the platform out.
+              through the database. Rename changes the account email address. Deleting an account
+              permanently removes the sign-in identity and all of its permissions — this supports
+              the GDPR right to erasure. Removing your own administrator role or deleting your own
+              account while signed in is blocked to avoid locking the platform out.
             </p>
           </>
         )}
