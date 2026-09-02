@@ -95,3 +95,40 @@ export const revokeUserRole = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const renameInput = z.object({
+  userId: z.string().uuid(),
+  email: z.string().trim().email("Enter a valid email address"),
+});
+
+/** Rename = change the account email (the displayed identity across the app). */
+export const renameUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => renameInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      email: data.email,
+      email_confirm: true,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteUserAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ userId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.userId === context.userId) {
+      throw new Error("You cannot delete your own account while signed in");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Roles cascade via the user_roles foreign key; remove explicitly anyway
+    // so the audit trail stays tidy if constraints change later.
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
