@@ -75,6 +75,40 @@ function UsersAdminPage() {
       toast.error(error instanceof Error ? error.message : "Could not update permissions"),
   });
 
+  const renameMut = useMutation({
+    mutationFn: async (input: { userId: string; email: string }) =>
+      rename({ data: input }),
+    onSuccess: () => {
+      toast.success("Account renamed");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not rename account"),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (input: { userId: string }) => deleteAccount({ data: input }),
+    onSuccess: () => {
+      toast.success("Account deleted");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not delete account"),
+  });
+
+  function onRename(userId: string, currentEmail: string) {
+    const next = window.prompt("New email address for this account", currentEmail);
+    if (!next || next.trim() === currentEmail) return;
+    renameMut.mutate({ userId, email: next.trim() });
+  }
+
+  function onDelete(userId: string, email: string) {
+    const confirmed = window.confirm(
+      `Delete ${email}? This permanently removes the account and all of its permissions. This cannot be undone.`,
+    );
+    if (confirmed) deleteMut.mutate({ userId });
+  }
+
   return (
     <PageShell>
       <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-6">
