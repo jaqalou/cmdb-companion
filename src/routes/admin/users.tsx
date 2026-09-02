@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { useAuth } from "@/hooks/use-auth";
 import {
+  deleteUserAccount,
   grantUserRole,
   listAppUsers,
+  renameUser,
   revokeUserRole,
   type AppRole,
 } from "@/lib/admin-users.functions";
@@ -51,6 +53,8 @@ function UsersAdminPage() {
   const fetchUsers = useServerFn(listAppUsers);
   const grant = useServerFn(grantUserRole);
   const revoke = useServerFn(revokeUserRole);
+  const rename = useServerFn(renameUser);
+  const deleteAccount = useServerFn(deleteUserAccount);
 
   const users = useQuery({
     queryKey: ["admin-users"],
