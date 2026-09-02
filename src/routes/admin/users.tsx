@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { useAuth } from "@/hooks/use-auth";
 import {
+  deleteUserAccount,
   grantUserRole,
   listAppUsers,
+  renameUser,
   revokeUserRole,
   type AppRole,
 } from "@/lib/admin-users.functions";
@@ -51,6 +53,8 @@ function UsersAdminPage() {
   const fetchUsers = useServerFn(listAppUsers);
   const grant = useServerFn(grantUserRole);
   const revoke = useServerFn(revokeUserRole);
+  const rename = useServerFn(renameUser);
+  const deleteAccount = useServerFn(deleteUserAccount);
 
   const users = useQuery({
     queryKey: ["admin-users"],
@@ -70,6 +74,40 @@ function UsersAdminPage() {
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Could not update permissions"),
   });
+
+  const renameMut = useMutation({
+    mutationFn: async (input: { userId: string; email: string }) =>
+      rename({ data: input }),
+    onSuccess: () => {
+      toast.success("Account renamed");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not rename account"),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (input: { userId: string }) => deleteAccount({ data: input }),
+    onSuccess: () => {
+      toast.success("Account deleted");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not delete account"),
+  });
+
+  function onRename(userId: string, currentEmail: string) {
+    const next = window.prompt("New email address for this account", currentEmail);
+    if (!next || next.trim() === currentEmail) return;
+    renameMut.mutate({ userId, email: next.trim() });
+  }
+
+  function onDelete(userId: string, email: string) {
+    const confirmed = window.confirm(
+      `Delete ${email}? This permanently removes the account and all of its permissions. This cannot be undone.`,
+    );
+    if (confirmed) deleteMut.mutate({ userId });
+  }
 
   return (
     <PageShell>
@@ -126,19 +164,20 @@ function UsersAdminPage() {
                     <th className="px-4 py-2.5 font-semibold">Created</th>
                     <th className="px-4 py-2.5 font-semibold">Last sign-in</th>
                     <th className="px-4 py-2.5 font-semibold">Permissions</th>
+                    <th className="px-4 py-2.5 font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.isLoading && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-muted-foreground">
+                      <td colSpan={6} className="px-4 py-6 text-muted-foreground">
                         Loading accounts…
                       </td>
                     </tr>
                   )}
                   {users.isError && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-destructive">
+                      <td colSpan={6} className="px-4 py-6 text-destructive">
                         {users.error instanceof Error ? users.error.message : "Could not load users"}
                       </td>
                     </tr>
@@ -180,11 +219,38 @@ function UsersAdminPage() {
                           })}
                         </div>
                       </td>
+                      <td className="px-4 py-2.5">
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={renameMut.isPending || deleteMut.isPending}
+                            onClick={() => onRename(row.id, row.email)}
+                            className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60 disabled:opacity-50"
+                          >
+                            Rename
+                          </button>
+                          <button
+                            type="button"
+                            disabled={
+                              renameMut.isPending || deleteMut.isPending || row.id === user?.id
+                            }
+                            onClick={() => onDelete(row.id, row.email)}
+                            title={
+                              row.id === user?.id
+                                ? "You cannot delete your own account while signed in"
+                                : undefined
+                            }
+                            className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                   {users.data?.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-muted-foreground">
+                      <td colSpan={6} className="px-4 py-6 text-muted-foreground">
                         No accounts yet.
                       </td>
                     </tr>
@@ -195,8 +261,10 @@ function UsersAdminPage() {
 
             <p className="mt-4 max-w-3xl text-xs text-muted-foreground">
               Role changes are applied immediately and are written to the append-only audit trail
-              through the database. Removing your own administrator role is blocked to avoid
-              locking the platform out.
+              through the database. Rename changes the account email address. Deleting an account
+              permanently removes the sign-in identity and all of its permissions — this supports
+              the GDPR right to erasure. Removing your own administrator role or deleting your own
+              account while signed in is blocked to avoid locking the platform out.
             </p>
           </>
         )}
