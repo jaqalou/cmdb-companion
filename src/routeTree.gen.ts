@@ -17,6 +17,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as AccessPointsIndexRouteImport } from './routes/access-points/index'
 import { Route as AccessPointsSysIdRouteImport } from './routes/access-points/$sysId'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as DatabasesIndexRouteImport } from './routes/databases/index'
 import { Route as DatabasesSysIdRouteImport } from './routes/databases/$sysId'
 import { Route as ServersIndexRouteImport } from './routes/servers/index'
@@ -65,6 +66,11 @@ const AccessPointsSysIdRoute = AccessPointsSysIdRouteImport.update({
   path: '/access-points/$sysId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DatabasesIndexRoute = DatabasesIndexRouteImport.update({
   id: '/databases/',
   path: '/databases/',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/admin/users': typeof AdminUsersRoute
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
   '/switches/$sysId': typeof SwitchesSysIdRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/admin/users': typeof AdminUsersRoute
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
   '/switches/$sysId': typeof SwitchesSysIdRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/admin/users': typeof AdminUsersRoute
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
   '/switches/$sysId': typeof SwitchesSysIdRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
+    | '/admin/users'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
+    | '/admin/users'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
+    | '/admin/users'
     | '/databases/$sysId'
     | '/servers/$sysId'
     | '/switches/$sysId'
@@ -215,6 +227,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SecurityRoute: typeof SecurityRoute
   AccessPointsSysIdRoute: typeof AccessPointsSysIdRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   DatabasesSysIdRoute: typeof DatabasesSysIdRoute
   ServersSysIdRoute: typeof ServersSysIdRoute
   SwitchesSysIdRoute: typeof SwitchesSysIdRoute
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/access-points/$sysId'
       fullPath: '/access-points/$sysId'
       preLoaderRoute: typeof AccessPointsSysIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/databases/': {
@@ -352,6 +372,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SecurityRoute: SecurityRoute,
   AccessPointsSysIdRoute: AccessPointsSysIdRoute,
+  AdminUsersRoute: AdminUsersRoute,
   DatabasesSysIdRoute: DatabasesSysIdRoute,
   ServersSysIdRoute: ServersSysIdRoute,
   SwitchesSysIdRoute: SwitchesSysIdRoute,

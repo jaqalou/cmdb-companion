@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
+
 
 export const Route = createFileRoute("/security")({
   head: () => ({
@@ -92,7 +93,20 @@ function SecurityPage() {
       </section>
 
       <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10">
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-foreground/10 bg-card px-6 py-5">
+          <div>
+            <h2 className="font-display text-2xl text-brand">Users &amp; permissions</h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              Administer accounts from password and federated single sign-on, and grant the
+              admin, editor and viewer roles enforced by row-level security.
+            </p>
+          </div>
+          <Link to="/admin/users" className="btn-accent h-9 px-4">
+            Manage access
+          </Link>
+        </div>
         <div className="divide-y divide-foreground/10 border border-foreground/10 bg-card">
+
           {MEASURES.map(([article, title, detail]) => (
             <div key={article} className="grid gap-4 px-6 py-8 lg:grid-cols-[320px_1fr] lg:px-10">
               <p className="eyebrow text-muted-foreground">{article}</p>

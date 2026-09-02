@@ -10,7 +10,9 @@ import {
   Plus,
   Server,
   ShieldCheck,
+  Users,
   Wifi,
+
   X,
 } from "lucide-react";
 
@@ -37,9 +39,11 @@ const MENU: { group: string; items: { to: string; label: string; icon: typeof Se
     items: [
       { to: "/api", label: "REST API", icon: BookOpen },
       { to: "/security", label: "Security", icon: ShieldCheck },
+      { to: "/admin/users", label: "Users & Access", icon: Users },
     ],
   },
 ];
+
 
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
