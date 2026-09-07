@@ -266,20 +266,26 @@ export function CiList({
                   {c.label}
                 </th>
               ))}
+              <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                Support
+              </th>
+              <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                Snoozed
+              </th>
               <th className="px-3 py-2" />
             </tr>
           </thead>
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={columns.length + 2} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
                   Loading configuration items…
                 </td>
               </tr>
             )}
             {!isLoading && filtered.length === 0 && (
               <tr>
-                <td colSpan={columns.length + 2} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
                   No configuration items match the current filters.
                 </td>
               </tr>
