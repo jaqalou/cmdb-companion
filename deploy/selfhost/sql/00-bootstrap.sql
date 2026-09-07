@@ -14,16 +14,17 @@ BEGIN
     CREATE ROLE service_role NOLOGIN NOINHERIT BYPASSRLS;
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticator') THEN
-    EXECUTE format('CREATE ROLE authenticator LOGIN NOINHERIT PASSWORD %L', :'db_password');
-  ELSE
-    EXECUTE format('ALTER ROLE authenticator LOGIN PASSWORD %L', :'db_password');
+    CREATE ROLE authenticator LOGIN NOINHERIT;
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'supabase_auth_admin') THEN
-    EXECUTE format('CREATE ROLE supabase_auth_admin LOGIN CREATEROLE NOINHERIT PASSWORD %L', :'db_password');
-  ELSE
-    EXECUTE format('ALTER ROLE supabase_auth_admin LOGIN PASSWORD %L', :'db_password');
+    CREATE ROLE supabase_auth_admin LOGIN CREATEROLE NOINHERIT;
   END IF;
 END $$;
+
+-- Passwords are set outside the DO block so psql can interpolate the variable.
+ALTER ROLE authenticator PASSWORD :'db_password';
+ALTER ROLE supabase_auth_admin PASSWORD :'db_password';
+
 
 GRANT anon, authenticated, service_role TO authenticator;
 
