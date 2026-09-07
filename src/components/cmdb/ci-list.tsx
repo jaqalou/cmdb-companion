@@ -1,10 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
 import type { CiRecord } from "@/lib/cmdb-data";
 import type { FieldDef } from "@/lib/cmdb-schema";
+import { deleteCiRecords, setCiSnoozed } from "@/lib/cmdb-mutate.functions";
 import { downloadFile, toCsv, toJsonExport } from "@/lib/csv-export";
+import { SUPPORT_COLORS, SUPPORT_LABELS, supportStatus } from "@/lib/support-status";
 
 type Props = {
   records: CiRecord[];
@@ -20,6 +26,8 @@ type Props = {
   exportFields: FieldDef[];
   /** Base filename for downloads, e.g. "cmdb_ci_server" */
   exportName: string;
+  /** Physical table name — used for snooze/delete mutations */
+  table: string;
 };
 
 function value(record: CiRecord, field: string) {
