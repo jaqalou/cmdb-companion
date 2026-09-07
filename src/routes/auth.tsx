@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { signInWithSso } from "@/lib/sso";
 
 type AuthSearch = { redirect?: string | undefined };
 
@@ -77,7 +77,7 @@ function AuthPage() {
     setBusy(true);
     try {
       sessionStorage.setItem("cmdb.redirect", destination);
-      const result = await lovable.auth.signInWithOAuth(provider, {
+      const result = await signInWithSso(provider, {
         redirect_uri: window.location.origin,
       });
       if (result.error) {
