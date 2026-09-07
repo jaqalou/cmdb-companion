@@ -320,6 +320,33 @@ export function CiList({
                     )}
                   </td>
                 ))}
+                <td className="data-cell">
+                  <span
+                    className="chip"
+                    style={{
+                      color: SUPPORT_COLORS[supportStatus(r)],
+                      borderColor: SUPPORT_COLORS[supportStatus(r)],
+                    }}
+                  >
+                    {SUPPORT_LABELS[supportStatus(r)]}
+                  </span>
+                </td>
+                <td className="data-cell">
+                  <input
+                    type="checkbox"
+                    aria-label={`Snooze ${String(r[columns[0]!.name] ?? r["sys_id"])}`}
+                    checked={r["snoozed"] === true}
+                    disabled={!canWrite || snoozeMutation.isPending}
+                    title={canWrite ? "Mark as snoozing" : "Sign in as an editor to change this"}
+                    onChange={(e) =>
+                      snoozeMutation.mutate({
+                        sysId: String(r["sys_id"]),
+                        snoozed: e.target.checked,
+                      })
+                    }
+                    className="size-3.5 accent-[var(--color-primary)] disabled:opacity-50"
+                  />
+                </td>
                 <td className="data-cell text-right">
                   <Link
                     to={detailTo}
@@ -328,6 +355,23 @@ export function CiList({
                   >
                     Open
                   </Link>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Permanently delete ${String(r[columns[0]!.name] ?? r["sys_id"])}? This cannot be undone.`,
+                          )
+                        )
+                          deleteMutation.mutate([String(r["sys_id"])]);
+                      }}
+                      className="ml-3 text-[12px] font-semibold text-destructive underline-offset-4 hover:underline disabled:opacity-40"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
