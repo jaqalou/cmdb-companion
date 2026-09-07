@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { CI_CLASSES } from "@/lib/cmdb-schema";
+import { CI_CLASSES, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
 
 const TABLES = Object.keys(CI_CLASSES) as [string, ...string[]];
 
@@ -45,4 +45,51 @@ export const setCiSnoozed = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!count) throw new Error("Update rejected — editor access is required.");
     return { snoozed: data.snoozed };
+  });
+
+const updateInput = z.object({
+  table: z.enum(TABLES),
+  sysId: z.string().uuid(),
+  values: z.record(z.string(), z.union([z.string(), z.number(), z.null()])),
+});
+
+/**
+ * Field-level edit of a CI. Runs as the signed-in user, so the same
+ * editor/admin RLS policy the REST dialects hit decides whether it lands.
+ */
+export const updateCiRecord = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => updateInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const cls = CI_CLASSES[data.table as keyof typeof CI_CLASSES];
+    const allowed = new Set(cls.fields.map((f) => f.name));
+
+    const patch: Record<string, string | number | null> = {};
+    for (const [key, raw] of Object.entries(data.values)) {
+      if (!allowed.has(key)) continue;
+      const value = typeof raw === "string" ? raw.trim() : raw;
+      if (value === "" || value === null || value === undefined) {
+        patch[key] = null;
+        continue;
+      }
+      if (NUMERIC_FIELDS.has(key)) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) throw new Error(`${key} must be a number`);
+        patch[key] = Math.trunc(n);
+      } else {
+        patch[key] = String(value);
+      }
+    }
+
+    if (Object.keys(patch).length === 0) return { updated: 0 };
+    if (data.values[cls.display] !== undefined && !patch[cls.display])
+      throw new Error(`${cls.display} is required`);
+
+    const { error, count } = await context.supabase
+      .from(cls.table)
+      .update(patch as never, { count: "exact" })
+      .eq("sys_id", data.sysId);
+    if (error) throw new Error(error.message);
+    if (!count) throw new Error("Update rejected — editor or administrator access is required.");
+    return { updated: count };
   });
