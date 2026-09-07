@@ -76,6 +76,9 @@ SUPABASE_SERVICE_ROLE_KEY=
 EOF
   fi
 fi
+# Admin user management needs the service role key; make sure the line exists.
+grep -q '^SUPABASE_SERVICE_ROLE_KEY=' "/etc/${APP_NAME}.env" ||
+  echo 'SUPABASE_SERVICE_ROLE_KEY=' >>"/etc/${APP_NAME}.env"
 sed -i "/^PORT=/d" "/etc/${APP_NAME}.env"
 echo "PORT=${APP_PORT}" >>"/etc/${APP_NAME}.env"
 chmod 640 "/etc/${APP_NAME}.env"
@@ -84,6 +87,11 @@ chown -R "$APP_USER":"$APP_USER" "$APP_DIR"
 
 log "Installing dependencies and building (this takes a few minutes)"
 su -s /bin/bash "$APP_USER" -c "cd '$APP_DIR' && set -a && . /etc/${APP_NAME}.env && set +a && '$BUN' install --frozen-lockfile && NITRO_PRESET=node-server '$BUN' run build"
+
+if [[ ! -f "${APP_DIR}/.output/server/index.mjs" ]]; then
+  echo "Build did not produce .output/server/index.mjs — aborting." >&2
+  exit 1
+fi
 
 log "Installing systemd service"
 install -m 0644 "${APP_DIR}/deploy/${APP_NAME}.service" "/etc/systemd/system/${APP_NAME}.service"
