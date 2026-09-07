@@ -1,0 +1,31 @@
+[Unit]
+Description=CB Assets CMDB
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cbassets
+Group=cbassets
+WorkingDirectory=/opt/cb-assets
+EnvironmentFile=/etc/cb-assets.env
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+ExecStart=/usr/bin/node /opt/cb-assets/.output/server/index.mjs
+Restart=always
+RestartSec=3
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/cb-assets
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
