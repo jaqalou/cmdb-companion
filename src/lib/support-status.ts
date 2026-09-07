@@ -1,12 +1,11 @@
 import type { CiRecord } from "@/lib/cmdb-data";
 
-export type SupportStatus = "out" | "soon" | "supported" | "snoozed" | "unknown";
+export type SupportStatus = "out" | "soon" | "supported" | "unknown";
 
 export const SUPPORT_LABELS: Record<SupportStatus, string> = {
   out: "Out of support",
   soon: "Expiring within 6 months",
   supported: "In support",
-  snoozed: "Snoozed",
   unknown: "No EOL date",
 };
 
@@ -14,7 +13,6 @@ export const SUPPORT_COLORS: Record<SupportStatus, string> = {
   out: "#dc2626",
   soon: "#f59e0b",
   supported: "#16a34a",
-  snoozed: "#94a3b8",
   unknown: "#cbd5e1",
 };
 
@@ -30,7 +28,6 @@ function parseEol(value: unknown): Date | null {
 }
 
 export function supportStatus(record: CiRecord, now = new Date()): SupportStatus {
-  if (record["snoozed"] === true) return "snoozed";
   const eol = parseEol(record["eol_date"]);
   if (!eol) {
     const cycle = String(record["support_cycle"] ?? "").toLowerCase();
@@ -44,4 +41,4 @@ export function supportStatus(record: CiRecord, now = new Date()): SupportStatus
   return eol.getTime() <= sixMonths.getTime() ? "soon" : "supported";
 }
 
-export const SUPPORT_ORDER: SupportStatus[] = ["out", "soon", "supported", "snoozed", "unknown"];
+export const SUPPORT_ORDER: SupportStatus[] = ["out", "soon", "supported", "unknown"];
