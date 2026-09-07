@@ -30,7 +30,7 @@ log "Installing system packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y --no-install-recommends \
-  ca-certificates curl gnupg git unzip build-essential python3 \
+  ca-certificates curl gnupg git unzip rsync build-essential python3 \
   nginx ufw
 
 log "Installing Node.js ${NODE_MAJOR}.x"
