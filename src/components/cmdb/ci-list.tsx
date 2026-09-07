@@ -304,22 +304,38 @@ export function CiList({
                     className="size-3.5 accent-[var(--color-primary)]"
                   />
                 </td>
-                {columns.map((c, i) => (
-                  <td
-                    key={c.name}
-                    className={
-                      i === 0
-                        ? "data-cell font-mono font-semibold text-primary"
-                        : "data-cell text-foreground/80"
-                    }
-                  >
-                    {i !== 0 && CHIP_FIELDS.has(c.name) && value(r, c.name) !== "—" ? (
-                      <span className="chip">{value(r, c.name)}</span>
+                {columns.map((c, i) => {
+                  const cellValue = value(r, c.name);
+                  const isFirst = i === 0;
+                  const content =
+                    !isFirst && CHIP_FIELDS.has(c.name) && cellValue !== "—" ? (
+                      <span className="chip">{cellValue}</span>
                     ) : (
-                      value(r, c.name)
-                    )}
-                  </td>
-                ))}
+                      cellValue
+                    );
+                  return (
+                    <td
+                      key={c.name}
+                      className={
+                        isFirst
+                          ? "data-cell font-mono font-semibold text-primary"
+                          : "data-cell text-foreground/80"
+                      }
+                    >
+                      {isFirst ? (
+                        <Link
+                          to={detailTo}
+                          params={{ sysId: String(r["sys_id"]) }}
+                          className="hover:underline"
+                        >
+                          {content}
+                        </Link>
+                      ) : (
+                        content
+                      )}
+                    </td>
+                  );
+                })}
                 <td className="data-cell">
                   <span
                     className="chip"
