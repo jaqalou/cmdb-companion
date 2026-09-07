@@ -158,6 +158,58 @@ function UsersAdminPage() {
               ))}
             </div>
 
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                createMut.mutate({ email: newEmail, password: newPassword, role: newRole });
+              }}
+              className="mt-6 rounded-xl border border-border bg-card p-4"
+            >
+              <p className="text-sm font-semibold">Create an account</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Provision an account directly. The email is confirmed immediately and the person can
+                sign in with the password you set — ask them to change it afterwards.
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]">
+                <input
+                  type="email"
+                  required
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+                />
+                <input
+                  type="text"
+                  required
+                  minLength={12}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Temporary password (12+ characters)"
+                  className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+                />
+                <select
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value as AppRole)}
+                  className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+                >
+                  {ROLES.map((r) => (
+                    <option key={r.role} value={r.role}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  disabled={createMut.isPending}
+                  className="btn-accent inline-flex h-9 items-center justify-center px-4 text-sm disabled:opacity-50"
+                >
+                  {createMut.isPending ? "Creating…" : "Create account"}
+                </button>
+              </div>
+            </form>
+
+
             <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-card">
               <table className="w-full min-w-[900px] text-sm">
                 <thead>
