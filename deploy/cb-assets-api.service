@@ -1,0 +1,30 @@
+[Unit]
+Description=CB Assets CMDB API (Flask)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cbassets
+Group=cbassets
+WorkingDirectory=/opt/cb-assets/backend
+EnvironmentFile=/etc/cb-assets.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/cb-assets/backend/.venv/bin/gunicorn -w 4 -b 127.0.0.1:5000 wsgi:app
+Restart=always
+RestartSec=3
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/cb-assets
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

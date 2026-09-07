@@ -38,3 +38,14 @@ NITRO_PRESET=node-server bun run build
 node .output/server/index.mjs   # honours PORT and HOST
 ```
 
+
+## Python / Flask API backend
+
+`backend/` contains a Flask implementation of the CMDB API — the same GLPI
+(`/api/public/apirest.php/*`) and ServiceNow (`/api/public/now/table/*`)
+dialects, against the same PostgreSQL database and the same permission model.
+Run it standalone with gunicorn and proxy `/api/public/` to it, or use it as
+the API for Python-based deployments.
+
+See `backend/README.md` for setup, endpoint examples and the systemd unit
+(`deploy/cb-assets-api.service`).
