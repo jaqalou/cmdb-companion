@@ -69,6 +69,7 @@ export function SupportChart({ records }: { records: CiRecord[] }) {
                   outerRadius={85}
                   cy="45%"
                   paddingAngle={2}
+                  isAnimationActive={false}
                 >
                   {data.map((d) => (
                     <Cell key={d.key} fill={SUPPORT_COLORS[d.key]} stroke="none" />
