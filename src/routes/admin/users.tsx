@@ -99,6 +99,27 @@ function UsersAdminPage() {
       toast.error(error instanceof Error ? error.message : "Could not delete account"),
   });
 
+  const createAccount = useServerFn(createUserAccount);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState<AppRole>("viewer");
+
+  const createMut = useMutation({
+    mutationFn: async (input: { email: string; password: string; role: AppRole }) =>
+      createAccount({ data: input }),
+    onSuccess: () => {
+      toast.success("Account created");
+      setNewEmail("");
+      setNewPassword("");
+      setNewRole("viewer");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not create account"),
+  });
+
+
+
   function onRename(userId: string, currentEmail: string) {
     const next = window.prompt("New email address for this account", currentEmail);
     if (!next || next.trim() === currentEmail) return;
