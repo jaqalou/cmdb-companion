@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { CiList } from "@/components/cmdb/ci-list";
+import { SupportChart } from "@/components/cmdb/support-chart";
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { serversQuery } from "@/lib/cmdb-data";
 import { SERVER_FIELDS } from "@/lib/cmdb-schema";
@@ -48,6 +49,7 @@ function ServersPage() {
           </p>
         </div>
       </section>
+      <SupportChart records={data} />
       <CiList
         records={data}
         columns={COLUMNS}
@@ -60,6 +62,7 @@ function ServersPage() {
         isLoading={isLoading}
         exportFields={SERVER_FIELDS}
         exportName="cmdb_ci_server"
+        table="cmdb_ci_server"
       />
     </PageShell>
   );
