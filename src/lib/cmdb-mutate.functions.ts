@@ -20,7 +20,7 @@ export const deleteCiRecords = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => deleteInput.parse(data))
   .handler(async ({ data, context }) => {
     const { error, count } = await context.supabase
-      .from(data.table)
+      .from(data.table as "cmdb_ci_server")
       .delete({ count: "exact" })
       .in("sys_id", data.sysIds);
     if (error) throw new Error(error.message);
@@ -39,7 +39,7 @@ export const setCiSnoozed = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => snoozeInput.parse(data))
   .handler(async ({ data, context }) => {
     const { error, count } = await context.supabase
-      .from(data.table)
+      .from(data.table as "cmdb_ci_server")
       .update({ snoozed: data.snoozed } as never, { count: "exact" })
       .eq("sys_id", data.sysId);
     if (error) throw new Error(error.message);
