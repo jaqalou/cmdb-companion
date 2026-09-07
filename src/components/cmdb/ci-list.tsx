@@ -223,6 +223,23 @@ export function CiList({
             Clear selection
           </button>
         )}
+        {isAdmin && selected.length > 0 && (
+          <button
+            type="button"
+            disabled={deleteMutation.isPending}
+            onClick={() => {
+              if (
+                window.confirm(
+                  `Permanently delete ${selected.length} item(s)? This cannot be undone and is written to the audit log.`,
+                )
+              )
+                deleteMutation.mutate(selected);
+            }}
+            className="h-9 rounded-full border border-destructive/40 px-4 text-[12px] font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-40"
+          >
+            Delete {selected.length} selected
+          </button>
+        )}
         <p className="pb-2 text-[11px] font-medium text-muted-foreground">
           Exports include all {exportFields.length} attributes
         </p>
