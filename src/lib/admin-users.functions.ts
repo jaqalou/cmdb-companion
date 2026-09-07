@@ -135,3 +135,33 @@ export const deleteUserAccount = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const createInput = z.object({
+  email: z.string().trim().email("Enter a valid email address"),
+  password: z.string().min(12, "Use at least 12 characters"),
+  role: z.enum(["admin", "editor", "viewer"]),
+});
+
+/** Manually provision an account (admin only). Email is pre-confirmed. */
+export const createUserAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => createInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: data.password,
+      email_confirm: true,
+    });
+    if (error) throw new Error(error.message);
+    const userId = created.user?.id;
+    if (!userId) throw new Error("Account created but no identifier was returned");
+    // The signup trigger seeds a default role; make the chosen role the only one.
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
+    const { error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: userId, role: data.role });
+    if (roleError) throw new Error(roleError.message);
+    return { ok: true, userId };
+  });
