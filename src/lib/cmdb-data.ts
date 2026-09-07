@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 
-export type CiRecord = Record<string, string | number | null>;
+export type CiRecord = Record<string, string | number | boolean | null>;
 
 type CiTable =
   | "cmdb_ci_server"

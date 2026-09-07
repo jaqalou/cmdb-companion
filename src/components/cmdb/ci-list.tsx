@@ -1,10 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/use-auth";
 import type { CiRecord } from "@/lib/cmdb-data";
 import type { FieldDef } from "@/lib/cmdb-schema";
+import { deleteCiRecords, setCiSnoozed } from "@/lib/cmdb-mutate.functions";
 import { downloadFile, toCsv, toJsonExport } from "@/lib/csv-export";
+import { SUPPORT_COLORS, SUPPORT_LABELS, supportStatus } from "@/lib/support-status";
 
 type Props = {
   records: CiRecord[];
@@ -20,6 +26,8 @@ type Props = {
   exportFields: FieldDef[];
   /** Base filename for downloads, e.g. "cmdb_ci_server" */
   exportName: string;
+  /** Physical table name — used for snooze/delete mutations */
+  table: string;
 };
 
 function value(record: CiRecord, field: string) {
@@ -47,7 +55,35 @@ export function CiList({
   isLoading,
   exportFields,
   exportName,
+  table,
 }: Props) {
+  const { canWrite, isAdmin } = useAuth();
+  const queryClient = useQueryClient();
+  const snoozeFn = useServerFn(setCiSnoozed);
+  const deleteFn = useServerFn(deleteCiRecords);
+
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["cmdb", table] });
+
+  const snoozeMutation = useMutation({
+    mutationFn: (vars: { sysId: string; snoozed: boolean }) =>
+      snoozeFn({ data: { table, ...vars } }),
+    onSuccess: (_r, vars) => {
+      refresh();
+      toast.success(vars.snoozed ? "Item snoozed" : "Snooze removed");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (sysIds: string[]) => deleteFn({ data: { table, sysIds } }),
+    onSuccess: (res) => {
+      refresh();
+      setSelected([]);
+      toast.success(`Deleted ${res.deleted} item${res.deleted === 1 ? "" : "s"}`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<string[]>([]);
@@ -187,6 +223,23 @@ export function CiList({
             Clear selection
           </button>
         )}
+        {isAdmin && selected.length > 0 && (
+          <button
+            type="button"
+            disabled={deleteMutation.isPending}
+            onClick={() => {
+              if (
+                window.confirm(
+                  `Permanently delete ${selected.length} item(s)? This cannot be undone and is written to the audit log.`,
+                )
+              )
+                deleteMutation.mutate(selected);
+            }}
+            className="h-9 rounded-full border border-destructive/40 px-4 text-[12px] font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-40"
+          >
+            Delete {selected.length} selected
+          </button>
+        )}
         <p className="pb-2 text-[11px] font-medium text-muted-foreground">
           Exports include all {exportFields.length} attributes
         </p>
@@ -213,20 +266,26 @@ export function CiList({
                   {c.label}
                 </th>
               ))}
+              <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                Support
+              </th>
+              <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                Snoozed
+              </th>
               <th className="px-3 py-2" />
             </tr>
           </thead>
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={columns.length + 2} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
                   Loading configuration items…
                 </td>
               </tr>
             )}
             {!isLoading && filtered.length === 0 && (
               <tr>
-                <td colSpan={columns.length + 2} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
                   No configuration items match the current filters.
                 </td>
               </tr>
@@ -261,6 +320,33 @@ export function CiList({
                     )}
                   </td>
                 ))}
+                <td className="data-cell">
+                  <span
+                    className="chip"
+                    style={{
+                      color: SUPPORT_COLORS[supportStatus(r)],
+                      borderColor: SUPPORT_COLORS[supportStatus(r)],
+                    }}
+                  >
+                    {SUPPORT_LABELS[supportStatus(r)]}
+                  </span>
+                </td>
+                <td className="data-cell">
+                  <input
+                    type="checkbox"
+                    aria-label={`Snooze ${String(r[columns[0]!.name] ?? r["sys_id"])}`}
+                    checked={r["snoozed"] === true}
+                    disabled={!canWrite || snoozeMutation.isPending}
+                    title={canWrite ? "Mark as snoozing" : "Sign in as an editor to change this"}
+                    onChange={(e) =>
+                      snoozeMutation.mutate({
+                        sysId: String(r["sys_id"]),
+                        snoozed: e.target.checked,
+                      })
+                    }
+                    className="size-3.5 accent-[var(--color-primary)] disabled:opacity-50"
+                  />
+                </td>
                 <td className="data-cell text-right">
                   <Link
                     to={detailTo}
@@ -269,6 +355,23 @@ export function CiList({
                   >
                     Open
                   </Link>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Permanently delete ${String(r[columns[0]!.name] ?? r["sys_id"])}? This cannot be undone.`,
+                          )
+                        )
+                          deleteMutation.mutate([String(r["sys_id"])]);
+                      }}
+                      className="ml-3 text-[12px] font-semibold text-destructive underline-offset-4 hover:underline disabled:opacity-40"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

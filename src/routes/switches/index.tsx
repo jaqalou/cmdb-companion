@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { CiList } from "@/components/cmdb/ci-list";
+import { SupportChart } from "@/components/cmdb/support-chart";
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { switchesQuery } from "@/lib/cmdb-data";
 import { SWITCH_FIELDS } from "@/lib/cmdb-schema";
@@ -54,6 +55,7 @@ function SwitchesPage() {
           </p>
         </div>
       </section>
+      <SupportChart records={data} />
       <CiList
         records={data}
         columns={COLUMNS}
@@ -66,6 +68,7 @@ function SwitchesPage() {
         isLoading={isLoading}
         exportFields={SWITCH_FIELDS}
         exportName="cmdb_ci_netgear_switch"
+        table="cmdb_ci_netgear_switch"
       />
     </PageShell>
   );
