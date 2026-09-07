@@ -55,7 +55,7 @@ export function SupportChart({ records }: { records: CiRecord[] }) {
   return (
     <section className="border-b border-border bg-card px-6 py-5 lg:px-8">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-6 lg:flex-row lg:items-center">
-        <div className="h-[220px] w-full max-w-[320px]">
+        <div className="h-[250px] w-full max-w-[420px] shrink-0">
           {scoped.length === 0 ? (
             <p className="py-16 text-sm text-muted-foreground">No records in this selection.</p>
           ) : (
@@ -65,8 +65,9 @@ export function SupportChart({ records }: { records: CiRecord[] }) {
                   data={data}
                   dataKey="value"
                   nameKey="name"
-                  innerRadius={45}
-                  outerRadius={80}
+                  innerRadius={48}
+                  outerRadius={85}
+                  cy="45%"
                   paddingAngle={2}
                 >
                   {data.map((d) => (
@@ -75,9 +76,9 @@ export function SupportChart({ records }: { records: CiRecord[] }) {
                 </Pie>
                 <Tooltip />
                 <Legend
-                  layout="vertical"
-                  align="right"
-                  verticalAlign="middle"
+                  layout="horizontal"
+                  align="center"
+                  verticalAlign="bottom"
                   wrapperStyle={{ fontSize: 11 }}
                 />
               </PieChart>
