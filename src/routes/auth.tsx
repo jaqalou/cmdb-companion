@@ -73,15 +73,15 @@ function AuthPage() {
     }
   }
 
-  async function google() {
+  async function sso(provider: "google" | "microsoft") {
     setBusy(true);
     try {
       sessionStorage.setItem("cmdb.redirect", destination);
-      const result = await lovable.auth.signInWithOAuth("google", {
+      const result = await lovable.auth.signInWithOAuth(provider, {
         redirect_uri: window.location.origin,
       });
       if (result.error) {
-        toast.error("Google sign-in failed");
+        toast.error(`${provider === "microsoft" ? "Microsoft" : "Google"} sign-in failed`);
         return;
       }
       if (result.redirected) return;
