@@ -55,7 +55,35 @@ export function CiList({
   isLoading,
   exportFields,
   exportName,
+  table,
 }: Props) {
+  const { canWrite, isAdmin } = useAuth();
+  const queryClient = useQueryClient();
+  const snoozeFn = useServerFn(setCiSnoozed);
+  const deleteFn = useServerFn(deleteCiRecords);
+
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["cmdb", table] });
+
+  const snoozeMutation = useMutation({
+    mutationFn: (vars: { sysId: string; snoozed: boolean }) =>
+      snoozeFn({ data: { table, ...vars } }),
+    onSuccess: (_r, vars) => {
+      refresh();
+      toast.success(vars.snoozed ? "Item snoozed" : "Snooze removed");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (sysIds: string[]) => deleteFn({ data: { table, sysIds } }),
+    onSuccess: (res) => {
+      refresh();
+      setSelected([]);
+      toast.success(`Deleted ${res.deleted} item${res.deleted === 1 ? "" : "s"}`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<string[]>([]);
