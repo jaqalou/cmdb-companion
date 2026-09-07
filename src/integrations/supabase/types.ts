@@ -94,6 +94,7 @@ export type Database = {
           server_state: string | null
           server_type: string | null
           service_owner: string | null
+          snoozed: boolean
           sql_agent_service_account: string | null
           sql_port: number | null
           sql_service_account: string | null
@@ -147,6 +148,7 @@ export type Database = {
           server_state?: string | null
           server_type?: string | null
           service_owner?: string | null
+          snoozed?: boolean
           sql_agent_service_account?: string | null
           sql_port?: number | null
           sql_service_account?: string | null
@@ -200,6 +202,7 @@ export type Database = {
           server_state?: string | null
           server_type?: string | null
           service_owner?: string | null
+          snoozed?: boolean
           sql_agent_service_account?: string | null
           sql_port?: number | null
           sql_service_account?: string | null
@@ -245,6 +248,7 @@ export type Database = {
           site_address: string | null
           sla: string | null
           snmp_version: string | null
+          snoozed: boolean
           stack_member_count: number | null
           stack_name: string | null
           status: string | null
@@ -290,6 +294,7 @@ export type Database = {
           site_address?: string | null
           sla?: string | null
           snmp_version?: string | null
+          snoozed?: boolean
           stack_member_count?: number | null
           stack_name?: string | null
           status?: string | null
@@ -335,6 +340,7 @@ export type Database = {
           site_address?: string | null
           sla?: string | null
           snmp_version?: string | null
+          snoozed?: boolean
           stack_member_count?: number | null
           stack_name?: string | null
           status?: string | null
@@ -388,6 +394,7 @@ export type Database = {
           sap_sid: string | null
           site_address: string | null
           sla: string | null
+          snoozed: boolean
           status: string | null
           subscription: string | null
           support_cycle: string | null
@@ -438,6 +445,7 @@ export type Database = {
           sap_sid?: string | null
           site_address?: string | null
           sla?: string | null
+          snoozed?: boolean
           status?: string | null
           subscription?: string | null
           support_cycle?: string | null
@@ -488,6 +496,7 @@ export type Database = {
           sap_sid?: string | null
           site_address?: string | null
           sla?: string | null
+          snoozed?: boolean
           status?: string | null
           subscription?: string | null
           support_cycle?: string | null
@@ -540,6 +549,7 @@ export type Database = {
           serial_number: string | null
           site_address: string | null
           sla: string | null
+          snoozed: boolean
           ssid_list: string | null
           status: string | null
           support_cycle: string | null
@@ -586,6 +596,7 @@ export type Database = {
           serial_number?: string | null
           site_address?: string | null
           sla?: string | null
+          snoozed?: boolean
           ssid_list?: string | null
           status?: string | null
           support_cycle?: string | null
@@ -632,6 +643,7 @@ export type Database = {
           serial_number?: string | null
           site_address?: string | null
           sla?: string | null
+          snoozed?: boolean
           ssid_list?: string | null
           status?: string | null
           support_cycle?: string | null
