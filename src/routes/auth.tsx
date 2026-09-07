@@ -73,7 +73,7 @@ function AuthPage() {
     }
   }
 
-  async function sso(provider: "google" | "microsoft") {
+  async function sso(provider: "google") {
     setBusy(true);
     try {
       sessionStorage.setItem("cmdb.redirect", destination);
@@ -81,7 +81,7 @@ function AuthPage() {
         redirect_uri: window.location.origin,
       });
       if (result.error) {
-        toast.error(`${provider === "microsoft" ? "Microsoft" : "Google"} sign-in failed`);
+        toast.error("Google sign-in failed");
         return;
       }
       if (result.redirected) return;
@@ -144,23 +144,9 @@ function AuthPage() {
         </div>
 
         <button
-          onClick={() => sso("microsoft")}
-          disabled={busy}
-          className="btn-outline flex w-full items-center justify-center gap-3 px-6 py-4 disabled:opacity-60"
-        >
-          <svg width="18" height="18" viewBox="0 0 21 21" aria-hidden="true">
-            <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-            <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-            <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-            <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-          </svg>
-          Continue with Microsoft
-        </button>
-
-        <button
           onClick={() => sso("google")}
           disabled={busy}
-          className="btn-outline mt-3 w-full px-6 py-4 disabled:opacity-60"
+          className="btn-outline w-full px-6 py-4 disabled:opacity-60"
         >
           Continue with Google
         </button>
