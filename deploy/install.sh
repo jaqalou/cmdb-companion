@@ -13,6 +13,10 @@ APP_DIR="/opt/${APP_NAME}"
 APP_PORT="${APP_PORT:-3000}"
 NODE_MAJOR="22"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Address browsers will use to reach this VM. Override for a domain:
+#   sudo PUBLIC_URL=https://cmdb.example.com bash deploy/install.sh
+PUBLIC_URL="${PUBLIC_URL:-http://$(hostname -I | awk '{print $1}')}"
+
 
 log() { echo -e "\n\033[1;32m==>\033[0m $*"; }
 
