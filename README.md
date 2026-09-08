@@ -25,15 +25,25 @@ The VM ends up running **everything** — no external service is required:
 
 | Piece | What it is | Where |
 | --- | --- | --- |
-| Website + API | TanStack Start server build | systemd `cb-assets`, port 3000 |
+| Website | TanStack Start server build | systemd `cb-assets`, port 3000 |
+| CMDB REST API | Python / Flask (GLPI + ServiceNow) | systemd `cb-assets-api`, port 5000 |
 | Database | PostgreSQL 16 | Docker, `127.0.0.1:5432` |
 | Accounts / sign-in | GoTrue | Docker, behind `/auth/v1/` |
 | Data API | PostgREST | Docker, behind `/rest/v1/` |
-| Front door | nginx on port 80 | routes `/`, `/auth/v1/`, `/rest/v1/` |
+| Front door | nginx on port 80 | `/`, `/api/public/`, `/auth/v1/`, `/rest/v1/` |
+
+nginx sends `/api/public/` to the Flask service, so external API clients reach
+the Python backend while the site itself reads through `/rest/v1/` — same
+database, same permissions.
 
 The installer generates the database password and API keys
 (`deploy/selfhost/.env`), applies every migration in `supabase/migrations/`
-in order, and records what it applied so re-running is safe.
+in order, creates the Python virtualenv for the API service, and records what
+it applied so re-running is safe.
+
+Full guides: [docs/self-hosting.md](docs/self-hosting.md) and
+[docs/api.md](docs/api.md).
+
 
 Afterwards:
 
