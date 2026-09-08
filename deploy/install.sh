@@ -62,7 +62,9 @@ BUN="/home/${APP_USER}/.bun/bin/bun"
 log "Copying application source to ${APP_DIR}"
 rsync -a --delete \
   --exclude node_modules --exclude .git --exclude .output --exclude dist \
+  --exclude 'deploy/selfhost/.env' \
   "${SRC_DIR}/" "${APP_DIR}/"
+
 
 log "Installing Docker (runs the database, accounts and data API on this VM)"
 if ! command -v docker >/dev/null; then
