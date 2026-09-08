@@ -34,8 +34,10 @@ log "Installing system packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y --no-install-recommends \
-  ca-certificates curl gnupg git unzip rsync build-essential python3 \
+  ca-certificates curl gnupg git unzip rsync build-essential \
+  python3 python3-venv python3-pip \
   nginx ufw
+
 
 log "Installing Node.js ${NODE_MAJOR}.x"
 if ! command -v node >/dev/null || [[ "$(node -v | cut -c2- | cut -d. -f1)" -lt "$NODE_MAJOR" ]]; then
@@ -107,10 +109,22 @@ if [[ ! -f "${APP_DIR}/.output/server/index.mjs" ]]; then
   exit 1
 fi
 
-log "Installing systemd service"
+log "Installing the Python (Flask) API service"
+su -s /bin/bash "$APP_USER" -c "cd '${APP_DIR}/backend' && python3 -m venv .venv && ./.venv/bin/pip install --upgrade pip >/dev/null && ./.venv/bin/pip install -r requirements.txt"
+
+log "Installing systemd services"
 install -m 0644 "${APP_DIR}/deploy/${APP_NAME}.service" "/etc/systemd/system/${APP_NAME}.service"
+install -m 0644 "${APP_DIR}/deploy/${APP_NAME}-api.service" "/etc/systemd/system/${APP_NAME}-api.service"
 systemctl daemon-reload
 systemctl enable --now "${APP_NAME}"
+systemctl enable --now "${APP_NAME}-api"
+
+log "Checking the API answers"
+for i in $(seq 1 20); do
+  if curl -sf -o /dev/null http://127.0.0.1:5000/api/public/health; then echo "API healthy"; break; fi
+  sleep 1
+done
+
 
 log "Configuring nginx reverse proxy on port 80"
 sed "s/__APP_PORT__/${APP_PORT}/g" "${APP_DIR}/deploy/nginx.conf" >"/etc/nginx/sites-available/${APP_NAME}"
