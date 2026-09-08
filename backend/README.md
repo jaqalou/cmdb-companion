@@ -85,3 +85,16 @@ sudo systemctl daemon-reload && sudo systemctl enable --now cb-assets-api
 
 Then proxy `/api/public/` to `127.0.0.1:5000` in nginx if you want the Flask
 backend to serve the API instead of the bundled one.
+
+## Against the self-hosted stack
+
+When the VM runs the self-contained backend (`deploy/selfhost/`), point the
+Flask service at it:
+
+```
+SUPABASE_URL=http://127.0.0.1:8000
+SUPABASE_PUBLISHABLE_KEY=<ANON_KEY from deploy/selfhost/.env>
+```
+
+Then start it with `deploy/cb-assets-api.service`. Permissions still come from
+the caller's token, so admin/editor/viewer rules are identical to the web UI.

@@ -9,26 +9,60 @@ bun install
 bun run dev
 ```
 
-## Install on an Ubuntu server
+## Install on an Ubuntu server (fully self-contained)
 
-Ubuntu 22.04 or 24.04. Copy the project to the server, then:
+Ubuntu 22.04 or 24.04, 2 vCPU / 4 GB RAM recommended. Copy the project to the
+server, then:
 
 ```sh
-sudo bash deploy/install.sh
+sudo ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='choose-a-strong-one' \
+     PUBLIC_URL=https://cmdb.example.com \
+     bash deploy/install.sh
 ```
 
-The script installs everything needed (Node.js 22, Bun, build tools, nginx, firewall),
-builds the app with the Node server target (`NITRO_PRESET=node-server`, output in
-`.output/server/index.mjs`), and starts it as the `cb-assets` service behind nginx on port 80.
+`PUBLIC_URL` defaults to `http://<vm-ip>`; `ADMIN_*` are optional (see below).
+The VM ends up running **everything** — no external service is required:
+
+| Piece | What it is | Where |
+| --- | --- | --- |
+| Website + API | TanStack Start server build | systemd `cb-assets`, port 3000 |
+| Database | PostgreSQL 16 | Docker, `127.0.0.1:5432` |
+| Accounts / sign-in | GoTrue | Docker, behind `/auth/v1/` |
+| Data API | PostgREST | Docker, behind `/rest/v1/` |
+| Front door | nginx on port 80 | routes `/`, `/auth/v1/`, `/rest/v1/` |
+
+The installer generates the database password and API keys
+(`deploy/selfhost/.env`), applies every migration in `supabase/migrations/`
+in order, and records what it applied so re-running is safe.
 
 Afterwards:
 
-- Backend settings: `/etc/cb-assets.env` (restart with `sudo systemctl restart cb-assets`)
-  - `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_*` — required
-  - `SUPABASE_SERVICE_ROLE_KEY` — required for creating, renaming and deleting user accounts
+- App settings: `/etc/cb-assets.env` (restart with `sudo systemctl restart cb-assets`)
+- Backend secrets: `/opt/cb-assets/deploy/selfhost/.env` (JWT secret, anon and service keys)
+- Backend containers: `sudo docker compose --project-directory /opt/cb-assets/deploy/selfhost ps`
 - Logs: `sudo journalctl -u cb-assets -f`
 - HTTPS: `sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx -d your.domain`
-- Remove: `sudo bash deploy/uninstall.sh`
+  (afterwards re-run with `PUBLIC_URL=https://your.domain` so sign-in links match)
+- Remove: `sudo bash deploy/uninstall.sh` (add `PURGE_DATA=1` to delete the database too)
+
+### Accounts
+
+Open self-service sign-up is disabled on a self-hosted install. Create the first
+administrator with:
+
+```sh
+sudo ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='choose-a-strong-one' \
+     bash /opt/cb-assets/deploy/selfhost/up.sh
+```
+
+The first account created becomes an administrator; further accounts are created
+from **Users & permissions** inside the app.
+
+### Backend only
+
+`deploy/selfhost/up.sh` can be run on its own to start or update just the
+database, accounts service and data API (`deploy/selfhost/docker-compose.yml`).
+
 
 ### Manual build
 
