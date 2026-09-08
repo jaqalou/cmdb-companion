@@ -86,3 +86,18 @@ done
 
 log "Backend is up on http://127.0.0.1:8000"
 $COMPOSE ps
+
+# 6. First administrator ---------------------------------------------------
+# The first account created becomes an administrator (database trigger).
+if [[ -n "${ADMIN_EMAIL:-}" && -n "${ADMIN_PASSWORD:-}" ]]; then
+  existing="$(psql_run -tAc "SELECT 1 FROM auth.users WHERE email = '${ADMIN_EMAIL}'")"
+  if [[ "$existing" != "1" ]]; then
+    log "Creating the administrator account ${ADMIN_EMAIL}"
+    curl -sf -X POST "http://127.0.0.1:8000/auth/v1/admin/users" \
+      -H "apikey: ${SERVICE_ROLE_KEY}" \
+      -H "Authorization: Bearer ${SERVICE_ROLE_KEY}" \
+      -H "content-type: application/json" \
+      -d "{\"email\":\"${ADMIN_EMAIL}\",\"password\":\"${ADMIN_PASSWORD}\",\"email_confirm\":true}" \
+      >/dev/null && echo "  account ready"
+  fi
+fi
