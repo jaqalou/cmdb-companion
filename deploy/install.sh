@@ -126,7 +126,17 @@ ufw --force enable >/dev/null 2>&1 || true
 log "Done"
 systemctl --no-pager --full status "${APP_NAME}" | head -n 20
 echo
-echo "CB Assets is running on http://$(hostname -I | awk '{print $1}')/"
-echo "Edit backend settings in /etc/${APP_NAME}.env, then: sudo systemctl restart ${APP_NAME}"
-echo "Logs: sudo journalctl -u ${APP_NAME} -f"
-echo "HTTPS: sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx -d your.domain"
+echo "CB Assets is running on ${PUBLIC_URL}/  — everything (website, database,"
+echo "accounts and API) runs on this VM; no external service is used."
+echo
+echo "Settings:        /etc/${APP_NAME}.env      (restart: sudo systemctl restart ${APP_NAME})"
+echo "Backend secrets: ${APP_DIR}/deploy/selfhost/.env"
+echo "Backend status:  sudo docker compose --project-directory ${APP_DIR}/deploy/selfhost ps"
+echo "Logs:            sudo journalctl -u ${APP_NAME} -f"
+echo "HTTPS:           sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx -d your.domain"
+if [[ -z "${ADMIN_EMAIL:-}" ]]; then
+  echo
+  echo "No administrator account yet. Create one with:"
+  echo "  sudo ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='choose-a-strong-one' bash ${APP_DIR}/deploy/selfhost/up.sh"
+fi
+
