@@ -41,8 +41,11 @@ The installer generates the database password and API keys
 in order, creates the Python virtualenv for the API service, and records what
 it applied so re-running is safe.
 
-Full guides: [docs/self-hosting.md](docs/self-hosting.md) and
-[docs/api.md](docs/api.md).
+Full documentation: [docs/README.md](docs/README.md) —
+[architecture](docs/architecture.md), [data model](docs/data-model.md),
+[permissions](docs/permissions.md), [user guide](docs/user-guide.md),
+[API](docs/api.md), [self-hosting](docs/self-hosting.md),
+[development](docs/development.md).
 
 
 Afterwards:
