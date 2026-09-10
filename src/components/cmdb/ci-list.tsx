@@ -10,6 +10,7 @@ import type { CiRecord } from "@/lib/cmdb-data";
 import type { FieldDef } from "@/lib/cmdb-schema";
 import { deleteCiRecords, setCiSnoozed } from "@/lib/cmdb-mutate.functions";
 import { downloadFile, toCsv, toJsonExport } from "@/lib/csv-export";
+import { buildXlsx, downloadBlob } from "@/lib/xlsx-export";
 import { SUPPORT_COLORS, SUPPORT_LABELS, supportStatus } from "@/lib/support-status";
 
 type Props = {
@@ -87,7 +88,8 @@ export function CiList({
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<string[]>([]);
-  const [format, setFormat] = useState<"csv" | "json">("csv");
+  const [format, setFormat] = useState<"csv" | "json" | "xlsx">("xlsx");
+  const [exporting, setExporting] = useState(false);
   const [scope, setScope] = useState<"all" | "filtered" | "selected">("all");
 
   const facetValues = useMemo(
@@ -132,17 +134,30 @@ export function CiList({
   const scopeRecords =
     scope === "all" ? records : scope === "filtered" ? filtered : records.filter((r) => selectedSet.has(String(r["sys_id"])));
 
-  function download() {
-    if (scopeRecords.length === 0) return;
+  const scopeLabel =
+    scope === "all" ? "All records" : scope === "filtered" ? "Current filter" : "Selected rows";
+
+  async function download() {
+    if (scopeRecords.length === 0 || exporting) return;
     const stamp = new Date().toISOString().slice(0, 10);
     if (format === "csv") {
       downloadFile(toCsv(scopeRecords, exportFields), `${exportName}_${stamp}.csv`, "text/csv");
-    } else {
+    } else if (format === "json") {
       downloadFile(
         toJsonExport(scopeRecords, exportFields),
         `${exportName}_${stamp}.json`,
         "application/json",
       );
+    } else {
+      setExporting(true);
+      try {
+        const blob = await buildXlsx(scopeRecords, exportFields, exportName, scopeLabel);
+        downloadBlob(blob, `${exportName}_${stamp}.xlsx`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not build the spreadsheet");
+      } finally {
+        setExporting(false);
+      }
     }
   }
 
@@ -200,8 +215,9 @@ export function CiList({
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value as typeof format)}
-            className="field-input mt-1 block min-w-[110px]"
+            className="field-input mt-1 block min-w-[140px]"
           >
+            <option value="xlsx">Excel (.xlsx)</option>
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
           </select>
@@ -209,10 +225,12 @@ export function CiList({
         <button
           type="button"
           onClick={download}
-          disabled={scopeRecords.length === 0}
+          disabled={scopeRecords.length === 0 || exporting}
           className="btn-accent h-9 px-4 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Download {scopeRecords.length} record{scopeRecords.length === 1 ? "" : "s"}
+          {exporting
+            ? "Preparing spreadsheet…"
+            : `Download ${scopeRecords.length} record${scopeRecords.length === 1 ? "" : "s"}`}
         </button>
         {selected.length > 0 && (
           <button
