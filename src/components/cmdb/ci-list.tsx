@@ -88,7 +88,8 @@ export function CiList({
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<string[]>([]);
-  const [format, setFormat] = useState<"csv" | "json">("csv");
+  const [format, setFormat] = useState<"csv" | "json" | "xlsx">("xlsx");
+  const [exporting, setExporting] = useState(false);
   const [scope, setScope] = useState<"all" | "filtered" | "selected">("all");
 
   const facetValues = useMemo(
@@ -133,17 +134,30 @@ export function CiList({
   const scopeRecords =
     scope === "all" ? records : scope === "filtered" ? filtered : records.filter((r) => selectedSet.has(String(r["sys_id"])));
 
-  function download() {
-    if (scopeRecords.length === 0) return;
+  const scopeLabel =
+    scope === "all" ? "All records" : scope === "filtered" ? "Current filter" : "Selected rows";
+
+  async function download() {
+    if (scopeRecords.length === 0 || exporting) return;
     const stamp = new Date().toISOString().slice(0, 10);
     if (format === "csv") {
       downloadFile(toCsv(scopeRecords, exportFields), `${exportName}_${stamp}.csv`, "text/csv");
-    } else {
+    } else if (format === "json") {
       downloadFile(
         toJsonExport(scopeRecords, exportFields),
         `${exportName}_${stamp}.json`,
         "application/json",
       );
+    } else {
+      setExporting(true);
+      try {
+        const blob = await buildXlsx(scopeRecords, exportFields, exportName, scopeLabel);
+        downloadBlob(blob, `${exportName}_${stamp}.xlsx`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not build the spreadsheet");
+      } finally {
+        setExporting(false);
+      }
     }
   }
 
