@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { CI_CLASSES, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
+import { CI_CLASSES, ESU_OPTIONS, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
 
 const TABLES = Object.keys(CI_CLASSES) as [string, ...string[]];
 
