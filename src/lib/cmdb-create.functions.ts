@@ -7,7 +7,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { CI_CLASSES, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
+import { CI_CLASSES, ESU_OPTIONS, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
 
 const TABLES = Object.keys(CI_CLASSES) as (keyof typeof CI_CLASSES)[];
 
@@ -33,7 +33,10 @@ export const createCiRecord = createServerFn({ method: "POST" })
         if (!Number.isFinite(n)) throw new Error(`${key} must be a number`);
         row[key] = Math.trunc(n);
       } else {
-        row[key] = String(value);
+        const text = String(value);
+        if (key === "esu" && !ESU_OPTIONS.includes(text))
+          throw new Error(`ESU must be one of: ${ESU_OPTIONS.join(", ")}`);
+        row[key] = text;
       }
     }
 

@@ -73,6 +73,9 @@ export type Database = {
           edition: string | null
           environment: string | null
           eol_date: string | null
+          esu: string | null
+          esu_end_date: string | null
+          esu_start_date: string | null
           fqdn: string | null
           full_backups: string | null
           gcc_managed: string | null
@@ -127,6 +130,9 @@ export type Database = {
           edition?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           fqdn?: string | null
           full_backups?: string | null
           gcc_managed?: string | null
@@ -181,6 +187,9 @@ export type Database = {
           edition?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           fqdn?: string | null
           full_backups?: string | null
           gcc_managed?: string | null
@@ -228,6 +237,9 @@ export type Database = {
           deployment_date: string | null
           environment: string | null
           eol_date: string | null
+          esu: string | null
+          esu_end_date: string | null
+          esu_start_date: string | null
           firmware_version: string | null
           gcc_managed: string | null
           hostname: string
@@ -274,6 +286,9 @@ export type Database = {
           deployment_date?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           firmware_version?: string | null
           gcc_managed?: string | null
           hostname: string
@@ -320,6 +335,9 @@ export type Database = {
           deployment_date?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           firmware_version?: string | null
           gcc_managed?: string | null
           hostname?: string
@@ -377,6 +395,9 @@ export type Database = {
           deployment_date: string | null
           environment: string | null
           eol_date: string | null
+          esu: string | null
+          esu_end_date: string | null
+          esu_start_date: string | null
           gcc_managed: string | null
           hostname: string
           iit_ot: string | null
@@ -428,6 +449,9 @@ export type Database = {
           deployment_date?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           gcc_managed?: string | null
           hostname: string
           iit_ot?: string | null
@@ -479,6 +503,9 @@ export type Database = {
           deployment_date?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           gcc_managed?: string | null
           hostname?: string
           iit_ot?: string | null
@@ -529,6 +556,9 @@ export type Database = {
           deployment_date: string | null
           environment: string | null
           eol_date: string | null
+          esu: string | null
+          esu_end_date: string | null
+          esu_start_date: string | null
           firmware_version: string | null
           floor_zone: string | null
           gcc_managed: string | null
@@ -576,6 +606,9 @@ export type Database = {
           deployment_date?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           firmware_version?: string | null
           floor_zone?: string | null
           gcc_managed?: string | null
@@ -623,6 +656,9 @@ export type Database = {
           deployment_date?: string | null
           environment?: string | null
           eol_date?: string | null
+          esu?: string | null
+          esu_end_date?: string | null
+          esu_start_date?: string | null
           firmware_version?: string | null
           floor_zone?: string | null
           gcc_managed?: string | null

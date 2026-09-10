@@ -147,14 +147,31 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
                     <dt className="text-muted-foreground">{f.label}</dt>
                     <dd className="font-medium text-foreground">
                       {editing ? (
-                        <Input
-                          className="h-8 text-[13px]"
-                          type={NUMERIC_FIELDS.has(f.name) ? "number" : "text"}
-                          value={draft[f.name] ?? ""}
-                          onChange={(e) =>
-                            setDraft((prev) => ({ ...prev, [f.name]: e.target.value }))
-                          }
-                        />
+                        f.options ? (
+                          <select
+                            className="h-8 w-full rounded-md border border-border bg-background px-2 text-[13px]"
+                            value={draft[f.name] ?? ""}
+                            onChange={(e) =>
+                              setDraft((prev) => ({ ...prev, [f.name]: e.target.value }))
+                            }
+                          >
+                            <option value="">—</option>
+                            {f.options.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <Input
+                            className="h-8 text-[13px]"
+                            type={NUMERIC_FIELDS.has(f.name) ? "number" : "text"}
+                            value={draft[f.name] ?? ""}
+                            onChange={(e) =>
+                              setDraft((prev) => ({ ...prev, [f.name]: e.target.value }))
+                            }
+                          />
+                        )
                       ) : record[f.name] === null ||
                         record[f.name] === undefined ||
                         record[f.name] === "" ? (
