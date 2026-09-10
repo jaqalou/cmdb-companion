@@ -72,10 +72,14 @@ erDiagram
 
 | Table | Display field | UI path | GLPI itemtype | ServiceNow table | Fields |
 | --- | --- | --- | --- | --- | --- |
-| `cmdb_ci_server` | `hostname` | `/servers` | `Computer` | `cmdb_ci_server` | 44 |
-| `cmdb_ci_db_mssql_instance` | `server_name` | `/databases` | `DatabaseInstance` | `cmdb_ci_db_mssql_instance` | 47 |
-| `cmdb_ci_netgear_switch` | `hostname` | `/switches` | `NetworkEquipment` | `cmdb_ci_netgear_switch` | 39 |
-| `cmdb_ci_wap` | `ap_name` | `/access-points` | `AccessPoint` | `cmdb_ci_wap` | 38 |
+| `cmdb_ci_server` | `hostname` | `/servers` | `Computer` | `cmdb_ci_server` | 47 |
+| `cmdb_ci_db_mssql_instance` | `server_name` | `/databases` | `DatabaseInstance` | `cmdb_ci_db_mssql_instance` | 50 |
+| `cmdb_ci_netgear_switch` | `hostname` | `/switches` | `NetworkEquipment` | `cmdb_ci_netgear_switch` | 42 |
+| `cmdb_ci_wap` | `ap_name` | `/access-points` | `AccessPoint` | `cmdb_ci_wap` | 41 |
+
+Every class's Lifecycle group includes three ESU (Extended Security Updates)
+fields: `esu` (one of `EOL`, `Active`, `N/A`, `False`), `esu_start_date` and
+`esu_end_date`.
 
 The authoritative field list lives in `src/lib/cmdb-schema.ts`. Each field has a
 name, a label and a group; groups drive the tabs on a record page:
