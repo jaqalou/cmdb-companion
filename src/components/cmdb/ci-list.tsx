@@ -215,7 +215,7 @@ export function CiList({
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value as typeof format)}
-            className="field-input mt-1 block min-w-[110px]"
+            className="field-input mt-1 block min-w-[140px]"
           >
             <option value="xlsx">Excel (.xlsx)</option>
             <option value="csv">CSV</option>
