@@ -217,6 +217,7 @@ export function CiList({
             onChange={(e) => setFormat(e.target.value as typeof format)}
             className="field-input mt-1 block min-w-[110px]"
           >
+            <option value="xlsx">Excel (.xlsx)</option>
             <option value="csv">CSV</option>
             <option value="json">JSON</option>
           </select>
@@ -224,10 +225,12 @@ export function CiList({
         <button
           type="button"
           onClick={download}
-          disabled={scopeRecords.length === 0}
+          disabled={scopeRecords.length === 0 || exporting}
           className="btn-accent h-9 px-4 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Download {scopeRecords.length} record{scopeRecords.length === 1 ? "" : "s"}
+          {exporting
+            ? "Preparing spreadsheet…"
+            : `Download ${scopeRecords.length} record${scopeRecords.length === 1 ? "" : "s"}`}
         </button>
         {selected.length > 0 && (
           <button
