@@ -33,7 +33,10 @@ export const createCiRecord = createServerFn({ method: "POST" })
         if (!Number.isFinite(n)) throw new Error(`${key} must be a number`);
         row[key] = Math.trunc(n);
       } else {
-        row[key] = String(value);
+        const text = String(value);
+        if (key === "esu" && !ESU_OPTIONS.includes(text))
+          throw new Error(`ESU must be one of: ${ESU_OPTIONS.join(", ")}`);
+        row[key] = text;
       }
     }
 

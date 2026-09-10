@@ -77,7 +77,10 @@ export const updateCiRecord = createServerFn({ method: "POST" })
         if (!Number.isFinite(n)) throw new Error(`${key} must be a number`);
         patch[key] = Math.trunc(n);
       } else {
-        patch[key] = String(value);
+        const text = String(value);
+        if (key === "esu" && !ESU_OPTIONS.includes(text))
+          throw new Error(`ESU must be one of: ${ESU_OPTIONS.join(", ")}`);
+        patch[key] = text;
       }
     }
 
