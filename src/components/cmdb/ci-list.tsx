@@ -10,6 +10,7 @@ import type { CiRecord } from "@/lib/cmdb-data";
 import type { FieldDef } from "@/lib/cmdb-schema";
 import { deleteCiRecords, setCiSnoozed } from "@/lib/cmdb-mutate.functions";
 import { downloadFile, toCsv, toJsonExport } from "@/lib/csv-export";
+import { buildXlsx, downloadBlob } from "@/lib/xlsx-export";
 import { SUPPORT_COLORS, SUPPORT_LABELS, supportStatus } from "@/lib/support-status";
 
 type Props = {
