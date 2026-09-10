@@ -152,14 +152,31 @@ function NewItemPage() {
                           {field.label}
                           {required && <span className="ml-1 text-primary">*</span>}
                         </label>
-                        <input
-                          id={`f-${field.name}`}
-                          type={NUMERIC_FIELDS.has(field.name) ? "number" : "text"}
-                          required={required}
-                          value={values[field.name] ?? ""}
-                          onChange={(e) => setField(field.name, e.target.value)}
-                          className="h-9 rounded-md border border-border bg-background px-3 text-sm"
-                        />
+                        {field.options ? (
+                          <select
+                            id={`f-${field.name}`}
+                            required={required}
+                            value={values[field.name] ?? ""}
+                            onChange={(e) => setField(field.name, e.target.value)}
+                            className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+                          >
+                            <option value="">—</option>
+                            {field.options.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            id={`f-${field.name}`}
+                            type={NUMERIC_FIELDS.has(field.name) ? "number" : "text"}
+                            required={required}
+                            value={values[field.name] ?? ""}
+                            onChange={(e) => setField(field.name, e.target.value)}
+                            className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+                          />
+                        )}
                         <span className="font-mono text-[10px] text-muted-foreground">
                           {field.name}
                         </span>
