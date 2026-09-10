@@ -1,4 +1,13 @@
-export type FieldDef = { name: string; label: string; group: string };
+export type FieldDef = { name: string; label: string; group: string; options?: string[] };
+
+/** Allowed values for the ESU (Extended Security Updates) field. */
+export const ESU_OPTIONS = ["EOL", "Active", "N/A", "False"];
+
+const ESU_FIELDS: FieldDef[] = [
+  { name: "esu", label: "ESU", group: "Lifecycle", options: ESU_OPTIONS },
+  { name: "esu_start_date", label: "ESU Start Date", group: "Lifecycle" },
+  { name: "esu_end_date", label: "ESU End Date", group: "Lifecycle" },
+];
 
 export const SERVER_FIELDS: FieldDef[] = [
   { name: "hostname", label: "Hostname", group: "Identity" },
@@ -37,6 +46,7 @@ export const SERVER_FIELDS: FieldDef[] = [
   { name: "os_lifecycle", label: "OS Lifecycle", group: "Lifecycle" },
   { name: "support_cycle", label: "Support Cycle", group: "Lifecycle" },
   { name: "eol_date", label: "EOL Date", group: "Lifecycle" },
+  ...ESU_FIELDS,
   { name: "compatible_version", label: "Compatible Version", group: "Lifecycle" },
   { name: "version_lock_enabled", label: "Version Lock Enabled", group: "Lifecycle" },
   { name: "deployment_date", label: "Deployment Date", group: "Lifecycle" },
@@ -82,6 +92,7 @@ export const INSTANCE_FIELDS: FieldDef[] = [
   { name: "dba_lifecycle", label: "DBA Lifecycle", group: "Lifecycle" },
   { name: "support_cycle", label: "Support Cycle", group: "Lifecycle" },
   { name: "eol_date", label: "EOL Date", group: "Lifecycle" },
+  ...ESU_FIELDS,
   { name: "backup_location", label: "Backup Location", group: "Operations" },
   { name: "full_backups", label: "Full Backups", group: "Operations" },
   { name: "diff_backups", label: "Diff Backups", group: "Operations" },
@@ -132,6 +143,7 @@ export const SWITCH_FIELDS: FieldDef[] = [
   { name: "os_lifecycle", label: "OS Lifecycle", group: "Lifecycle" },
   { name: "support_cycle", label: "Support Cycle", group: "Lifecycle" },
   { name: "eol_date", label: "EOL Date", group: "Lifecycle" },
+  ...ESU_FIELDS,
   { name: "deployment_date", label: "Deployment Date", group: "Lifecycle" },
   { name: "maintenance_schedule", label: "Maintenance Schedule", group: "Operations" },
   { name: "backup_status", label: "Config Backup Status", group: "Operations" },
@@ -176,6 +188,7 @@ export const WAP_FIELDS: FieldDef[] = [
   { name: "os_lifecycle", label: "Firmware Lifecycle", group: "Lifecycle" },
   { name: "support_cycle", label: "Support Cycle", group: "Lifecycle" },
   { name: "eol_date", label: "EOL Date", group: "Lifecycle" },
+  ...ESU_FIELDS,
   { name: "deployment_date", label: "Deployment Date", group: "Lifecycle" },
   { name: "maintenance_schedule", label: "Maintenance Schedule", group: "Operations" },
   { name: "monitoring", label: "Monitoring", group: "Operations" },
