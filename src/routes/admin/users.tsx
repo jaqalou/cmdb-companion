@@ -327,6 +327,19 @@ function UsersAdminPage() {
                           </button>
                           <button
                             type="button"
+                            disabled={passwordMut.isPending || row.provider !== "email"}
+                            onClick={() => onSetPassword(row.id, row.email)}
+                            title={
+                              row.provider !== "email"
+                                ? "This account signs in with single sign-on and has no password"
+                                : undefined
+                            }
+                            className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60 disabled:opacity-50"
+                          >
+                            Change password
+                          </button>
+                          <button
+                            type="button"
                             disabled={
                               renameMut.isPending || deleteMut.isPending || row.id === user?.id
                             }
