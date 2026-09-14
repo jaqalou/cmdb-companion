@@ -13,6 +13,7 @@ import {
   listAppUsers,
   renameUser,
   revokeUserRole,
+  setUserPassword,
   type AppRole,
 } from "@/lib/admin-users.functions";
 
@@ -124,6 +125,16 @@ function UsersAdminPage() {
     const next = window.prompt("New email address for this account", currentEmail);
     if (!next || next.trim() === currentEmail) return;
     renameMut.mutate({ userId, email: next.trim() });
+  }
+
+  function onSetPassword(userId: string, email: string) {
+    const next = window.prompt(`New password for ${email} (at least 12 characters)`, "");
+    if (next === null) return;
+    if (next.trim().length < 12) {
+      toast.error("Use at least 12 characters");
+      return;
+    }
+    passwordMut.mutate({ userId, password: next });
   }
 
   function onDelete(userId: string, email: string) {
