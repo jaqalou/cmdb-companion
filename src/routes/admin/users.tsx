@@ -100,6 +100,15 @@ function UsersAdminPage() {
       toast.error(error instanceof Error ? error.message : "Could not delete account"),
   });
 
+  const changePassword = useServerFn(setUserPassword);
+  const passwordMut = useMutation({
+    mutationFn: async (input: { userId: string; password: string }) =>
+      changePassword({ data: input }),
+    onSuccess: () => toast.success("Password updated"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not change the password"),
+  });
+
   const createAccount = useServerFn(createUserAccount);
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
