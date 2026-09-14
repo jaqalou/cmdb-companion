@@ -136,6 +136,40 @@ export const deleteUserAccount = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const passwordInput = z.object({
+  userId: z.string().uuid(),
+  password: z.string().min(12, "Use at least 12 characters").max(128),
+});
+
+/**
+ * Set a new password for a password-based account. Accounts that only sign in
+ * through federated SSO have no password to change, so they are rejected.
+ */
+export const setUserPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => passwordInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: target, error: readError } = await supabaseAdmin.auth.admin.getUserById(
+      data.userId,
+    );
+    if (readError) throw new Error(readError.message);
+    const providers = (target.user?.app_metadata?.["providers"] as string[] | undefined) ?? [
+      (target.user?.app_metadata?.["provider"] as string) ?? "email",
+    ];
+    if (!providers.includes("email")) {
+      throw new Error("This account signs in with single sign-on and has no password to change");
+    }
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      password: data.password,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 const createInput = z.object({
   email: z.string().trim().email("Enter a valid email address"),
   password: z.string().min(12, "Use at least 12 characters"),
