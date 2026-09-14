@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { CI_CLASSES, ESU_OPTIONS, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
+import { CI_CLASSES, DATE_FIELDS, ESU_OPTIONS, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
 
 const TABLES = Object.keys(CI_CLASSES) as [string, ...string[]];
 
@@ -80,6 +80,8 @@ export const updateCiRecord = createServerFn({ method: "POST" })
         const text = String(value);
         if (key === "esu" && !ESU_OPTIONS.includes(text))
           throw new Error(`ESU must be one of: ${ESU_OPTIONS.join(", ")}`);
+        if (DATE_FIELDS.has(key) && !/^\d{4}-\d{2}-\d{2}$/.test(text))
+          throw new Error(`${key} must be a date (yyyy-mm-dd)`);
         patch[key] = text;
       }
     }
