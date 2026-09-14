@@ -165,7 +165,9 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
                         ) : (
                           <Input
                             className="h-8 text-[13px]"
-                            type={NUMERIC_FIELDS.has(f.name) ? "number" : "text"}
+                            type={
+                              f.date ? "date" : NUMERIC_FIELDS.has(f.name) ? "number" : "text"
+                            }
                             value={draft[f.name] ?? ""}
                             onChange={(e) =>
                               setDraft((prev) => ({ ...prev, [f.name]: e.target.value }))

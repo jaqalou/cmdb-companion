@@ -170,7 +170,13 @@ function NewItemPage() {
                         ) : (
                           <input
                             id={`f-${field.name}`}
-                            type={NUMERIC_FIELDS.has(field.name) ? "number" : "text"}
+                            type={
+                              field.date
+                                ? "date"
+                                : NUMERIC_FIELDS.has(field.name)
+                                  ? "number"
+                                  : "text"
+                            }
                             required={required}
                             value={values[field.name] ?? ""}
                             onChange={(e) => setField(field.name, e.target.value)}
