@@ -13,6 +13,7 @@ import {
   listAppUsers,
   renameUser,
   revokeUserRole,
+  setUserPassword,
   type AppRole,
 } from "@/lib/admin-users.functions";
 
@@ -99,6 +100,15 @@ function UsersAdminPage() {
       toast.error(error instanceof Error ? error.message : "Could not delete account"),
   });
 
+  const changePassword = useServerFn(setUserPassword);
+  const passwordMut = useMutation({
+    mutationFn: async (input: { userId: string; password: string }) =>
+      changePassword({ data: input }),
+    onSuccess: () => toast.success("Password updated"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not change the password"),
+  });
+
   const createAccount = useServerFn(createUserAccount);
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -124,6 +134,16 @@ function UsersAdminPage() {
     const next = window.prompt("New email address for this account", currentEmail);
     if (!next || next.trim() === currentEmail) return;
     renameMut.mutate({ userId, email: next.trim() });
+  }
+
+  function onSetPassword(userId: string, email: string) {
+    const next = window.prompt(`New password for ${email} (at least 12 characters)`, "");
+    if (next === null) return;
+    if (next.trim().length < 12) {
+      toast.error("Use at least 12 characters");
+      return;
+    }
+    passwordMut.mutate({ userId, password: next });
   }
 
   function onDelete(userId: string, email: string) {
@@ -304,6 +324,19 @@ function UsersAdminPage() {
                             className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60 disabled:opacity-50"
                           >
                             Rename
+                          </button>
+                          <button
+                            type="button"
+                            disabled={passwordMut.isPending || row.provider !== "email"}
+                            onClick={() => onSetPassword(row.id, row.email)}
+                            title={
+                              row.provider !== "email"
+                                ? "This account signs in with single sign-on and has no password"
+                                : undefined
+                            }
+                            className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60 disabled:opacity-50"
+                          >
+                            Change password
                           </button>
                           <button
                             type="button"
