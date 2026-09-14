@@ -1,13 +1,35 @@
-export type FieldDef = { name: string; label: string; group: string; options?: string[] };
+export type FieldDef = {
+  name: string;
+  label: string;
+  group: string;
+  options?: string[];
+  /** Render as a calendar picker and store as ISO yyyy-mm-dd. */
+  date?: boolean;
+};
 
 /** Allowed values for the ESU (Extended Security Updates) field. */
 export const ESU_OPTIONS = ["EOL", "Active", "N/A", "False"];
 
 const ESU_FIELDS: FieldDef[] = [
   { name: "esu", label: "ESU", group: "Lifecycle", options: ESU_OPTIONS },
-  { name: "esu_start_date", label: "ESU Start Date", group: "Lifecycle" },
-  { name: "esu_end_date", label: "ESU End Date", group: "Lifecycle" },
+  { name: "esu_start_date", label: "ESU Start Date", group: "Lifecycle", date: true },
+  { name: "esu_end_date", label: "ESU End Date", group: "Lifecycle", date: true },
 ];
+
+/** Fields stored as text but edited as dates. */
+export const DATE_FIELDS = new Set(["esu_start_date", "esu_end_date"]);
+
+/** Accepts ISO and dd-mm-yyyy / dd-mm-yyyy input, returns yyyy-mm-dd for <input type="date">. */
+export function toDateInputValue(raw: unknown): string {
+  const text = raw === null || raw === undefined ? "" : String(raw).trim();
+  if (!text) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+  const m = text.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+  if (m) return `${m[3]}-${m[2]!.padStart(2, "0")}-${m[1]!.padStart(2, "0")}`;
+  const parsed = new Date(text);
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+  return "";
+}
 
 export const SERVER_FIELDS: FieldDef[] = [
   { name: "hostname", label: "Hostname", group: "Identity" },
