@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import type { CiRecord } from "@/lib/cmdb-data";
-import { groupFields, NUMERIC_FIELDS, type FieldDef } from "@/lib/cmdb-schema";
+import { groupFields, NUMERIC_FIELDS, toDateInputValue, type FieldDef } from "@/lib/cmdb-schema";
 import { updateCiRecord } from "@/lib/cmdb-mutate.functions";
 import { TABLE_TO_ITEMTYPE } from "@/lib/glpi-itemtypes";
 
@@ -32,7 +32,11 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
     const draft: Record<string, string> = {};
     for (const f of fields) {
       const v = record[f.name];
-      draft[f.name] = v === null || v === undefined ? "" : String(v);
+      draft[f.name] = f.date
+        ? toDateInputValue(v)
+        : v === null || v === undefined
+          ? ""
+          : String(v);
     }
     return draft;
   }, [fields, record]);
