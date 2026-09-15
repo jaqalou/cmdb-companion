@@ -7,8 +7,6 @@
 # Values come from deploy/selfhost/.env (created by deploy/selfhost/up.sh).
 name: cb-assets
 
-x-db-host: &db_host ${DB_HOST_FOR_CONTAINERS:-db}
-
 services:
   db:
     image: postgres:16-alpine
