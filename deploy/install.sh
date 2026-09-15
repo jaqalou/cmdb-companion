@@ -35,7 +35,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y --no-install-recommends \
   ca-certificates curl gnupg git unzip rsync build-essential \
-  python3 python3-venv python3-pip \
+  python3 python3-venv python3-pip postgresql-client \
   nginx ufw
 
 
