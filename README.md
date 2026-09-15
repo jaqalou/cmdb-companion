@@ -21,6 +21,21 @@ sudo ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='choose-a-strong-one' \
 ```
 
 `PUBLIC_URL` defaults to `http://<vm-ip>`; `ADMIN_*` are optional (see below).
+The installer asks whether to install a new PostgreSQL 16 on the VM or to use
+an existing PostgreSQL server (it then asks for host, port, database, username
+and password). Unattended equivalent:
+
+```sh
+sudo DB_MODE=existing DB_HOST=db.internal DB_PORT=5432 DB_NAME=cmdb \
+     DB_USER=cbassets DB_PASSWORD='secret' bash deploy/install.sh
+```
+
+To only create the CB Assets tables in an existing database:
+
+```sh
+python3 deploy/apply-schema.py --host db.internal --dbname cmdb --user postgres
+```
+
 The VM ends up running **everything** — no external service is required:
 
 | Piece | What it is | Where |
