@@ -35,7 +35,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y --no-install-recommends \
   ca-certificates curl gnupg git unzip rsync build-essential \
-  python3 python3-venv python3-pip \
+  python3 python3-venv python3-pip postgresql-client \
   nginx ufw
 
 
@@ -80,8 +80,49 @@ if ! command -v docker >/dev/null; then
 fi
 systemctl enable --now docker
 
-log "Starting the self-contained backend (PostgreSQL + accounts + data API)"
+# --- Database: install a new one, or use an existing PostgreSQL -----------
+# Non-interactive:
+#   sudo DB_MODE=existing DB_HOST=... DB_PORT=5432 DB_NAME=cmdb \
+#        DB_USER=... DB_PASSWORD='...' bash deploy/install.sh
+if [[ -z "${DB_MODE:-}" ]]; then
+  if [[ -t 0 ]]; then
+    echo
+    echo "Database"
+    echo "  1) Install a new PostgreSQL 16 on this VM (recommended)"
+    echo "  2) Use an existing PostgreSQL server"
+    read -rp "Choose [1]: " db_choice
+    if [[ "${db_choice:-1}" == "2" ]]; then DB_MODE="existing"; else DB_MODE="bundled"; fi
+  else
+    DB_MODE="bundled"
+  fi
+fi
+
+if [[ "$DB_MODE" == "existing" ]]; then
+  if [[ -t 0 ]]; then
+    [[ -n "${DB_HOST:-}" ]] || read -rp "  Host: " DB_HOST
+    [[ -n "${DB_PORT:-}" ]] || { read -rp "  Port [5432]: " DB_PORT; DB_PORT="${DB_PORT:-5432}"; }
+    [[ -n "${DB_NAME:-}" ]] || { read -rp "  Database name [postgres]: " DB_NAME; DB_NAME="${DB_NAME:-postgres}"; }
+    [[ -n "${DB_USER:-}" ]] || { read -rp "  Username [postgres]: " DB_USER; DB_USER="${DB_USER:-postgres}"; }
+    if [[ -z "${DB_PASSWORD:-}" ]]; then read -rsp "  Password: " DB_PASSWORD; echo; fi
+  fi
+  DB_PORT="${DB_PORT:-5432}"; DB_NAME="${DB_NAME:-postgres}"; DB_USER="${DB_USER:-postgres}"
+  : "${DB_HOST:?DB_HOST is required when DB_MODE=existing}"
+  : "${DB_PASSWORD:?DB_PASSWORD is required when DB_MODE=existing}"
+
+  log "Checking the existing database is reachable"
+  PGPASSWORD="$DB_PASSWORD" psql -X -tAc "select 1" \
+    -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" >/dev/null || {
+      echo "Could not connect to ${DB_HOST}:${DB_PORT}/${DB_NAME} with those credentials." >&2
+      exit 1; }
+  log "Backend will use the existing PostgreSQL at ${DB_HOST}:${DB_PORT}/${DB_NAME}"
+else
+  log "Backend will install and run its own PostgreSQL 16 on this VM"
+fi
+
+log "Starting the backend (accounts + data API${DB_MODE:+, database: $DB_MODE})"
 PUBLIC_URL="$PUBLIC_URL" ADMIN_EMAIL="${ADMIN_EMAIL:-}" ADMIN_PASSWORD="${ADMIN_PASSWORD:-}" \
+  DB_MODE="$DB_MODE" DB_HOST="${DB_HOST:-}" DB_PORT="${DB_PORT:-}" DB_NAME="${DB_NAME:-}" \
+  DB_USER="${DB_USER:-}" DB_PASSWORD="${DB_PASSWORD:-}" \
   bash "${APP_DIR}/deploy/selfhost/up.sh"
 
 # Read the generated keys and point the app at the local backend.

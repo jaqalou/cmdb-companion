@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# Bring up the self-contained CB Assets backend: PostgreSQL + accounts + data API.
+# Bring up the CB Assets backend: PostgreSQL (bundled or existing) + accounts + data API.
 # Idempotent: safe to re-run after changes or a reboot.
 #
-#   sudo bash deploy/selfhost/up.sh            # uses http://<vm-ip> as public URL
+#   sudo bash deploy/selfhost/up.sh                       # bundled PostgreSQL in Docker
+#   sudo DB_MODE=existing DB_HOST=db.internal DB_PORT=5432 \
+#        DB_NAME=cmdb DB_USER=postgres DB_PASSWORD='...' \
+#        bash deploy/selfhost/up.sh                       # use an existing PostgreSQL
+#
 #   sudo PUBLIC_URL=https://cmdb.example.com bash deploy/selfhost/up.sh
 set -euo pipefail
 
@@ -28,20 +32,82 @@ if [[ -n "${PUBLIC_URL:-}" ]]; then
   sed -i "/^PUBLIC_URL=/d" "$ENV_FILE"
   echo "PUBLIC_URL=${PUBLIC_URL}" >>"$ENV_FILE"
 fi
+
+# 1b. Database target ------------------------------------------------------
+# DB_MODE=bundled  -> PostgreSQL 16 in Docker on this VM (default)
+# DB_MODE=existing -> an existing PostgreSQL reachable from this VM
+DB_MODE="${DB_MODE:-}"
+if [[ -z "$DB_MODE" ]] && grep -q '^DB_MODE=' "$ENV_FILE"; then
+  DB_MODE="$(grep '^DB_MODE=' "$ENV_FILE" | tail -n1 | cut -d= -f2-)"
+fi
+DB_MODE="${DB_MODE:-bundled}"
+
+if [[ "$DB_MODE" == "existing" ]]; then
+  # Re-use previously stored values when the variable is not given again.
+  for var in DB_HOST DB_PORT DB_NAME DB_USER DB_PASSWORD; do
+    if [[ -z "${!var:-}" ]] && grep -q "^${var}=" "$ENV_FILE"; then
+      printf -v "$var" '%s' "$(grep "^${var}=" "$ENV_FILE" | tail -n1 | cut -d= -f2-)"
+    fi
+  done
+  DB_PORT="${DB_PORT:-5432}"
+  DB_NAME="${DB_NAME:-postgres}"
+  : "${DB_HOST:?DB_HOST is required when DB_MODE=existing}"
+  : "${DB_USER:?DB_USER is required when DB_MODE=existing}"
+  : "${DB_PASSWORD:?DB_PASSWORD is required when DB_MODE=existing}"
+  # The bundled services connect with their own roles, using this password.
+  POSTGRES_PASSWORD_OVERRIDE="$DB_PASSWORD"
+else
+  DB_HOST="db"; DB_PORT="5432"; DB_NAME="postgres"; DB_USER="postgres"
+fi
+
+# Persist the database settings so re-runs and other scripts agree.
+{
+  sed -i '/^DB_MODE=/d;/^DB_HOST=/d;/^DB_PORT=/d;/^DB_NAME=/d;/^DB_USER=/d;/^DB_PASSWORD=/d' "$ENV_FILE"
+  {
+    echo "DB_MODE=${DB_MODE}"
+    echo "DB_HOST=${DB_HOST}"
+    echo "DB_PORT=${DB_PORT}"
+    echo "DB_NAME=${DB_NAME}"
+    echo "DB_USER=${DB_USER}"
+    [[ "$DB_MODE" == "existing" ]] && echo "DB_PASSWORD=${DB_PASSWORD}"
+  } >>"$ENV_FILE"
+}
 set -a; . "$ENV_FILE"; set +a
 
+# In "existing" mode every service role shares the supplied password.
+if [[ "$DB_MODE" == "existing" ]]; then
+  POSTGRES_PASSWORD="${POSTGRES_PASSWORD_OVERRIDE}"
+  export POSTGRES_PASSWORD
+  # Containers reach a host-local database through the gateway alias.
+  [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" ]] && DB_HOST_FOR_CONTAINERS="host.docker.internal" || DB_HOST_FOR_CONTAINERS="$DB_HOST"
+else
+  DB_HOST_FOR_CONTAINERS="db"
+fi
+export DB_HOST DB_PORT DB_NAME DB_USER DB_HOST_FOR_CONTAINERS
+
 psql_run() {
-  $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
-    psql -v ON_ERROR_STOP=1 -U postgres -d postgres "$@"
+  if [[ "$DB_MODE" == "bundled" ]]; then
+    $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
+      psql -v ON_ERROR_STOP=1 -U postgres -d postgres "$@"
+  else
+    docker run --rm -i --network host -e PGPASSWORD="$DB_PASSWORD" postgres:16-alpine \
+      psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" "$@"
+  fi
 }
 
 # 2. Database --------------------------------------------------------------
-log "Starting PostgreSQL"
-$COMPOSE up -d db
-for i in $(seq 1 60); do
-  $COMPOSE exec -T db pg_isready -U postgres >/dev/null 2>&1 && break
-  sleep 2
-done
+if [[ "$DB_MODE" == "bundled" ]]; then
+  log "Starting PostgreSQL"
+  $COMPOSE --profile bundled up -d db
+  for i in $(seq 1 60); do
+    $COMPOSE exec -T db pg_isready -U postgres >/dev/null 2>&1 && break
+    sleep 2
+  done
+else
+  log "Using the existing PostgreSQL at ${DB_HOST}:${DB_PORT}/${DB_NAME}"
+  psql_run -tAc "select 1" >/dev/null || {
+    echo "Could not connect with the supplied credentials." >&2; exit 1; }
+fi
 
 log "Preparing roles and helper functions"
 psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql"
@@ -76,8 +142,7 @@ done
 # 5. Data API + gateway ----------------------------------------------------
 log "Starting the data API"
 $COMPOSE up -d rest gateway
-$COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
-  psql -U postgres -d postgres -c "NOTIFY pgrst, 'reload schema'" >/dev/null
+psql_run -c "NOTIFY pgrst, 'reload schema'" >/dev/null
 
 for i in $(seq 1 30); do
   curl -sf -o /dev/null "http://127.0.0.1:8000/health" && break

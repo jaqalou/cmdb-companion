@@ -37,6 +37,56 @@ sudo ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='choose-a-strong-one' \
      bash deploy/install.sh
 ```
 
+### Choosing the database
+
+The installer asks whether to install a new PostgreSQL 16 on the VM
+(default) or to use an existing PostgreSQL server. Choosing "existing"
+prompts for host, port, database name, username and password, verifies the
+connection, and then creates the CB Assets schema there — the bundled
+database container is never started.
+
+Answer up front to install unattended:
+
+```sh
+sudo DB_MODE=existing DB_HOST=db.internal DB_PORT=5432 DB_NAME=cmdb \
+     DB_USER=cbassets DB_PASSWORD='secret' \
+     ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='choose-a-strong-one' \
+     PUBLIC_URL=https://cmdb.example.com \
+     bash deploy/install.sh
+```
+
+`DB_MODE=bundled` (the default) keeps everything on the VM. The settings are
+stored in `deploy/selfhost/.env` and reused on every later run of
+`deploy/selfhost/up.sh`.
+
+The account supplied for an existing server must be allowed to create roles,
+schemas and extensions (a superuser, or the database owner with
+`CREATEROLE`). The setup creates the `anon`, `authenticated`, `service_role`,
+`authenticator` and `supabase_auth_admin` roles, the `auth` schema and the
+`public` CMDB tables.
+
+### Configuring the tables in an existing database, on its own
+
+To prepare a database without installing the application — for example from
+a workstation, or ahead of the install:
+
+```sh
+python3 deploy/apply-schema.py \
+  --host db.internal --port 5432 --dbname cmdb \
+  --user postgres --role-password 'password-for-the-service-roles'
+
+python3 deploy/apply-schema.py --env-file          # reuse deploy/selfhost/.env
+python3 deploy/apply-schema.py --host db --dry-run # show what would be applied
+python3 deploy/apply-schema.py --host db --docker  # no local psql client needed
+```
+
+It applies `deploy/selfhost/sql/00-bootstrap.sql` and every file in
+`supabase/migrations/` in order, recording each in
+`public.applied_migrations`, so re-running only applies what is missing.
+`--role-password` is the password given to the `authenticator` and
+`supabase_auth_admin` roles; it must match `POSTGRES_PASSWORD` in
+`deploy/selfhost/.env` so the accounts service and data API can connect.
+
 `PUBLIC_URL` defaults to `http://<vm-ip>` and must match the address browsers
 use, otherwise sign-in links break. The installer generates the database
 password and API keys into `deploy/selfhost/.env`, applies every migration in
