@@ -171,6 +171,15 @@ def main() -> int:
         db.file(f)
         db.run("-c", f"INSERT INTO public.applied_migrations (filename) VALUES ('{f.name}')")
 
+    if AUTH_HELPERS.exists() and db.scalar(
+        "SELECT CASE WHEN to_regclass('auth.users') IS NULL THEN '' ELSE '1' END"
+    ) == "1":
+        print("==> Request helper functions")
+        db.file(AUTH_HELPERS)
+    else:
+        print("==> Skipping request helpers (accounts service has not run yet)")
+        print(f"    Apply {AUTH_HELPERS.relative_to(REPO)} once it has started.")
+
     db.run("-c", "NOTIFY pgrst, 'reload schema'")
     print("\nDone. The CB Assets tables are configured in this database.")
     print("Note: the accounts service (GoTrue) creates the auth.users tables on first start.")
