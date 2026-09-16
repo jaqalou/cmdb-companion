@@ -46,6 +46,7 @@ if sys.version_info < (3, 8):
 
 REPO = Path(__file__).resolve().parents[1]
 BOOTSTRAP = REPO / "deploy" / "selfhost" / "sql" / "00-bootstrap.sql"
+AUTH_HELPERS = REPO / "deploy" / "selfhost" / "sql" / "10-auth-helpers.sql"
 MIGRATIONS = REPO / "supabase" / "migrations"
 ENV_FILE = REPO / "deploy" / "selfhost" / ".env"
 
