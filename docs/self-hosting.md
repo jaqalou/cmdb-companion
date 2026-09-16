@@ -144,3 +144,17 @@ Further accounts are created in the app under **Users & permissions**
 | Website loads, lists empty | Signed out: inventory reads require an account |
 | Sign-in redirects fail | `PUBLIC_URL` does not match the address in the browser |
 | Migrations not applied | `bash deploy/selfhost/up.sh` re-applies pending ones |
+
+## Sign-in fails with "Failed to fetch"
+
+This means the browser could not reach the accounts service. Since the site and
+the accounts/data API are served by the same web server, the app now always
+calls them on the address you are actually visiting, so this normally resolves
+itself after re-running the installer:
+
+```bash
+sudo PUBLIC_URL=https://your.domain bash deploy/install.sh
+```
+
+If it persists, check that nginx is running (`sudo systemctl status nginx`) and
+that the backend answers locally: `curl -s http://127.0.0.1:8000/health`.
