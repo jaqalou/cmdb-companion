@@ -138,6 +138,7 @@ function AuthPage() {
         </form>
 
         {ssoAvailable ? (
+        <>
         <div className="my-8 flex items-center gap-4 text-[11px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
           <span className="h-0.5 flex-1 bg-foreground/20" />
           or
