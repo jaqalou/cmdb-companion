@@ -15,10 +15,12 @@ const SELF_HOSTED = import.meta.env["VITE_SELFHOSTED"] === "true";
 export const ssoAvailable =
   !SELF_HOSTED || import.meta.env["VITE_GOOGLE_SSO"] === "true";
 
+export type SsoResult = { error?: unknown; redirected?: boolean };
+
 export async function signInWithSso(
   provider: SsoProvider,
   opts: { redirect_uri?: string; extraParams?: Record<string, string> } = {},
-) {
+): Promise<SsoResult> {
   if (SELF_HOSTED) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -31,5 +33,5 @@ export async function signInWithSso(
     return { redirected: true };
   }
 
-  return lovable.auth.signInWithOAuth(provider, opts);
+  return (await lovable.auth.signInWithOAuth(provider, opts)) as SsoResult;
 }

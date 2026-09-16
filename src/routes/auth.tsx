@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { supabase } from "@/integrations/supabase/client";
-import { signInWithSso } from "@/lib/sso";
+import { signInWithSso, ssoAvailable } from "@/lib/sso";
 
 type AuthSearch = { redirect?: string | undefined };
 
@@ -137,6 +137,7 @@ function AuthPage() {
           </button>
         </form>
 
+        {ssoAvailable ? (
         <div className="my-8 flex items-center gap-4 text-[11px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
           <span className="h-0.5 flex-1 bg-foreground/20" />
           or
@@ -150,6 +151,8 @@ function AuthPage() {
         >
           Continue with Google
         </button>
+        </>
+        ) : null}
 
         <button
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
