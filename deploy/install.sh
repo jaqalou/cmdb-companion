@@ -146,6 +146,9 @@ cat >"/etc/${APP_NAME}.env" <<EOF
 VITE_SUPABASE_URL=${PUBLIC_URL}
 VITE_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}
 VITE_SUPABASE_PROJECT_ID=cb-assets
+# The website talks to the accounts/data API through this same web server, so the
+# browser always uses the address it is actually visiting (domain or IP, HTTP or HTTPS).
+VITE_SELFHOSTED=true
 SUPABASE_URL=http://127.0.0.1:8000
 SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}
 SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
