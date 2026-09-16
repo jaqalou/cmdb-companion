@@ -21,15 +21,20 @@ export function applySameOriginBackend() {
   } catch {
     return;
   }
-  if (configuredOrigin === window.location.origin) return;
-
   const globalScope = window as typeof window & { __cbSameOriginBackend?: boolean };
   if (globalScope.__cbSameOriginBackend) return;
   globalScope.__cbSameOriginBackend = true;
 
   const original = window.fetch.bind(window);
-  const rewrite = (url: string) =>
-    url.startsWith(configuredOrigin) ? window.location.origin + url.slice(configuredOrigin.length) : url;
+  // A configured address ending in "/" produces calls like "http://host//auth/v1/token".
+  // The doubled slash misses the backend rule in the web server and the website's own
+  // HTML comes back instead, which shows up as: Unexpected token '<'.
+  const rewrite = (url: string) => {
+    if (!url.startsWith(configuredOrigin)) return url;
+    const path = url.slice(configuredOrigin.length).replace(/^\/+/, "/");
+    return window.location.origin + path;
+  };
+
 
   window.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
     if (typeof input === "string") return original(rewrite(input), init);
