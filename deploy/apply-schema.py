@@ -34,6 +34,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+if sys.version_info < (3, 8):
+    sys.exit(
+        "CB Assets requires Python 3.8 or newer, but you are running "
+        f"{sys.version.split()[0]}.\n"
+        "Run this script with 'python3' explicitly, e.g.:\n"
+        "    python3 deploy/apply-schema.py --host db.internal ...\n"
+        "If 'python3 --version' also reports an old version, install a newer\n"
+        "Python first:  sudo apt install python3 python3-venv python3-pip"
+    )
+
 REPO = Path(__file__).resolve().parents[1]
 BOOTSTRAP = REPO / "deploy" / "selfhost" / "sql" / "00-bootstrap.sql"
 MIGRATIONS = REPO / "supabase" / "migrations"
