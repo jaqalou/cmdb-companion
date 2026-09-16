@@ -164,3 +164,23 @@ use a domain with a valid HTTPS certificate to enable them.
 
 If it persists, check that nginx is running (`sudo systemctl status nginx`) and
 that the backend answers locally: `curl -s http://127.0.0.1:8000/health`.
+
+## Google sign-in (optional)
+
+On a self-hosted install Google sign-in is handled by the accounts service on
+your own VM, not by any external service. Enable it like this:
+
+1. In the Google Cloud console create an OAuth client (type: Web application).
+2. Add this authorised redirect URI, using the same address as `PUBLIC_URL`:
+   `http://your-server-address/auth/v1/callback`
+3. Re-run the installer with the client credentials:
+
+```bash
+sudo PUBLIC_URL=http://your-server-address \
+  GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com \
+  GOOGLE_CLIENT_SECRET=yyy \
+  bash deploy/install.sh
+```
+
+Without those two values the "Continue with Google" button is hidden and only
+email/password sign-in is offered.
