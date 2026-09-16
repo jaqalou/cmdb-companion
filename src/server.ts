@@ -55,7 +55,9 @@ const SECURITY_HEADERS: Record<string, string> = {
 function withSecurityHeaders(response: Response, request: Request): Response {
   const headers = new Headers(response.headers);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) headers.set(key, value);
-  if (new URL(request.url).protocol === "https:") {
+  const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const isSecure = forwardedProtocol === "https" || new URL(request.url).protocol === "https:";
+  if (isSecure) {
     headers.set("strict-transport-security", "max-age=63072000; includeSubDomains; preload");
     headers.set("cross-origin-opener-policy", "same-origin-allow-popups");
   } else {
