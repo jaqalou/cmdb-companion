@@ -15,11 +15,13 @@ export function applySameOriginBackend() {
   const configured = import.meta.env["VITE_SUPABASE_URL"];
   if (!configured) return;
 
-  let configuredOrigin: string;
+  let configuredOrigin: string | undefined;
   try {
     configuredOrigin = new URL(configured).origin;
   } catch {
-    return;
+    // Older self-hosted builds may contain a host without http://. Keep the
+    // request interceptor active so those installations can still recover.
+    configuredOrigin = undefined;
   }
   const globalScope = window as typeof window & { __cbSameOriginBackend?: boolean };
   if (globalScope.__cbSameOriginBackend) return;
@@ -30,7 +32,23 @@ export function applySameOriginBackend() {
   // The doubled slash misses the backend rule in the web server and the website's own
   // HTML comes back instead, which shows up as: Unexpected token '<'.
   const rewrite = (url: string) => {
-    if (!url.startsWith(configuredOrigin)) return url;
+    let parsed: URL;
+    try {
+      parsed = new URL(url, window.location.origin);
+    } catch {
+      return url;
+    }
+
+    // A legacy host-only setting makes the client request paths such as
+    // /34.60.104.14/auth/v1/signup. The backend endpoints are unambiguous, so
+    // discard every accidental prefix before /auth/v1 or /rest/v1.
+    const backendPath = parsed.pathname.match(/\/(auth|rest)\/v1(?:\/|$)/);
+    if (backendPath?.index !== undefined) {
+      const path = parsed.pathname.slice(backendPath.index).replace(/^\/+/, "/");
+      return `${window.location.origin}${path}${parsed.search}${parsed.hash}`;
+    }
+
+    if (!configuredOrigin || !url.startsWith(configuredOrigin)) return url;
     const path = url.slice(configuredOrigin.length).replace(/^\/+/, "/");
     return window.location.origin + path;
   };

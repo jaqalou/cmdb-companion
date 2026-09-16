@@ -45,18 +45,25 @@ function isH3SwallowedErrorBody(body: string): boolean {
 }
 
 const SECURITY_HEADERS: Record<string, string> = {
-  "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
   "x-content-type-options": "nosniff",
   "x-frame-options": "SAMEORIGIN",
   "referrer-policy": "strict-origin-when-cross-origin",
   "permissions-policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  "cross-origin-opener-policy": "same-origin-allow-popups",
   "x-permitted-cross-domain-policies": "none",
 };
 
-function withSecurityHeaders(response: Response): Response {
+function withSecurityHeaders(response: Response, request: Request): Response {
   const headers = new Headers(response.headers);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) headers.set(key, value);
+  const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const isSecure = forwardedProtocol === "https" || new URL(request.url).protocol === "https:";
+  if (isSecure) {
+    headers.set("strict-transport-security", "max-age=63072000; includeSubDomains; preload");
+    headers.set("cross-origin-opener-policy", "same-origin-allow-popups");
+  } else {
+    headers.delete("strict-transport-security");
+    headers.delete("cross-origin-opener-policy");
+  }
 
   const url = headers.get("content-type") ?? "";
   if (url.includes("application/json") && !headers.has("cache-control")) {
@@ -76,7 +83,7 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
+      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response), request);
     } catch (error) {
       console.error(error);
       return withSecurityHeaders(
@@ -84,6 +91,7 @@ export default {
           status: 500,
           headers: { "content-type": "text/html; charset=utf-8" },
         }),
+        request,
       );
     }
   },

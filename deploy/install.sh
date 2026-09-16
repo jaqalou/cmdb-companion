@@ -16,9 +16,18 @@ SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Address browsers will use to reach this VM. Override for a domain:
 #   sudo PUBLIC_URL=https://cmdb.example.com bash deploy/install.sh
 PUBLIC_URL="${PUBLIC_URL:-http://$(hostname -I | awk '{print $1}')}"
-# A trailing slash would make the website call "http://host//auth/v1/..." and get the
-# web page back instead of the accounts service, so it is always removed.
+# Accept a bare IP/domain for convenience, but always persist a complete origin.
+PUBLIC_URL="$(printf '%s' "$PUBLIC_URL" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+case "$PUBLIC_URL" in
+  http://*|https://*) ;;
+  *://*) echo "PUBLIC_URL must use http:// or https://" >&2; exit 1 ;;
+  *) PUBLIC_URL="http://${PUBLIC_URL}" ;;
+esac
 while [[ "$PUBLIC_URL" == */ ]]; do PUBLIC_URL="${PUBLIC_URL%/}"; done
+if [[ ! "$PUBLIC_URL" =~ ^https?://[^/]+$ ]]; then
+  echo "PUBLIC_URL must contain only the protocol and host, for example http://34.60.104.14" >&2
+  exit 1
+fi
 
 
 
@@ -47,6 +56,7 @@ if [[ "$(python3 -c 'import sys; print(sys.version_info[0])')" -lt 3 ]] || [[ "$
   exit 1
 fi
 python3 -V
+log "Using public address ${PUBLIC_URL}"
 
 log "Installing system packages"
 export DEBIAN_FRONTEND=noninteractive
