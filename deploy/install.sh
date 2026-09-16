@@ -159,11 +159,31 @@ chown root:"$APP_USER" "/etc/${APP_NAME}.env"
 chown -R "$APP_USER":"$APP_USER" "$APP_DIR"
 
 
+# A previous install leaves compiled pages behind. Mixing them with a new build
+# makes some pages fail to load ("ENOENT ... /.output/public/assets/<page>.js"),
+# so the old output and every build cache is removed before rebuilding.
+log "Removing any previous build output"
+systemctl stop "${APP_NAME}" 2>/dev/null || true
+rm -rf "${APP_DIR}/.output" "${APP_DIR}/dist" "${APP_DIR}/.nitro" "${APP_DIR}/.tanstack" \
+  "${APP_DIR}/.vinxi" "${APP_DIR}/.wrangler" "${APP_DIR}/node_modules/.vite" \
+  "${APP_DIR}/node_modules/.cache" "${APP_DIR}/tsconfig.tsbuildinfo"
+
 log "Installing dependencies and building (this takes a few minutes)"
 su -s /bin/bash "$APP_USER" -c "cd '$APP_DIR' && set -a && . /etc/${APP_NAME}.env && set +a && '$BUN' install --frozen-lockfile && NITRO_PRESET=node-server '$BUN' run build"
 
 if [[ ! -f "${APP_DIR}/.output/server/index.mjs" ]]; then
   echo "Build did not produce .output/server/index.mjs — aborting." >&2
+  exit 1
+fi
+
+# Every page chunk the server manifest points at must exist on disk, otherwise
+# that page returns a 500 at runtime instead of rendering.
+missing_chunks=0
+while IFS= read -r chunk; do
+  [[ -f "${APP_DIR}/.output/public/${chunk}" ]] || { echo "Missing built file: ${chunk}" >&2; missing_chunks=1; }
+done < <(grep -oh '"assets/[^"]*\.js"' "${APP_DIR}"/.output/server/*.mjs 2>/dev/null | tr -d '"' | sort -u)
+if [[ "$missing_chunks" == "1" ]]; then
+  echo "The build is incomplete — remove ${APP_DIR} and run the installer again." >&2
   exit 1
 fi
 
@@ -174,8 +194,11 @@ log "Installing systemd services"
 install -m 0644 "${APP_DIR}/deploy/${APP_NAME}.service" "/etc/systemd/system/${APP_NAME}.service"
 install -m 0644 "${APP_DIR}/deploy/${APP_NAME}-api.service" "/etc/systemd/system/${APP_NAME}-api.service"
 systemctl daemon-reload
-systemctl enable --now "${APP_NAME}"
-systemctl enable --now "${APP_NAME}-api"
+systemctl enable "${APP_NAME}" >/dev/null 2>&1 || true
+systemctl enable "${APP_NAME}-api" >/dev/null 2>&1 || true
+# restart (not just start): an already-running service would keep serving the old build.
+systemctl restart "${APP_NAME}"
+systemctl restart "${APP_NAME}-api"
 
 log "Checking the API answers"
 for i in $(seq 1 20); do
