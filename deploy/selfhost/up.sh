@@ -125,6 +125,9 @@ psql_run -tAc "SELECT to_regclass('auth.users') IS NOT NULL" | grep -q '^t$' || 
   exit 1
 }
 
+log "Installing the request helper functions"
+psql_run -f - <"${HERE}/sql/10-auth-helpers.sql"
+
 # 4. Application schema ----------------------------------------------------
 log "Applying the application schema"
 psql_run -c "CREATE TABLE IF NOT EXISTS public.applied_migrations (

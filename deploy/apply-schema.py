@@ -46,6 +46,7 @@ if sys.version_info < (3, 8):
 
 REPO = Path(__file__).resolve().parents[1]
 BOOTSTRAP = REPO / "deploy" / "selfhost" / "sql" / "00-bootstrap.sql"
+AUTH_HELPERS = REPO / "deploy" / "selfhost" / "sql" / "10-auth-helpers.sql"
 MIGRATIONS = REPO / "supabase" / "migrations"
 ENV_FILE = REPO / "deploy" / "selfhost" / ".env"
 
@@ -170,6 +171,15 @@ def main() -> int:
         print(f"  - {f.name}")
         db.file(f)
         db.run("-c", f"INSERT INTO public.applied_migrations (filename) VALUES ('{f.name}')")
+
+    if AUTH_HELPERS.exists() and db.scalar(
+        "SELECT CASE WHEN to_regclass('auth.users') IS NULL THEN '' ELSE '1' END"
+    ) == "1":
+        print("==> Request helper functions")
+        db.file(AUTH_HELPERS)
+    else:
+        print("==> Skipping request helpers (accounts service has not run yet)")
+        print(f"    Apply {AUTH_HELPERS.relative_to(REPO)} once it has started.")
 
     db.run("-c", "NOTIFY pgrst, 'reload schema'")
     print("\nDone. The CB Assets tables are configured in this database.")
