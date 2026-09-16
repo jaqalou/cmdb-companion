@@ -30,6 +30,20 @@ if ! grep -qi ubuntu /etc/os-release; then
   exit 1
 fi
 
+log "Checking Python"
+if ! command -v python3 >/dev/null; then
+  echo "python3 is required but not found. Install it with:" >&2
+  echo "  sudo apt install python3 python3-venv python3-pip" >&2
+  exit 1
+fi
+PY_MINOR="$(python3 -c 'import sys; print(sys.version_info[1])')"
+if [[ "$(python3 -c 'import sys; print(sys.version_info[0])')" -lt 3 ]] || [[ "$PY_MINOR" -lt 8 ]]; then
+  echo "Python 3.8 or newer is required (found $(python3 -V 2>&1))." >&2
+  echo "On Ubuntu 20.04 or newer, 'sudo apt install python3' provides a suitable version." >&2
+  exit 1
+fi
+python3 -V
+
 log "Installing system packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y

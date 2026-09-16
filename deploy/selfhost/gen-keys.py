@@ -20,6 +20,13 @@ import secrets
 import sys
 import time
 
+if sys.version_info < (3, 8):
+    sys.exit(
+        "CB Assets requires Python 3.8 or newer, but you are running "
+        f"{sys.version.split()[0]}.\n"
+        "Re-run the installer with 'python3' instead of 'python'."
+    )
+
 TEN_YEARS = 60 * 60 * 24 * 365 * 10
 
 
