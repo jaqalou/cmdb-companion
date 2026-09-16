@@ -52,6 +52,22 @@ if [[ -n "${PUBLIC_URL:-}" ]]; then
   echo "PUBLIC_URL=${PUBLIC_URL}" >>"$ENV_FILE"
 fi
 
+# 1a. Google sign-in (optional) -------------------------------------------
+for var in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET; do
+  if [[ -z "${!var:-}" ]] && grep -q "^${var}=" "$ENV_FILE"; then
+    printf -v "$var" '%s' "$(grep "^${var}=" "$ENV_FILE" | tail -n1 | cut -d= -f2-)"
+  fi
+  sed -i "/^${var}=/d" "$ENV_FILE"
+  echo "${var}=${!var:-}" >>"$ENV_FILE"
+done
+sed -i "/^GOOGLE_ENABLED=/d" "$ENV_FILE"
+if [[ -n "${GOOGLE_CLIENT_ID:-}" && -n "${GOOGLE_CLIENT_SECRET:-}" ]]; then
+  echo "GOOGLE_ENABLED=true" >>"$ENV_FILE"
+  log "Google sign-in enabled — allowed redirect URI: ${PUBLIC_URL}/auth/v1/callback"
+else
+  echo "GOOGLE_ENABLED=false" >>"$ENV_FILE"
+fi
+
 # 1b. Database target ------------------------------------------------------
 # DB_MODE=bundled  -> PostgreSQL 16 in Docker on this VM (default)
 # DB_MODE=existing -> an existing PostgreSQL reachable from this VM
