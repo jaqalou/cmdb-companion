@@ -109,6 +109,10 @@ else
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
 fi
 
+# A previous failed installation may have left auth in a restart loop. Stop it
+# before repairing helper ownership so it cannot race the bootstrap transaction.
+$COMPOSE stop auth >/dev/null 2>&1 || true
+
 log "Preparing roles and helper functions"
 psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql"
 
