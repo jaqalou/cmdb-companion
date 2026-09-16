@@ -8,7 +8,7 @@
 // the address the browser is actually using.
 const SELF_HOSTED = import.meta.env["VITE_SELFHOSTED"] === "true";
 
-export function useSameOriginBackend() {
+export function applySameOriginBackend() {
   if (!SELF_HOSTED) return;
   if (typeof window === "undefined") return;
 
