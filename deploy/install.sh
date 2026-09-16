@@ -16,6 +16,10 @@ SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Address browsers will use to reach this VM. Override for a domain:
 #   sudo PUBLIC_URL=https://cmdb.example.com bash deploy/install.sh
 PUBLIC_URL="${PUBLIC_URL:-http://$(hostname -I | awk '{print $1}')}"
+# A trailing slash would make the website call "http://host//auth/v1/..." and get the
+# web page back instead of the accounts service, so it is always removed.
+while [[ "$PUBLIC_URL" == */ ]]; do PUBLIC_URL="${PUBLIC_URL%/}"; done
+
 
 
 log() { echo -e "\n\033[1;32m==>\033[0m $*"; }
