@@ -21,6 +21,9 @@ command -v docker >/dev/null || { echo "docker is required (deploy/install.sh in
 
 # Keep direct runs consistent with deploy/install.sh. A bare host is accepted,
 # but the accounts service must always receive a complete, path-free origin.
+if [[ -z "${PUBLIC_URL:-}" ]] && [[ -f "$ENV_FILE" ]] && grep -q '^PUBLIC_URL=' "$ENV_FILE"; then
+  PUBLIC_URL="$(grep '^PUBLIC_URL=' "$ENV_FILE" | tail -n1 | cut -d= -f2-)"
+fi
 if [[ -n "${PUBLIC_URL:-}" ]]; then
   PUBLIC_URL="$(printf '%s' "$PUBLIC_URL" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
   case "$PUBLIC_URL" in
