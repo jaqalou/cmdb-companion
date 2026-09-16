@@ -36,34 +36,20 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 
--- Request helpers: the same names the hosted platform exposes ---------------
-CREATE OR REPLACE FUNCTION auth.jwt()
-RETURNS jsonb
-LANGUAGE sql STABLE
-AS $$
-  SELECT coalesce(
-    nullif(current_setting('request.jwt.claims', true), '')::jsonb,
-    '{}'::jsonb
-  )
-$$;
+-- The request helper functions (auth.uid/role/jwt/email) are created AFTER the
+-- accounts service has run its own migrations, by sql/10-auth-helpers.sql.
+-- Creating them here would make them owned by this account, and the accounts
+-- service would then fail with "must be owner of function uid".
 
-CREATE OR REPLACE FUNCTION auth.uid()
-RETURNS uuid
-LANGUAGE sql STABLE
-AS $$ SELECT nullif(auth.jwt() ->> 'sub', '')::uuid $$;
+-- Allow this account to act as the auth admin (needed to own/replace the
+-- helper functions afterwards).
+DO $$
+BEGIN
+  IF NOT pg_has_role(current_user, 'supabase_auth_admin', 'MEMBER') THEN
+    EXECUTE format('GRANT supabase_auth_admin TO %I', current_user);
+  END IF;
+END $$;
 
-CREATE OR REPLACE FUNCTION auth.role()
-RETURNS text
-LANGUAGE sql STABLE
-AS $$ SELECT auth.jwt() ->> 'role' $$;
-
-CREATE OR REPLACE FUNCTION auth.email()
-RETURNS text
-LANGUAGE sql STABLE
-AS $$ SELECT auth.jwt() ->> 'email' $$;
-
-GRANT EXECUTE ON FUNCTION auth.jwt(), auth.uid(), auth.role(), auth.email()
-  TO anon, authenticated, service_role;
 
 -- The audit trigger reads emails from auth.users.
 GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres, service_role;
