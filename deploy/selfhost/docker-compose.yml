@@ -50,6 +50,12 @@ services:
       GOTRUE_DISABLE_SIGNUP: "true"
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_MAILER_AUTOCONFIRM: "true"
+      # Google sign-in (optional): set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+      # in deploy/selfhost/.env to enable it.
+      GOTRUE_EXTERNAL_GOOGLE_ENABLED: "${GOOGLE_ENABLED:-false}"
+      GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${PUBLIC_URL}/auth/v1/callback
       GOTRUE_LOG_LEVEL: info
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:9999/health"]

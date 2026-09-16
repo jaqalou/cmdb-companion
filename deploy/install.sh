@@ -151,6 +151,7 @@ log "Starting the backend (accounts + data API${DB_MODE:+, database: $DB_MODE})"
 PUBLIC_URL="$PUBLIC_URL" ADMIN_EMAIL="${ADMIN_EMAIL:-}" ADMIN_PASSWORD="${ADMIN_PASSWORD:-}" \
   DB_MODE="$DB_MODE" DB_HOST="${DB_HOST:-}" DB_PORT="${DB_PORT:-}" DB_NAME="${DB_NAME:-}" \
   DB_USER="${DB_USER:-}" DB_PASSWORD="${DB_PASSWORD:-}" \
+  GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}" GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}" \
   bash "${APP_DIR}/deploy/selfhost/up.sh"
 
 # Read the generated keys and point the app at the local backend.
@@ -163,6 +164,7 @@ VITE_SUPABASE_PROJECT_ID=cb-assets
 # The website talks to the accounts/data API through this same web server, so the
 # browser always uses the address it is actually visiting (domain or IP, HTTP or HTTPS).
 VITE_SELFHOSTED=true
+VITE_GOOGLE_SSO=${GOOGLE_ENABLED:-false}
 SUPABASE_URL=http://127.0.0.1:8000
 SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}
 SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
