@@ -88,7 +88,8 @@ It applies `deploy/selfhost/sql/00-bootstrap.sql` and every file in
 `deploy/selfhost/.env` so the accounts service and data API can connect.
 
 `PUBLIC_URL` defaults to `http://<vm-ip>` and must match the address browsers
-use, otherwise sign-in links break. The installer generates the database
+use, otherwise sign-in links break. A bare IP or domain is accepted and gets
+`http://` automatically; paths and unsupported protocols are rejected. The installer generates the database
 password and API keys into `deploy/selfhost/.env`, applies every migration in
 `supabase/migrations/`, records what it applied (re-running is safe), installs
 the Python virtualenv for the Flask service, and starts both systemd units.
@@ -143,6 +144,7 @@ Further accounts are created in the app under **Users & permissions**
 | API returns 401 | No or expired bearer token — see `docs/api.md` |
 | Website loads, lists empty | Signed out: inventory reads require an account |
 | Sign-in redirects fail | `PUBLIC_URL` does not match the address in the browser |
+| Request contains `/<server-ip>/auth/v1/` | Re-run the installer; it now normalizes host-only `PUBLIC_URL` values |
 | Migrations not applied | `bash deploy/selfhost/up.sh` re-applies pending ones |
 
 ## Sign-in fails with "Failed to fetch"
@@ -155,6 +157,10 @@ itself after re-running the installer:
 ```bash
 sudo PUBLIC_URL=https://your.domain bash deploy/install.sh
 ```
+
+For an IP-only installation, use `sudo PUBLIC_URL=http://34.60.104.14 bash deploy/install.sh`.
+The browser may warn that HTTPS-only security features are unavailable over plain HTTP;
+use a domain with a valid HTTPS certificate to enable them.
 
 If it persists, check that nginx is running (`sudo systemctl status nginx`) and
 that the backend answers locally: `curl -s http://127.0.0.1:8000/health`.

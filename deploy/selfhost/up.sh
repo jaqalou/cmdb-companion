@@ -19,6 +19,22 @@ log() { echo -e "\n\033[1;32m==>\033[0m $*"; }
 
 command -v docker >/dev/null || { echo "docker is required (deploy/install.sh installs it)" >&2; exit 1; }
 
+# Keep direct runs consistent with deploy/install.sh. A bare host is accepted,
+# but the accounts service must always receive a complete, path-free origin.
+if [[ -n "${PUBLIC_URL:-}" ]]; then
+  PUBLIC_URL="$(printf '%s' "$PUBLIC_URL" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  case "$PUBLIC_URL" in
+    http://*|https://*) ;;
+    *://*) echo "PUBLIC_URL must use http:// or https://" >&2; exit 1 ;;
+    *) PUBLIC_URL="http://${PUBLIC_URL}" ;;
+  esac
+  while [[ "$PUBLIC_URL" == */ ]]; do PUBLIC_URL="${PUBLIC_URL%/}"; done
+  if [[ ! "$PUBLIC_URL" =~ ^https?://[^/]+$ ]]; then
+    echo "PUBLIC_URL must contain only the protocol and host, for example http://34.60.104.14" >&2
+    exit 1
+  fi
+fi
+
 # 1. Secrets ---------------------------------------------------------------
 if [[ ! -f "$ENV_FILE" ]]; then
   log "Generating database password and API keys"
