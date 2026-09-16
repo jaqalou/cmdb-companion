@@ -50,6 +50,24 @@ BEGIN
   END IF;
 END $$;
 
+-- Repair installations made by older versions of this bootstrap. Those
+-- versions created auth.uid()/auth.role() as the installation account. GoTrue
+-- uses CREATE OR REPLACE for these functions during its first migration, which
+-- is only allowed when supabase_auth_admin owns the existing function.
+DO $$
+DECLARE
+  helper_name text;
+BEGIN
+  FOREACH helper_name IN ARRAY ARRAY['uid', 'role', 'jwt', 'email'] LOOP
+    IF to_regprocedure(format('auth.%I()', helper_name)) IS NOT NULL THEN
+      EXECUTE format(
+        'ALTER FUNCTION auth.%I() OWNER TO supabase_auth_admin',
+        helper_name
+      );
+    END IF;
+  END LOOP;
+END $$;
+
 
 -- The audit trigger reads emails from auth.users.
 GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres, service_role;

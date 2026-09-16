@@ -109,6 +109,10 @@ else
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
 fi
 
+# A previous failed installation may have left auth in a restart loop. Stop it
+# before repairing helper ownership so it cannot race the bootstrap transaction.
+$COMPOSE stop auth >/dev/null 2>&1 || true
+
 log "Preparing roles and helper functions"
 psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql"
 
@@ -116,10 +120,10 @@ psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql
 log "Starting the accounts service"
 $COMPOSE up -d auth
 for i in $(seq 1 60); do
-  psql_run -tAc "SELECT to_regclass('auth.users') IS NOT NULL" 2>/dev/null | grep -q '^t$' && break
+  $COMPOSE exec -T auth wget -qO- http://localhost:9999/health >/dev/null 2>&1 && break
   sleep 2
 done
-psql_run -tAc "SELECT to_regclass('auth.users') IS NOT NULL" | grep -q '^t$' || {
+$COMPOSE exec -T auth wget -qO- http://localhost:9999/health >/dev/null 2>&1 || {
   echo "The accounts service did not finish setting up its tables." >&2
   $COMPOSE logs --tail 40 auth >&2
   exit 1
