@@ -52,9 +52,10 @@ def glpi_error(code: str, message: str, status: int = 400) -> Response:
 def _unauthorized() -> Response:
     return glpi_error(
         "ERROR_SESSION_TOKEN_INVALID",
-        "A valid Session-Token (or Authorization bearer) is required — CMDB records are not public.",
+        "A valid Session-Token, Authorization bearer or CB Assets API token is required — CMDB records are not public.",
         401,
     )
+
 
 
 def _sql_error(err: CoreError) -> Response:

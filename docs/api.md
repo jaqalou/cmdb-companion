@@ -11,13 +11,28 @@ Two REST dialects over the same CMDB data, served by the Flask backend at
 
 ## Authentication
 
-Every request carries a CB Assets account token, either as
-`Authorization: Bearer <jwt>` or as GLPI's `Session-Token` header. The query
-runs as that account, so PostgreSQL row level security applies exactly as in
-the web UI: admins and editors create/edit/delete, viewers read, anonymous
-callers get `401`. No database password or service key is involved.
+Two credentials are accepted, both as `Authorization: Bearer <value>` or as
+GLPI's `Session-Token` header.
 
-Get a token:
+### 1. API tokens (recommended for scripts)
+
+Signed-in users create tokens under **API Tokens** in the web console; admins
+can also issue and revoke tokens for any account. A token looks like
+`cba_1a2b3c4d_…` and is shown once, at creation — only its hash is stored.
+
+Rights follow the owner's role: viewers read, editors create and amend,
+administrators may also delete. Revoke or delete a token at any time on the
+same page; expiry is optional.
+
+```bash
+curl -H "Authorization: Bearer cba_1a2b3c4d_…" \
+  "$BASE/api/public/now/table/cmdb_ci_server?sysparm_limit=10"
+```
+
+### 2. Account access tokens
+
+A short-lived sign-in token runs the query as that account, so PostgreSQL row
+level security applies exactly as in the web UI; anonymous callers get `401`.
 
 ```bash
 curl -s -X POST "$BASE/auth/v1/token?grant_type=password" \
@@ -25,7 +40,9 @@ curl -s -X POST "$BASE/auth/v1/token?grant_type=password" \
   -d '{"email":"you@example.com","password":"..."}' | jq -r .access_token
 ```
 
-`ANON_KEY` is `ANON_KEY` in `deploy/selfhost/.env`.
+`ANON_KEY` is `ANON_KEY` in `deploy/selfhost/.env`. No database password or
+service key is ever involved for callers.
+
 
 ## CI classes
 
