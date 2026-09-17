@@ -52,13 +52,8 @@ def check(ok: bool, what: str, detail: str = "") -> bool:
 
 # ---------------------------------------------------------------- auth
 
-def sign_in(base: str, email: str, password: str) -> str:
+def sign_in(base: str, email: str, password: str, apikey: str) -> str:
     """Get an account access token from the built-in login service."""
-    probe = requests.get(f"{base}/rest/v1/", timeout=TIMEOUT)
-    apikey = probe.headers.get("apikey") or ""
-    if not apikey:
-        # PostgREST answers 401/400 without a key; grab it from the error path.
-        apikey = probe.request.headers.get("apikey", "")
     resp = requests.post(
         f"{base}/auth/v1/token?grant_type=password",
         headers={"apikey": apikey, "Content-Type": "application/json"},
