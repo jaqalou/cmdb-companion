@@ -5,13 +5,13 @@ Exercises both REST dialects (GLPI and ServiceNow) against a running
 CB Assets instance, and creates test items in every CI class.
 
 Usage:
-    python3 api-test.py --base http://192.168.1.50 --token cba_1a2b3c4d_...
+    python3 api-test.py --base https://192.168.1.50 --token cba_1a2b3c4d_...
 
     # or with an account sign-in instead of an API token:
-    python3 api-test.py --base http://192.168.1.50 --email you@example.com --password ...
+    python3 api-test.py --base https://192.168.1.50 --email you@example.com --password ...
 
 Options:
-    --base       Base URL of the site (e.g. http://34.60.104.14)
+    --base       Base URL of the site (e.g. https://34.60.104.14)
     --token      CB Assets API token (cba_...) — shown once at creation
     --email      Account email (alternative to --token; asks for password)
     --password   Account password (prompted when omitted)
@@ -153,18 +153,19 @@ def cleanup(session: requests.Session, base: str) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Test the CB Assets APIs and create demo items.")
-    ap.add_argument("--base", required=True, help="Site address, e.g. http://192.168.1.50")
+    ap.add_argument("--base", required=True, help="Site address, e.g. https://192.168.1.50")
     ap.add_argument("--token", help="CB Assets API token (cba_...)")
     ap.add_argument("--email", help="Account email (alternative to --token)")
     ap.add_argument("--password", help="Account password (prompted when omitted)")
     ap.add_argument("--apikey", default="", help="Anon key (ANON_KEY in deploy/selfhost/.env) — needed with --email")
     ap.add_argument("--cleanup", action="store_true", help="Delete created items afterwards")
     ap.add_argument("--only", choices=["glpi", "now"], help="Test one dialect only")
+    ap.add_argument("--insecure", action="store_true", help="Accept a self-signed HTTPS certificate")
     args = ap.parse_args()
 
     base = args.base.rstrip("/")
     if not base.startswith(("http://", "https://")):
-        base = "http://" + base
+        base = "https://" + base
 
     if args.token:
         token = args.token
@@ -178,6 +179,9 @@ def main() -> None:
 
     session = requests.Session()
     session.headers["Authorization"] = f"Bearer {token}"
+    if args.insecure:
+        session.verify = False
+        requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
 
     r = session.get(f"{base}/api/public/health", timeout=TIMEOUT)
     check(r.status_code == 200, "Health probe", r.text[:120])
