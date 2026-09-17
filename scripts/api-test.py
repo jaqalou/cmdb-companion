@@ -35,6 +35,7 @@ except ImportError:
     sys.exit("Missing dependency: pip3 install requests")
 
 TIMEOUT = 20
+VERIFY = True  # set to False by --insecure (self-signed certificate)
 PASS, FAIL = "PASS", "FAIL"
 results: list[tuple[str, str, str]] = []
 created: list[tuple[str, str]] = []  # (table, sys_id) for cleanup
@@ -59,6 +60,7 @@ def sign_in(base: str, email: str, password: str, apikey: str) -> str:
         headers={"apikey": apikey, "Content-Type": "application/json"},
         json={"email": email, "password": password},
         timeout=TIMEOUT,
+        verify=VERIFY,
     )
     if resp.status_code != 200 or "access_token" not in resp.text:
         sys.exit(f"Sign-in failed ({resp.status_code}): {resp.text[:200]}")
@@ -167,6 +169,11 @@ def main() -> None:
     if not base.startswith(("http://", "https://")):
         base = "https://" + base
 
+    global VERIFY
+    if args.insecure:
+        VERIFY = False
+        requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
+
     if args.token:
         token = args.token
     elif args.email:
@@ -179,9 +186,7 @@ def main() -> None:
 
     session = requests.Session()
     session.headers["Authorization"] = f"Bearer {token}"
-    if args.insecure:
-        session.verify = False
-        requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
+    session.verify = VERIFY
 
     r = session.get(f"{base}/api/public/health", timeout=TIMEOUT)
     check(r.status_code == 200, "Health probe", r.text[:120])
