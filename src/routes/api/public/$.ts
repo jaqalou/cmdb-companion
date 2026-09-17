@@ -41,10 +41,64 @@ async function readBody(request: Request) {
   }
 }
 
+type Auth = { token: string | null; denied?: Response };
+
+/**
+ * Accepts both credentials: an account bearer JWT (row level security applies
+ * in PostgreSQL) or a CB Assets API token, whose roles are resolved here and
+ * enforced with the same read / write / delete rules.
+ */
+async function authenticate(request: Request): Promise<Auth> {
+  const raw = request.headers.get("authorization") ?? request.headers.get("session-token");
+  const candidate = (raw ?? "").replace(/^Bearer\s+/i, "").trim();
+  const { isApiToken } = await import("@/lib/api-token-hash");
+  if (!isApiToken(candidate)) return { token: sessionToken(request) };
+
+  const { resolveApiToken, canRead, canWrite, canDelete } = await import(
+    "@/lib/cmdb-api/token-auth.server"
+  );
+  const { SERVICE_TOKEN } = await import("@/lib/cmdb-api/core");
+
+  const identity = await resolveApiToken(candidate);
+  if (!identity) {
+    return {
+      token: null,
+      denied: glpiError(
+        "ERROR_SESSION_TOKEN_INVALID",
+        "This API token is unknown, revoked or expired",
+        401,
+      ),
+    };
+  }
+
+  const method = request.method.toUpperCase();
+  const allowed =
+    method === "DELETE"
+      ? canDelete(identity)
+      : method === "GET"
+        ? canRead(identity)
+        : canWrite(identity);
+  if (!allowed) {
+    return {
+      token: null,
+      denied: glpiError(
+        "ERROR_RIGHT_MISSING",
+        "The account behind this API token may not perform this action",
+        403,
+      ),
+    };
+  }
+
+  return { token: SERVICE_TOKEN };
+}
+
 async function handler({ request, params }: Ctx) {
   const parts = segments(params);
   const url0 = new URL(request.url);
-  const token0 = sessionToken(request);
+  const auth = await authenticate(request);
+  if (auth.denied) return auth.denied;
+  const token0 = auth.token;
+
 
   // ServiceNow Table API: /api/public/now/table/{table}[/{sys_id}]
   if (parts[0] === "now") {
