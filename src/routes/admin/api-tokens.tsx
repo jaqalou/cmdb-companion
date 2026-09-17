@@ -42,6 +42,37 @@ function fmt(value: string | null) {
   return new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
+async function copyToken(value: string) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+      toast.success("Copied to clipboard");
+      return;
+    }
+  } catch {
+    // fall through to the legacy path below
+  }
+  try {
+    const el = document.createElement("textarea");
+    el.value = value;
+    el.setAttribute("readonly", "");
+    el.style.position = "fixed";
+    el.style.opacity = "0";
+    document.body.appendChild(el);
+    el.select();
+    el.setSelectionRange(0, value.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(el);
+    if (ok) {
+      toast.success("Copied to clipboard");
+      return;
+    }
+  } catch {
+    // ignore and show the manual hint
+  }
+  toast.error("Could not copy automatically — select the token and copy it manually");
+}
+
 function statusOf(t: { revokedAt: string | null; expiresAt: string | null }) {
   if (t.revokedAt) return { label: "Revoked", tone: "text-destructive" };
   if (t.expiresAt && new Date(t.expiresAt).getTime() < Date.now())
@@ -157,10 +188,7 @@ function ApiTokensPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  navigator.clipboard.writeText(issued);
-                  toast.success("Copied to clipboard");
-                }}
+                onClick={() => copyToken(issued)}
               >
                 Copy
               </Button>
