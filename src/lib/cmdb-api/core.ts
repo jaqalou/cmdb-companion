@@ -38,17 +38,30 @@ export type CoreResult<T> = { data: T; count: number } | { error: string; status
 
 export const PRIMARY_KEY = "sys_id";
 
+/**
+ * Sentinel used instead of a bearer token when the caller was authenticated
+ * with a CB Assets API token. Those are not JWTs, so the request runs with the
+ * service key and the API layer enforces the caller's roles itself.
+ */
+export const SERVICE_TOKEN = "__cb_assets_api_token__";
+
 export function makeClient(authorization?: string | null): SupabaseClient {
   const url = process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"]!;
+  const serviceMode = authorization === SERVICE_TOKEN;
+  const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+  if (serviceMode && !serviceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
   const key =
-    process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!;
+    (serviceMode ? serviceKey : undefined) ??
+    process.env["SUPABASE_PUBLISHABLE_KEY"] ??
+    process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!;
+  const bearer = serviceMode ? null : authorization;
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
         h.set("apikey", key);
-        if (authorization) h.set("Authorization", authorization);
+        if (bearer) h.set("Authorization", bearer);
         else if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
           h.delete("Authorization");
         return fetch(input, { ...init, headers: h });
@@ -56,6 +69,7 @@ export function makeClient(authorization?: string | null): SupabaseClient {
     },
   });
 }
+
 
 type Filterable = {
   eq: (a: string, b: string) => unknown;
