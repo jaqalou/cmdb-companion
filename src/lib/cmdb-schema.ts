@@ -5,10 +5,22 @@ export type FieldDef = {
   options?: string[];
   /** Render as a calendar picker and store as ISO yyyy-mm-dd. */
   date?: boolean;
+  /** Render as a checkbox and store as a boolean. */
+  bool?: boolean;
 };
 
 /** Allowed values for the ESU (Extended Security Updates) field. */
 export const ESU_OPTIONS = ["EOL", "Active", "N/A", "False"];
+
+/** Operational status shared by servers and SQL instances. */
+export const STATUS_OPTIONS = [
+  "Running",
+  "Stopped",
+  "Unallocated",
+  "Retention",
+  "Decommission planned",
+  "Decommissioned",
+];
 
 const ESU_FIELDS: FieldDef[] = [
   { name: "esu", label: "ESU", group: "Lifecycle", options: ESU_OPTIONS },
@@ -16,8 +28,35 @@ const ESU_FIELDS: FieldDef[] = [
   { name: "esu_end_date", label: "ESU End Date", group: "Lifecycle", date: true },
 ];
 
+const SNOOZE_EXCLUSION_FIELDS: FieldDef[] = [
+  { name: "snooze_exclusion", label: "Snooze Exclusion", group: "Operations", bool: true },
+  {
+    name: "snooze_exclusion_start_date",
+    label: "Snooze Exclusion Start Date",
+    group: "Operations",
+    date: true,
+  },
+  {
+    name: "snooze_exclusion_end_date",
+    label: "Snooze Exclusion End Date",
+    group: "Operations",
+    date: true,
+  },
+  { name: "snooze_exclusion_reason", label: "Snooze Exclusion Reason", group: "Operations" },
+];
+
 /** Fields stored as text but edited as dates. */
-export const DATE_FIELDS = new Set(["esu_start_date", "esu_end_date"]);
+export const DATE_FIELDS = new Set([
+  "esu_start_date",
+  "esu_end_date",
+  "eol_date",
+  "deployment_date",
+  "snooze_exclusion_start_date",
+  "snooze_exclusion_end_date",
+]);
+
+/** Columns stored as booleans in Postgres — forms submit true/false. */
+export const BOOLEAN_FIELDS = new Set(["snooze_exclusion"]);
 
 /** Accepts ISO and dd-mm-yyyy / dd-mm-yyyy input, returns yyyy-mm-dd for <input type="date">. */
 export function toDateInputValue(raw: unknown): string {
