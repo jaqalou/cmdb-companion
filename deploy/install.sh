@@ -27,7 +27,7 @@ esac
 PUBLIC_URL="${PUBLIC_URL/#http:\/\//https://}"
 while [[ "$PUBLIC_URL" == */ ]]; do PUBLIC_URL="${PUBLIC_URL%/}"; done
 if [[ ! "$PUBLIC_URL" =~ ^https?://[^/]+$ ]]; then
-  echo "PUBLIC_URL must contain only the protocol and host, for example http://34.60.104.14" >&2
+  echo "PUBLIC_URL must contain only the protocol and host, for example https://34.60.104.14" >&2
   exit 1
 fi
 
