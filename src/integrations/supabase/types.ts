@@ -449,6 +449,7 @@ export type Database = {
           azure_deployment_year: string | null
           backup_status: string | null
           business_functions: string | null
+          cluster_name: string | null
           cluster_type: string | null
           commission_ritm: string | null
           compatible_version: string | null
@@ -494,6 +495,7 @@ export type Database = {
           tags_updated: string | null
           technical_owner: string | null
           type: string | null
+          vcenter_scvmm: string | null
           version_lock_enabled: string | null
           virtual_hostname: string | null
           vm_location: string | null
@@ -507,6 +509,7 @@ export type Database = {
           azure_deployment_year?: string | null
           backup_status?: string | null
           business_functions?: string | null
+          cluster_name?: string | null
           cluster_type?: string | null
           commission_ritm?: string | null
           compatible_version?: string | null
@@ -552,6 +555,7 @@ export type Database = {
           tags_updated?: string | null
           technical_owner?: string | null
           type?: string | null
+          vcenter_scvmm?: string | null
           version_lock_enabled?: string | null
           virtual_hostname?: string | null
           vm_location?: string | null
@@ -565,6 +569,7 @@ export type Database = {
           azure_deployment_year?: string | null
           backup_status?: string | null
           business_functions?: string | null
+          cluster_name?: string | null
           cluster_type?: string | null
           commission_ritm?: string | null
           compatible_version?: string | null
@@ -610,6 +615,7 @@ export type Database = {
           tags_updated?: string | null
           technical_owner?: string | null
           type?: string | null
+          vcenter_scvmm?: string | null
           version_lock_enabled?: string | null
           virtual_hostname?: string | null
           vm_location?: string | null
