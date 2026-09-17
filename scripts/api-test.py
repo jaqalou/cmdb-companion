@@ -17,6 +17,7 @@ Options:
     --password   Account password (prompted when omitted)
     --cleanup    Delete the items this script created afterwards
     --only       Limit to one dialect: glpi | now (default: both)
+    --insecure   Accept a self-signed HTTPS certificate (IP installations)
 
 Requires: python3 (3.8+) and `requests`  →  pip3 install requests
 """
@@ -188,7 +189,16 @@ def main() -> None:
     session.headers["Authorization"] = f"Bearer {token}"
     session.verify = VERIFY
 
-    r = session.get(f"{base}/api/public/health", timeout=TIMEOUT)
+    try:
+        r = session.get(f"{base}/api/public/health", timeout=TIMEOUT)
+    except requests.exceptions.SSLError:
+        sys.exit(
+            "HTTPS certificate verification failed. This installation uses a "
+            "self-signed certificate. Re-run this command with --insecure, or "
+            "install a trusted certificate for a domain name."
+        )
+    except requests.exceptions.ConnectionError as exc:
+        sys.exit(f"Could not connect to {base}: {exc}")
     check(r.status_code == 200, "Health probe", r.text[:120])
     if r.status_code != 200:
         sys.exit("API not reachable — check --base and that the services are running.")
