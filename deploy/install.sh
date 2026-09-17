@@ -253,6 +253,13 @@ sed -e "s/__APP_PORT__/${APP_PORT}/g" \
     -e "s#__SSL_CERT__#${SSL_CERT}#g" \
     -e "s#__SSL_KEY__#${SSL_KEY}#g" \
     "${APP_DIR}/deploy/nginx.conf" >"/etc/nginx/sites-available/${APP_NAME}"
+# Remove either HTTP/2 syntax left by an older installer checkout. HTTPS does
+# not depend on HTTP/2, and this keeps the generated site compatible with old
+# nginx versions as well as current ones.
+sed -i -E \
+  -e 's/[[:space:]]+http2([[:space:]]*;)/\1/g' \
+  -e '/^[[:space:]]*http2[[:space:]]+on[[:space:]]*;/d' \
+  "/etc/nginx/sites-available/${APP_NAME}"
 ln -sf "/etc/nginx/sites-available/${APP_NAME}" "/etc/nginx/sites-enabled/${APP_NAME}"
 rm -f /etc/nginx/sites-enabled/default
 if ! nginx -t; then
