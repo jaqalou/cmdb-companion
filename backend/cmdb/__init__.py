@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import os
 
-from flask import Flask, jsonify
+from flask import Flask, g, jsonify, request
 
 from .classes import API_DIALECTS, CI_CLASSES
 from .glpi import bp as glpi_bp, glpi_error
 from .snow import bp as snow_bp
+from .tokens import allows, looks_like_api_token, resolve_api_token
 
 
 def create_app() -> Flask:
@@ -27,6 +28,30 @@ def create_app() -> Flask:
 
     app.register_blueprint(glpi_bp, url_prefix="/api/public/apirest.php")
     app.register_blueprint(snow_bp, url_prefix="/api/public/now")
+
+    @app.before_request
+    def _api_token_auth():
+        """Accept a CB Assets API token in place of an account bearer token."""
+        g.api_identity = None
+        raw = request.headers.get("Authorization") or request.headers.get("Session-Token")
+        if not looks_like_api_token(raw):
+            return None
+        identity = resolve_api_token(raw)
+        if identity is None:
+            return glpi_error(
+                "ERROR_SESSION_TOKEN_INVALID",
+                "This API token is unknown, revoked or expired",
+                401,
+            )
+        if not allows(identity, request.method):
+            return glpi_error(
+                "ERROR_RIGHT_MISSING",
+                "The account behind this API token may not perform this action",
+                403,
+            )
+        g.api_identity = identity
+        return None
+
 
     @app.get("/api/public/health")
     def health():
