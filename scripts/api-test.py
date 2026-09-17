@@ -109,7 +109,7 @@ def glpi(session: requests.Session, base: str) -> None:
     check(r.status_code in (200, 206), "List switches", f"Content-Range {r.headers.get('Content-Range', '?')}")
 
     name = f"apitest-ap-{uuid.uuid4().hex[:8]}"
-    r = session.post(f"{url}/AccessPoint", json={"input": {"hostname": name, "environment": "Test"}}, timeout=TIMEOUT)
+    r = session.post(f"{url}/AccessPoint", json={"input": {"ap_name": name, "environment": "Test"}}, timeout=TIMEOUT)
     ok = r.status_code in (200, 201)
     sys_id = ""
     if ok:
@@ -127,7 +127,7 @@ def glpi(session: requests.Session, base: str) -> None:
         r = session.get(
             f"{url}/search/AccessPoint",
             params={
-                "criteria[0][field]": "hostname",
+                "criteria[0][field]": "ap_name",
                 "criteria[0][searchtype]": "contains",
                 "criteria[0][value]": "apitest-ap",
             },
