@@ -45,12 +45,34 @@ export const createCiRecord = createServerFn({ method: "POST" })
     const display = cls.display;
     if (!row[display]) throw new Error(`${display} is required`);
 
+    // Reject an obvious duplicate before hitting the database, so the user gets
+    // a readable message instead of a second look-alike record.
+    const { data: existing } = await context.supabase
+      .from(cls.table)
+      .select("sys_id")
+      .ilike(display, String(row[display]))
+      .limit(1);
+    if (existing && existing.length > 0) {
+      throw new Error(
+        `A ${cls.label.replace(/s$/, "")} named "${row[display]}" already exists. Open that record to edit it, or use a different name.`,
+      );
+    }
+
     const { data: inserted, error } = await context.supabase
       .from(cls.table)
       .insert(row as never)
       .select("sys_id")
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      const msg = error.message ?? "";
+      if (/row-level security|permission denied/i.test(msg))
+        throw new Error("Your account does not have permission to create records. Ask an administrator for the editor role.");
+      if (/duplicate key/i.test(msg))
+        throw new Error(`A record with that ${display.replace(/_/g, " ")} already exists.`);
+      if (/invalid input syntax for type (integer|date)/i.test(msg))
+        throw new Error("One of the values has the wrong format — check the number and date fields.");
+      throw new Error(msg || "Could not create the record");
+    }
     return { sys_id: (inserted as { sys_id: string }).sys_id, path: cls.path };
   });
