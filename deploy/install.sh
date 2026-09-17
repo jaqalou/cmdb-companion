@@ -255,7 +255,14 @@ sed -e "s/__APP_PORT__/${APP_PORT}/g" \
     "${APP_DIR}/deploy/nginx.conf" >"/etc/nginx/sites-available/${APP_NAME}"
 ln -sf "/etc/nginx/sites-available/${APP_NAME}" "/etc/nginx/sites-enabled/${APP_NAME}"
 rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
+if ! nginx -t; then
+  echo "nginx configuration test failed — see the message above." >&2
+  exit 1
+fi
+systemctl enable nginx >/dev/null 2>&1 || true
+# restart (not reload): if nginx was stopped or started before the TLS config
+# existed, a reload would leave port 443 closed (ERR_CONNECTION_REFUSED).
+systemctl restart nginx
 
 # Trusted certificate for a real domain (needs port 80 reachable from the internet).
 #   sudo PUBLIC_URL=https://cmdb.example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
@@ -272,7 +279,21 @@ fi
 log "Configuring firewall"
 ufw allow OpenSSH >/dev/null 2>&1 || true
 ufw allow 'Nginx Full' >/dev/null 2>&1 || true
+ufw allow 80/tcp >/dev/null 2>&1 || true
+ufw allow 443/tcp >/dev/null 2>&1 || true
 ufw --force enable >/dev/null 2>&1 || true
+
+log "Verifying the secure connection"
+if ! ss -ltn 2>/dev/null | grep -q ':443 '; then
+  echo "WARNING: nothing is listening on port 443. Check: sudo nginx -t; sudo systemctl status nginx" >&2
+fi
+if curl -skf -o /dev/null "https://127.0.0.1/"; then
+  echo "HTTPS is answering locally."
+else
+  echo "WARNING: https://127.0.0.1/ did not answer. Check: sudo journalctl -u nginx -n 40 --no-pager" >&2
+fi
+echo "If https works on the server but not from your computer, open TCP 443 in your"
+echo "cloud provider's firewall (GCP: add the 'https-server' tag or an allow rule for 443)."
 
 log "Done"
 systemctl --no-pager --full status "${APP_NAME}" | head -n 20
