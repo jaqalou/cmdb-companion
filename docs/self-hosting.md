@@ -87,9 +87,9 @@ It applies `deploy/selfhost/sql/00-bootstrap.sql` and every file in
 `supabase_auth_admin` roles; it must match `POSTGRES_PASSWORD` in
 `deploy/selfhost/.env` so the accounts service and data API can connect.
 
-`PUBLIC_URL` defaults to `http://<vm-ip>` and must match the address browsers
+`PUBLIC_URL` defaults to `https://<vm-ip>` and must match the address browsers
 use, otherwise sign-in links break. A bare IP or domain is accepted and gets
-`http://` automatically; paths and unsupported protocols are rejected. The installer generates the database
+`https://` automatically (a plain `http://` address is upgraded); paths and unsupported protocols are rejected. The installer generates the database
 password and API keys into `deploy/selfhost/.env`, applies every migration in
 `supabase/migrations/`, records what it applied (re-running is safe), installs
 the Python virtualenv for the Flask service, and starts both systemd units.
@@ -102,12 +102,15 @@ sudo systemctl restart cb-assets-api      # Flask API
 sudo journalctl -u cb-assets -f
 sudo journalctl -u cb-assets-api -f
 sudo docker compose --project-directory /opt/cb-assets/deploy/selfhost ps
-curl -s http://localhost/api/public/health
+curl -sk https://localhost/api/public/health
 ```
 
 - App + API settings: `/etc/cb-assets.env` (shared by both services)
 - Backend secrets: `/opt/cb-assets/deploy/selfhost/.env`
-- HTTPS: `sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx -d your.domain`,
+- HTTPS: enabled by default. With a public domain name plus `LETSENCRYPT_EMAIL=you@example.com`, the installer
+  requests a trusted certificate automatically; otherwise it installs a self-signed one at
+  `/etc/ssl/cb-assets/` (browsers show a one-time warning). Add a trusted certificate later with
+  `sudo certbot --nginx -d your.domain`,
   then re-run the installer with `PUBLIC_URL=https://your.domain`
 - Remove: `sudo bash deploy/uninstall.sh` (`PURGE_DATA=1` also deletes the database)
 
@@ -158,9 +161,9 @@ itself after re-running the installer:
 sudo PUBLIC_URL=https://your.domain bash deploy/install.sh
 ```
 
-For an IP-only installation, use `sudo PUBLIC_URL=http://34.60.104.14 bash deploy/install.sh`.
-The browser may warn that HTTPS-only security features are unavailable over plain HTTP;
-use a domain with a valid HTTPS certificate to enable them.
+For an IP-only installation, use `sudo PUBLIC_URL=https://34.60.104.14 bash deploy/install.sh`.
+An IP address cannot get a publicly trusted certificate, so the self-signed one is used and the
+browser shows a warning the first time; use a domain name to get a trusted certificate.
 
 If it persists, check that nginx is running (`sudo systemctl status nginx`) and
 that the backend answers locally: `curl -s http://127.0.0.1:8000/health`.
@@ -172,11 +175,11 @@ your own VM, not by any external service. Enable it like this:
 
 1. In the Google Cloud console create an OAuth client (type: Web application).
 2. Add this authorised redirect URI, using the same address as `PUBLIC_URL`:
-   `http://your-server-address/auth/v1/callback`
+   `https://your-server-address/auth/v1/callback`
 3. Re-run the installer with the client credentials:
 
 ```bash
-sudo PUBLIC_URL=http://your-server-address \
+sudo PUBLIC_URL=https://your-server-address \
   GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com \
   GOOGLE_CLIENT_SECRET=yyy \
   bash deploy/install.sh
