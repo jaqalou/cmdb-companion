@@ -132,20 +132,26 @@ async function handler({ request, params }: Ctx) {
   if (!API_DIALECTS.glpi)
     return glpiError("ERROR_RESOURCE_NOT_FOUND", "GLPI dialect is disabled", 404);
 
-  const url = new URL(request.url);
-  const token = sessionToken(request);
+  const url = url0;
+  const token = token0;
   const method = request.method.toUpperCase();
   const [, first, second, third] = parts;
 
   if (first === "initSession") {
-    if (!token)
+    const presented = (
+      request.headers.get("authorization") ??
+      request.headers.get("session-token") ??
+      ""
+    ).replace(/^Bearer\s+/i, "");
+    if (!presented)
       return glpiError(
         "ERROR_LOGIN_PARAMETERS_MISSING",
-        "Provide an Authorization bearer token for a CB Assets account",
+        "Provide an Authorization bearer token or a CB Assets API token",
         401,
       );
-    return json({ session_token: token.replace(/^Bearer\s+/i, "") });
+    return json({ session_token: presented });
   }
+
   if (first === "killSession") return json({});
   if (first === "getMyProfiles" || first === "getActiveProfile") {
     if (!token) return glpiError("ERROR_SESSION_TOKEN_INVALID", "Session token required", 401);
