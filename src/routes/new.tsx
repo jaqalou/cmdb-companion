@@ -152,7 +152,15 @@ function NewItemPage() {
                           {field.label}
                           {required && <span className="ml-1 text-primary">*</span>}
                         </label>
-                        {field.options ? (
+                        {field.bool ? (
+                          <input
+                            id={`f-${field.name}`}
+                            type="checkbox"
+                            checked={values[field.name] === "true"}
+                            onChange={(e) => setField(field.name, e.target.checked ? "true" : "false")}
+                            className="h-4 w-4 accent-primary"
+                          />
+                        ) : field.options ? (
                           <select
                             id={`f-${field.name}`}
                             required={required}
