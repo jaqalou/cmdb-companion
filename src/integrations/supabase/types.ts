@@ -136,6 +136,10 @@ export type Database = {
           server_state: string | null
           server_type: string | null
           service_owner: string | null
+          snooze_exclusion: boolean
+          snooze_exclusion_end_date: string | null
+          snooze_exclusion_reason: string | null
+          snooze_exclusion_start_date: string | null
           snoozed: boolean
           sql_agent_service_account: string | null
           sql_port: number | null
@@ -193,6 +197,10 @@ export type Database = {
           server_state?: string | null
           server_type?: string | null
           service_owner?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           sql_agent_service_account?: string | null
           sql_port?: number | null
@@ -250,6 +258,10 @@ export type Database = {
           server_state?: string | null
           server_type?: string | null
           service_owner?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           sql_agent_service_account?: string | null
           sql_port?: number | null
@@ -299,6 +311,10 @@ export type Database = {
           site_address: string | null
           sla: string | null
           snmp_version: string | null
+          snooze_exclusion: boolean
+          snooze_exclusion_end_date: string | null
+          snooze_exclusion_reason: string | null
+          snooze_exclusion_start_date: string | null
           snoozed: boolean
           stack_member_count: number | null
           stack_name: string | null
@@ -348,6 +364,10 @@ export type Database = {
           site_address?: string | null
           sla?: string | null
           snmp_version?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           stack_member_count?: number | null
           stack_name?: string | null
@@ -397,6 +417,10 @@ export type Database = {
           site_address?: string | null
           sla?: string | null
           snmp_version?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           stack_member_count?: number | null
           stack_name?: string | null
@@ -454,6 +478,10 @@ export type Database = {
           sap_sid: string | null
           site_address: string | null
           sla: string | null
+          snooze_exclusion: boolean
+          snooze_exclusion_end_date: string | null
+          snooze_exclusion_reason: string | null
+          snooze_exclusion_start_date: string | null
           snoozed: boolean
           status: string | null
           subscription: string | null
@@ -508,6 +536,10 @@ export type Database = {
           sap_sid?: string | null
           site_address?: string | null
           sla?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           status?: string | null
           subscription?: string | null
@@ -562,6 +594,10 @@ export type Database = {
           sap_sid?: string | null
           site_address?: string | null
           sla?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           status?: string | null
           subscription?: string | null
@@ -618,6 +654,10 @@ export type Database = {
           serial_number: string | null
           site_address: string | null
           sla: string | null
+          snooze_exclusion: boolean
+          snooze_exclusion_end_date: string | null
+          snooze_exclusion_reason: string | null
+          snooze_exclusion_start_date: string | null
           snoozed: boolean
           ssid_list: string | null
           status: string | null
@@ -668,6 +708,10 @@ export type Database = {
           serial_number?: string | null
           site_address?: string | null
           sla?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           ssid_list?: string | null
           status?: string | null
@@ -718,6 +762,10 @@ export type Database = {
           serial_number?: string | null
           site_address?: string | null
           sla?: string | null
+          snooze_exclusion?: boolean
+          snooze_exclusion_end_date?: string | null
+          snooze_exclusion_reason?: string | null
+          snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           ssid_list?: string | null
           status?: string | null
