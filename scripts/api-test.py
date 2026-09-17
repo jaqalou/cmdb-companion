@@ -157,6 +157,7 @@ def main() -> None:
     ap.add_argument("--token", help="CB Assets API token (cba_...)")
     ap.add_argument("--email", help="Account email (alternative to --token)")
     ap.add_argument("--password", help="Account password (prompted when omitted)")
+    ap.add_argument("--apikey", default="", help="Anon key (ANON_KEY in deploy/selfhost/.env) — needed with --email")
     ap.add_argument("--cleanup", action="store_true", help="Delete created items afterwards")
     ap.add_argument("--only", choices=["glpi", "now"], help="Test one dialect only")
     args = ap.parse_args()
@@ -168,8 +169,9 @@ def main() -> None:
     if args.token:
         token = args.token
     elif args.email:
+        apikey = args.apikey or getpass.getpass("Anon key (ANON_KEY in deploy/selfhost/.env): ")
         password = args.password or getpass.getpass("Password: ")
-        token = sign_in(base, args.email, password)
+        token = sign_in(base, args.email, password, apikey)
         report(PASS, "Signed in", args.email)
     else:
         ap.error("provide --token or --email")
