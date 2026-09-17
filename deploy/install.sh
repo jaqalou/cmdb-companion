@@ -279,7 +279,21 @@ fi
 log "Configuring firewall"
 ufw allow OpenSSH >/dev/null 2>&1 || true
 ufw allow 'Nginx Full' >/dev/null 2>&1 || true
+ufw allow 80/tcp >/dev/null 2>&1 || true
+ufw allow 443/tcp >/dev/null 2>&1 || true
 ufw --force enable >/dev/null 2>&1 || true
+
+log "Verifying the secure connection"
+if ! ss -ltn 2>/dev/null | grep -q ':443 '; then
+  echo "WARNING: nothing is listening on port 443. Check: sudo nginx -t; sudo systemctl status nginx" >&2
+fi
+if curl -skf -o /dev/null "https://127.0.0.1/"; then
+  echo "HTTPS is answering locally."
+else
+  echo "WARNING: https://127.0.0.1/ did not answer. Check: sudo journalctl -u nginx -n 40 --no-pager" >&2
+fi
+echo "If https works on the server but not from your computer, open TCP 443 in your"
+echo "cloud provider's firewall (GCP: add the 'https-server' tag or an allow rule for 443)."
 
 log "Done"
 systemctl --no-pager --full status "${APP_NAME}" | head -n 20
