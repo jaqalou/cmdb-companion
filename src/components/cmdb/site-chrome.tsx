@@ -4,7 +4,9 @@ import {
   BookOpen,
   Database,
   Gauge,
+  KeyRound,
   LogOut,
+
   Menu,
   Network,
   Plus,
