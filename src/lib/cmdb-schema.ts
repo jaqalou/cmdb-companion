@@ -132,6 +132,8 @@ export const INSTANCE_FIELDS: FieldDef[] = [
   { name: "location", label: "Location", group: "Location" },
   { name: "manufacturer_model", label: "Manufacturer & Model", group: "Location" },
   { name: "metal_class_of_service", label: "Metal Class of Service", group: "Location" },
+  { name: "vcenter_scvmm", label: "Vcenter / SCVMM", group: "Location" },
+  { name: "cluster_name", label: "Cluster Name", group: "Location" },
   { name: "app_id", label: "APP ID", group: "Service" },
   { name: "application_name", label: "Application Name", group: "Service" },
   { name: "environment", label: "Environment", group: "Service" },

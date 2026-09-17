@@ -102,6 +102,7 @@ export type Database = {
           build: string | null
           checkdb: string | null
           cluster_listener_name: string | null
+          cluster_name: string | null
           core_count: number | null
           cpu_count: number | null
           critical_jobs: string | null
@@ -152,6 +153,7 @@ export type Database = {
           sys_id: string
           sys_updated_on: string
           sysadmin: string | null
+          vcenter_scvmm: string | null
           windows_patching_schedule: string | null
         }
         Insert: {
@@ -163,6 +165,7 @@ export type Database = {
           build?: string | null
           checkdb?: string | null
           cluster_listener_name?: string | null
+          cluster_name?: string | null
           core_count?: number | null
           cpu_count?: number | null
           critical_jobs?: string | null
@@ -213,6 +216,7 @@ export type Database = {
           sys_id?: string
           sys_updated_on?: string
           sysadmin?: string | null
+          vcenter_scvmm?: string | null
           windows_patching_schedule?: string | null
         }
         Update: {
@@ -224,6 +228,7 @@ export type Database = {
           build?: string | null
           checkdb?: string | null
           cluster_listener_name?: string | null
+          cluster_name?: string | null
           core_count?: number | null
           cpu_count?: number | null
           critical_jobs?: string | null
@@ -274,6 +279,7 @@ export type Database = {
           sys_id?: string
           sys_updated_on?: string
           sysadmin?: string | null
+          vcenter_scvmm?: string | null
           windows_patching_schedule?: string | null
         }
         Relationships: []
