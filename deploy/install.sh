@@ -255,7 +255,14 @@ sed -e "s/__APP_PORT__/${APP_PORT}/g" \
     "${APP_DIR}/deploy/nginx.conf" >"/etc/nginx/sites-available/${APP_NAME}"
 ln -sf "/etc/nginx/sites-available/${APP_NAME}" "/etc/nginx/sites-enabled/${APP_NAME}"
 rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
+if ! nginx -t; then
+  echo "nginx configuration test failed — see the message above." >&2
+  exit 1
+fi
+systemctl enable nginx >/dev/null 2>&1 || true
+# restart (not reload): if nginx was stopped or started before the TLS config
+# existed, a reload would leave port 443 closed (ERR_CONNECTION_REFUSED).
+systemctl restart nginx
 
 # Trusted certificate for a real domain (needs port 80 reachable from the internet).
 #   sudo PUBLIC_URL=https://cmdb.example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
