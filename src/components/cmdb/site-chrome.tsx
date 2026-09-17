@@ -4,7 +4,9 @@ import {
   BookOpen,
   Database,
   Gauge,
+  KeyRound,
   LogOut,
+
   Menu,
   Network,
   Plus,
@@ -38,8 +40,10 @@ const MENU: { group: string; items: { to: string; label: string; icon: typeof Se
     group: "Tools",
     items: [
       { to: "/api", label: "REST API", icon: BookOpen },
+      { to: "/admin/api-tokens", label: "API Tokens", icon: KeyRound },
       { to: "/security", label: "Security", icon: ShieldCheck },
       { to: "/admin/users", label: "Users & Access", icon: Users },
+
     ],
   },
 ];

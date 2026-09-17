@@ -196,9 +196,26 @@ def sample_columns(table: str, token: str | None) -> list[str]:
 
 
 def bearer_token(request) -> str | None:
-    """Bearer token from either dialect's auth header (GLPI Session-Token or Authorization)."""
+    """Credential for the data layer.
+
+    Either the caller's own account bearer token (GLPI Session-Token or
+    Authorization header), or — when the caller presented a CB Assets API token
+    that the request hook already validated — the service credential, with the
+    token's rights enforced in cmdb.tokens.
+    """
+    from flask import g  # local import keeps this module usable without a request
+
+    from .tokens import service_key
+
+    if getattr(g, "api_identity", None) is not None:
+        key = service_key()
+        if key:
+            return f"Bearer {key}"
+        raise CoreError("SUPABASE_SERVICE_ROLE_KEY is not configured", 500)
+
     session = request.headers.get("Session-Token")
     if session:
         return "Bearer " + session.split(" ", 1)[-1] if session.lower().startswith("bearer ") else f"Bearer {session}"
     auth = request.headers.get("Authorization")
     return auth or None
+

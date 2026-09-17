@@ -17,6 +17,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as AccessPointsIndexRouteImport } from './routes/access-points/index'
 import { Route as AccessPointsSysIdRouteImport } from './routes/access-points/$sysId'
+import { Route as AdminApiTokensRouteImport } from './routes/admin/api-tokens'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as DatabasesIndexRouteImport } from './routes/databases/index'
 import { Route as DatabasesSysIdRouteImport } from './routes/databases/$sysId'
@@ -64,6 +65,11 @@ const AccessPointsIndexRoute = AccessPointsIndexRouteImport.update({
 const AccessPointsSysIdRoute = AccessPointsSysIdRouteImport.update({
   id: '/access-points/$sysId',
   path: '/access-points/$sysId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminApiTokensRoute = AdminApiTokensRouteImport.update({
+  id: '/admin/api-tokens',
+  path: '/admin/api-tokens',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/admin/api-tokens': typeof AdminApiTokensRoute
   '/admin/users': typeof AdminUsersRoute
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/admin/api-tokens': typeof AdminApiTokensRoute
   '/admin/users': typeof AdminUsersRoute
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/security': typeof SecurityRoute
   '/access-points/$sysId': typeof AccessPointsSysIdRoute
+  '/admin/api-tokens': typeof AdminApiTokensRoute
   '/admin/users': typeof AdminUsersRoute
   '/databases/$sysId': typeof DatabasesSysIdRoute
   '/servers/$sysId': typeof ServersSysIdRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
+    | '/admin/api-tokens'
     | '/admin/users'
     | '/databases/$sysId'
     | '/servers/$sysId'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
+    | '/admin/api-tokens'
     | '/admin/users'
     | '/databases/$sysId'
     | '/servers/$sysId'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/security'
     | '/access-points/$sysId'
+    | '/admin/api-tokens'
     | '/admin/users'
     | '/databases/$sysId'
     | '/servers/$sysId'
@@ -227,6 +239,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SecurityRoute: typeof SecurityRoute
   AccessPointsSysIdRoute: typeof AccessPointsSysIdRoute
+  AdminApiTokensRoute: typeof AdminApiTokensRoute
   AdminUsersRoute: typeof AdminUsersRoute
   DatabasesSysIdRoute: typeof DatabasesSysIdRoute
   ServersSysIdRoute: typeof ServersSysIdRoute
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       path: '/access-points/$sysId'
       fullPath: '/access-points/$sysId'
       preLoaderRoute: typeof AccessPointsSysIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/api-tokens': {
+      id: '/admin/api-tokens'
+      path: '/admin/api-tokens'
+      fullPath: '/admin/api-tokens'
+      preLoaderRoute: typeof AdminApiTokensRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -372,6 +392,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SecurityRoute: SecurityRoute,
   AccessPointsSysIdRoute: AccessPointsSysIdRoute,
+  AdminApiTokensRoute: AdminApiTokensRoute,
   AdminUsersRoute: AdminUsersRoute,
   DatabasesSysIdRoute: DatabasesSysIdRoute,
   ServersSysIdRoute: ServersSysIdRoute,
