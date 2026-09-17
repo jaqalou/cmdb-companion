@@ -100,6 +100,21 @@ async function handler({ request, params }: Ctx) {
   const token0 = auth.token;
 
 
+  // Health probe: /api/public/health — mirrors the self-hosted Flask backend.
+  if (parts[0] === "health" && parts.length === 1) {
+    const { CI_CLASSES } = await import("@/lib/cmdb-api/classes");
+    return json({
+      status: "ok",
+      dialects: API_DIALECTS,
+      classes: CI_CLASSES.map((c) => ({
+        table: c.table,
+        itemtype: c.itemtype,
+        snow_table: c.snowTable,
+        label: c.label,
+      })),
+    });
+  }
+
   // ServiceNow Table API: /api/public/now/table/{table}[/{sys_id}]
   if (parts[0] === "now") {
     if (!API_DIALECTS.servicenow)
