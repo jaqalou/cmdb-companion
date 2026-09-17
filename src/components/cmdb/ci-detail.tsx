@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import type { CiRecord } from "@/lib/cmdb-data";
-import { groupFields, NUMERIC_FIELDS, toDateInputValue, type FieldDef } from "@/lib/cmdb-schema";
+import { BOOLEAN_FIELDS, groupFields, NUMERIC_FIELDS, toDateInputValue, type FieldDef } from "@/lib/cmdb-schema";
 import { updateCiRecord } from "@/lib/cmdb-mutate.functions";
 import { TABLE_TO_ITEMTYPE } from "@/lib/glpi-itemtypes";
 
@@ -32,11 +32,15 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
     const draft: Record<string, string> = {};
     for (const f of fields) {
       const v = record[f.name];
-      draft[f.name] = f.date
-        ? toDateInputValue(v)
-        : v === null || v === undefined
-          ? ""
-          : String(v);
+      draft[f.name] = f.bool
+        ? v === true || v === "true"
+          ? "true"
+          : "false"
+        : f.date
+          ? toDateInputValue(v)
+          : v === null || v === undefined
+            ? ""
+            : String(v);
     }
     return draft;
   }, [fields, record]);
@@ -50,9 +54,12 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const values: Record<string, string> = {};
+      const values: Record<string, string | boolean> = {};
       for (const f of fields) {
-        if (draft[f.name] !== initial[f.name]) values[f.name] = draft[f.name] ?? "";
+        if (draft[f.name] === initial[f.name]) continue;
+        values[f.name] = BOOLEAN_FIELDS.has(f.name)
+          ? draft[f.name] === "true"
+          : (draft[f.name] ?? "");
       }
       if (Object.keys(values).length === 0) return { updated: 0 };
       return save({ data: { table, sysId, values } });
@@ -151,7 +158,19 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
                     <dt className="text-muted-foreground">{f.label}</dt>
                     <dd className="font-medium text-foreground">
                       {editing ? (
-                        f.options ? (
+                        f.bool ? (
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-primary"
+                            checked={draft[f.name] === "true"}
+                            onChange={(e) =>
+                              setDraft((prev) => ({
+                                ...prev,
+                                [f.name]: e.target.checked ? "true" : "false",
+                              }))
+                            }
+                          />
+                        ) : f.options ? (
                           <select
                             className="h-8 w-full rounded-md border border-border bg-background px-2 text-[13px]"
                             value={draft[f.name] ?? ""}
@@ -178,6 +197,8 @@ export function CiDetail({ record, fields, table, title, subtitle, backTo, backL
                             }
                           />
                         )
+                      ) : f.bool ? (
+                        record[f.name] === true ? "Yes" : "No"
                       ) : record[f.name] === null ||
                         record[f.name] === undefined ||
                         record[f.name] === "" ? (

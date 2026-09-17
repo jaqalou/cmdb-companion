@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { CI_CLASSES, DATE_FIELDS, ESU_OPTIONS, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
+import { BOOLEAN_FIELDS, CI_CLASSES, DATE_FIELDS, ESU_OPTIONS, NUMERIC_FIELDS } from "@/lib/cmdb-schema";
 
 const TABLES = Object.keys(CI_CLASSES) as [string, ...string[]];
 
@@ -50,7 +50,7 @@ export const setCiSnoozed = createServerFn({ method: "POST" })
 const updateInput = z.object({
   table: z.enum(TABLES),
   sysId: z.string().uuid(),
-  values: z.record(z.string(), z.union([z.string(), z.number(), z.null()])),
+  values: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
 });
 
 /**
@@ -64,10 +64,14 @@ export const updateCiRecord = createServerFn({ method: "POST" })
     const cls = CI_CLASSES[data.table as keyof typeof CI_CLASSES];
     const allowed = new Set(cls.fields.map((f) => f.name));
 
-    const patch: Record<string, string | number | null> = {};
+    const patch: Record<string, string | number | boolean | null> = {};
     for (const [key, raw] of Object.entries(data.values)) {
       if (!allowed.has(key)) continue;
       const value = typeof raw === "string" ? raw.trim() : raw;
+      if (BOOLEAN_FIELDS.has(key)) {
+        patch[key] = value === true || value === "true";
+        continue;
+      }
       if (value === "" || value === null || value === undefined) {
         patch[key] = null;
         continue;
