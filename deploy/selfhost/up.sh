@@ -29,11 +29,13 @@ if [[ -n "${PUBLIC_URL:-}" ]]; then
   case "$PUBLIC_URL" in
     http://*|https://*) ;;
     *://*) echo "PUBLIC_URL must use http:// or https://" >&2; exit 1 ;;
-    *) PUBLIC_URL="http://${PUBLIC_URL}" ;;
+    *) PUBLIC_URL="https://${PUBLIC_URL}" ;;
   esac
+  # The site is served over HTTPS only.
+  PUBLIC_URL="${PUBLIC_URL/#http:\/\//https://}"
   while [[ "$PUBLIC_URL" == */ ]]; do PUBLIC_URL="${PUBLIC_URL%/}"; done
   if [[ ! "$PUBLIC_URL" =~ ^https?://[^/]+$ ]]; then
-    echo "PUBLIC_URL must contain only the protocol and host, for example http://34.60.104.14" >&2
+    echo "PUBLIC_URL must contain only the protocol and host, for example https://34.60.104.14" >&2
     exit 1
   fi
 fi
@@ -43,7 +45,7 @@ if [[ ! -f "$ENV_FILE" ]]; then
   log "Generating database password and API keys"
   {
     python3 "${HERE}/gen-keys.py"
-    echo "PUBLIC_URL=${PUBLIC_URL:-http://$(hostname -I | awk '{print $1}')}"
+    echo "PUBLIC_URL=${PUBLIC_URL:-https://$(hostname -I | awk '{print $1}')}"
   } >"$ENV_FILE"
   chmod 600 "$ENV_FILE"
 fi

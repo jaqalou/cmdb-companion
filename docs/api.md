@@ -107,7 +107,7 @@ both dialects end to end and creates test items:
 
 ```bash
 pip3 install requests
-python3 scripts/api-test.py --base http://your-server --token cba_1a2b3c4d_...
+python3 scripts/api-test.py --base https://your-server --token cba_1a2b3c4d_...
 # add --cleanup to remove the items again, or --only glpi|now for one dialect
 ```
 

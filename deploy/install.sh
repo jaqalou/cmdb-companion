@@ -15,17 +15,19 @@ NODE_MAJOR="22"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Address browsers will use to reach this VM. Override for a domain:
 #   sudo PUBLIC_URL=https://cmdb.example.com bash deploy/install.sh
-PUBLIC_URL="${PUBLIC_URL:-http://$(hostname -I | awk '{print $1}')}"
+PUBLIC_URL="${PUBLIC_URL:-https://$(hostname -I | awk '{print $1}')}"
 # Accept a bare IP/domain for convenience, but always persist a complete origin.
 PUBLIC_URL="$(printf '%s' "$PUBLIC_URL" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
 case "$PUBLIC_URL" in
   http://*|https://*) ;;
   *://*) echo "PUBLIC_URL must use http:// or https://" >&2; exit 1 ;;
-  *) PUBLIC_URL="http://${PUBLIC_URL}" ;;
+  *) PUBLIC_URL="https://${PUBLIC_URL}" ;;
 esac
+# All traffic is served over HTTPS; a plain http:// address is upgraded.
+PUBLIC_URL="${PUBLIC_URL/#http:\/\//https://}"
 while [[ "$PUBLIC_URL" == */ ]]; do PUBLIC_URL="${PUBLIC_URL%/}"; done
 if [[ ! "$PUBLIC_URL" =~ ^https?://[^/]+$ ]]; then
-  echo "PUBLIC_URL must contain only the protocol and host, for example http://34.60.104.14" >&2
+  echo "PUBLIC_URL must contain only the protocol and host, for example https://34.60.104.14" >&2
   exit 1
 fi
 
@@ -64,7 +66,7 @@ apt-get update -y
 apt-get install -y --no-install-recommends \
   ca-certificates curl gnupg git unzip rsync build-essential \
   python3 python3-venv python3-pip postgresql-client \
-  nginx ufw
+  nginx ufw openssl certbot python3-certbot-nginx
 
 
 log "Installing Node.js ${NODE_MAJOR}.x"
@@ -223,11 +225,49 @@ for i in $(seq 1 20); do
 done
 
 
-log "Configuring nginx reverse proxy on port 80"
-sed "s/__APP_PORT__/${APP_PORT}/g" "${APP_DIR}/deploy/nginx.conf" >"/etc/nginx/sites-available/${APP_NAME}"
+log "Preparing the HTTPS certificate"
+PUBLIC_HOST="${PUBLIC_URL#https://}"
+SSL_DIR="/etc/ssl/${APP_NAME}"
+SSL_CERT="${SSL_DIR}/fullchain.pem"
+SSL_KEY="${SSL_DIR}/privkey.pem"
+mkdir -p "$SSL_DIR" /var/www/html
+
+# A public domain gets a trusted Let's Encrypt certificate; an IP address or a
+# private hostname cannot, so a self-signed certificate is generated instead
+# (browsers show a one-time warning that has to be accepted).
+IS_DOMAIN=0
+[[ "$PUBLIC_HOST" =~ ^[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]] && IS_DOMAIN=1
+
+if [[ ! -s "$SSL_CERT" || ! -s "$SSL_KEY" ]]; then
+  openssl req -x509 -nodes -newkey rsa:2048 -days 3650 \
+    -keyout "$SSL_KEY" -out "$SSL_CERT" \
+    -subj "/CN=${PUBLIC_HOST}" \
+    -addext "subjectAltName=$([[ "$IS_DOMAIN" == 1 ]] && echo "DNS:${PUBLIC_HOST}" || echo "IP:${PUBLIC_HOST}")" \
+    >/dev/null 2>&1
+  chmod 600 "$SSL_KEY"
+  log "Created a self-signed certificate for ${PUBLIC_HOST}"
+fi
+
+log "Configuring nginx (HTTPS on 443, redirect from 80)"
+sed -e "s/__APP_PORT__/${APP_PORT}/g" \
+    -e "s#__SSL_CERT__#${SSL_CERT}#g" \
+    -e "s#__SSL_KEY__#${SSL_KEY}#g" \
+    "${APP_DIR}/deploy/nginx.conf" >"/etc/nginx/sites-available/${APP_NAME}"
 ln -sf "/etc/nginx/sites-available/${APP_NAME}" "/etc/nginx/sites-enabled/${APP_NAME}"
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
+
+# Trusted certificate for a real domain (needs port 80 reachable from the internet).
+#   sudo PUBLIC_URL=https://cmdb.example.com LETSENCRYPT_EMAIL=you@example.com bash deploy/install.sh
+if [[ "$IS_DOMAIN" == 1 && -n "${LETSENCRYPT_EMAIL:-}" ]]; then
+  log "Requesting a Let's Encrypt certificate for ${PUBLIC_HOST}"
+  if certbot --nginx --non-interactive --agree-tos --redirect \
+      -m "$LETSENCRYPT_EMAIL" -d "$PUBLIC_HOST"; then
+    systemctl reload nginx
+  else
+    echo "Let's Encrypt failed — the self-signed certificate stays in place." >&2
+  fi
+fi
 
 log "Configuring firewall"
 ufw allow OpenSSH >/dev/null 2>&1 || true
@@ -244,7 +284,8 @@ echo "Settings:        /etc/${APP_NAME}.env      (restart: sudo systemctl restar
 echo "Backend secrets: ${APP_DIR}/deploy/selfhost/.env"
 echo "Backend status:  sudo docker compose --project-directory ${APP_DIR}/deploy/selfhost ps"
 echo "Logs:            sudo journalctl -u ${APP_NAME} -f"
-echo "HTTPS:           sudo apt install certbot python3-certbot-nginx && sudo certbot --nginx -d your.domain"
+echo "Certificate:     ${SSL_CERT}"
+echo "Trusted cert:    sudo certbot --nginx -d your.domain   (needs a public domain name)"
 if [[ -z "${ADMIN_EMAIL:-}" ]]; then
   echo
   echo "No administrator account yet. Create one with:"

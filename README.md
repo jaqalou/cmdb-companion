@@ -20,7 +20,7 @@ sudo ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='choose-a-strong-one' \
      bash deploy/install.sh
 ```
 
-`PUBLIC_URL` defaults to `http://<vm-ip>`; `ADMIN_*` are optional (see below).
+`PUBLIC_URL` defaults to `https://<vm-ip>`; `ADMIN_*` are optional (see below).
 The installer asks whether to install a new PostgreSQL 16 on the VM or to use
 an existing PostgreSQL server (it then asks for host, port, database, username
 and password). Unattended equivalent:
