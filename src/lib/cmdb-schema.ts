@@ -82,6 +82,8 @@ export const SERVER_FIELDS: FieldDef[] = [
   { name: "site_address", label: "Site Address", group: "Location" },
   { name: "market", label: "Market (TAG)", group: "Location" },
   { name: "subscription", label: "Subscription", group: "Location" },
+  { name: "vcenter_scvmm", label: "Vcenter / SCVMM", group: "Location" },
+  { name: "cluster_name", label: "Cluster Name", group: "Location" },
   { name: "environment", label: "Environment (TAG)", group: "Service" },
   { name: "sla", label: "SLA (TAG)", group: "Service" },
   { name: "app_id", label: "APP ID", group: "Service" },
