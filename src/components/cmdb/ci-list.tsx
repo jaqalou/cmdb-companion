@@ -372,22 +372,25 @@ export function CiList({
                     {SUPPORT_LABELS[supportStatus(r)]}
                   </span>
                 </td>
-                <td className="data-cell">
-                  <input
-                    type="checkbox"
-                    aria-label={`Snooze ${String(r[columns[0]!.name] ?? r["sys_id"])}`}
-                    checked={r["snoozed"] === true}
-                    disabled={!canWrite || snoozeMutation.isPending}
-                    title={canWrite ? "Mark as snoozing" : "Sign in as an editor to change this"}
-                    onChange={(e) =>
-                      snoozeMutation.mutate({
-                        sysId: String(r["sys_id"]),
-                        snoozed: e.target.checked,
-                      })
-                    }
-                    className="size-3.5 accent-[var(--color-primary)] disabled:opacity-50"
-                  />
-                </td>
+                {snoozeEnabled && (
+                  <td className="data-cell">
+                    <input
+                      type="checkbox"
+                      aria-label={`Snooze ${String(r[columns[0]!.name] ?? r["sys_id"])}`}
+                      checked={r["snoozed"] === true}
+                      disabled={!canWrite || snoozeMutation.isPending}
+                      title={canWrite ? "Mark as snoozing" : "Sign in as an editor to change this"}
+                      onChange={(e) =>
+                        snoozeMutation.mutate({
+                          sysId: String(r["sys_id"]),
+                          snoozed: e.target.checked,
+                        })
+                      }
+                      className="size-3.5 accent-[var(--color-primary)] disabled:opacity-50"
+                    />
+                  </td>
+                )}
+
                 <td className="data-cell text-right">
                   <Link
                     to={detailTo}
