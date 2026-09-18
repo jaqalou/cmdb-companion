@@ -12,6 +12,8 @@ import { deleteCiRecords, setCiSnoozed } from "@/lib/cmdb-mutate.functions";
 import { downloadFile, toCsv, toJsonExport } from "@/lib/csv-export";
 import { buildXlsx, downloadBlob } from "@/lib/xlsx-export";
 import { SUPPORT_COLORS, SUPPORT_LABELS, supportStatus } from "@/lib/support-status";
+import { useSnoozeEnabled } from "@/lib/app-settings";
+
 
 type Props = {
   records: CiRecord[];
@@ -59,6 +61,8 @@ export function CiList({
   table,
 }: Props) {
   const { canWrite, isAdmin } = useAuth();
+  const { enabled: snoozeEnabled } = useSnoozeEnabled();
+
   const queryClient = useQueryClient();
   const snoozeFn = useServerFn(setCiSnoozed);
   const deleteFn = useServerFn(deleteCiRecords);
@@ -287,23 +291,26 @@ export function CiList({
               <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                 Support
               </th>
-              <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                Snoozed
-              </th>
+              {snoozeEnabled && (
+                <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                  Snoozed
+                </th>
+              )}
+
               <th className="px-3 py-2" />
             </tr>
           </thead>
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + (snoozeEnabled ? 4 : 3)} className="px-3 py-8 text-muted-foreground">
                   Loading configuration items…
                 </td>
               </tr>
             )}
             {!isLoading && filtered.length === 0 && (
               <tr>
-                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + (snoozeEnabled ? 4 : 3)} className="px-3 py-8 text-muted-foreground">
                   No configuration items match the current filters.
                 </td>
               </tr>
@@ -365,22 +372,25 @@ export function CiList({
                     {SUPPORT_LABELS[supportStatus(r)]}
                   </span>
                 </td>
-                <td className="data-cell">
-                  <input
-                    type="checkbox"
-                    aria-label={`Snooze ${String(r[columns[0]!.name] ?? r["sys_id"])}`}
-                    checked={r["snoozed"] === true}
-                    disabled={!canWrite || snoozeMutation.isPending}
-                    title={canWrite ? "Mark as snoozing" : "Sign in as an editor to change this"}
-                    onChange={(e) =>
-                      snoozeMutation.mutate({
-                        sysId: String(r["sys_id"]),
-                        snoozed: e.target.checked,
-                      })
-                    }
-                    className="size-3.5 accent-[var(--color-primary)] disabled:opacity-50"
-                  />
-                </td>
+                {snoozeEnabled && (
+                  <td className="data-cell">
+                    <input
+                      type="checkbox"
+                      aria-label={`Snooze ${String(r[columns[0]!.name] ?? r["sys_id"])}`}
+                      checked={r["snoozed"] === true}
+                      disabled={!canWrite || snoozeMutation.isPending}
+                      title={canWrite ? "Mark as snoozing" : "Sign in as an editor to change this"}
+                      onChange={(e) =>
+                        snoozeMutation.mutate({
+                          sysId: String(r["sys_id"]),
+                          snoozed: e.target.checked,
+                        })
+                      }
+                      className="size-3.5 accent-[var(--color-primary)] disabled:opacity-50"
+                    />
+                  </td>
+                )}
+
                 <td className="data-cell text-right">
                   <Link
                     to={detailTo}
