@@ -4,6 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { accessPointsQuery, instancesQuery, serversQuery, switchesQuery } from "@/lib/cmdb-data";
+import {
+  INSTANCE_FIELDS,
+  SERVER_FIELDS,
+  SWITCH_FIELDS,
+  WAP_FIELDS,
+} from "@/lib/cmdb-schema";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/")({
