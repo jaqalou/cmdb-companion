@@ -16,6 +16,9 @@ import {
   setUserPassword,
   type AppRole,
 } from "@/lib/admin-users.functions";
+import { getOwnAccount, updateOwnEmail, updateOwnPassword } from "@/lib/account.functions";
+import { useSetSnoozeEnabled, useSnoozeEnabled } from "@/lib/app-settings";
+
 
 
 export const Route = createFileRoute("/admin/users")({
@@ -54,7 +57,10 @@ function fmt(value: string | null) {
 function UsersAdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const queryClient = useQueryClient();
+  const { enabled: snoozeEnabled } = useSnoozeEnabled();
+  const snoozeMut = useSetSnoozeEnabled();
   const fetchUsers = useServerFn(listAppUsers);
+
   const grant = useServerFn(grantUserRole);
   const revoke = useServerFn(revokeUserRole);
   const rename = useServerFn(renameUser);
