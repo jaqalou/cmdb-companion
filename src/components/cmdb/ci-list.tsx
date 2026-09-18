@@ -303,14 +303,14 @@ export function CiList({
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + (snoozeEnabled ? 4 : 3)} className="px-3 py-8 text-muted-foreground">
                   Loading configuration items…
                 </td>
               </tr>
             )}
             {!isLoading && filtered.length === 0 && (
               <tr>
-                <td colSpan={columns.length + 4} className="px-3 py-8 text-muted-foreground">
+                <td colSpan={columns.length + (snoozeEnabled ? 4 : 3)} className="px-3 py-8 text-muted-foreground">
                   No configuration items match the current filters.
                 </td>
               </tr>
