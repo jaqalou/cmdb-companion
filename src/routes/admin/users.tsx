@@ -409,3 +409,121 @@ function UsersAdminPage() {
     </PageShell>
   );
 }
+
+/** Non-administrators see and manage only their own account. */
+function OwnAccountPanel() {
+  const queryClient = useQueryClient();
+  const fetchMe = useServerFn(getOwnAccount);
+  const changeEmail = useServerFn(updateOwnEmail);
+  const changePassword = useServerFn(updateOwnPassword);
+
+  const me = useQuery({ queryKey: ["own-account"], queryFn: () => fetchMe() });
+
+  const emailMut = useMutation({
+    mutationFn: async (email: string) => changeEmail({ data: { email } }),
+    onSuccess: () => {
+      toast.success("Email address updated");
+      queryClient.invalidateQueries({ queryKey: ["own-account"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not update the email address"),
+  });
+
+  const passwordMut = useMutation({
+    mutationFn: async (password: string) => changePassword({ data: { password } }),
+    onSuccess: () => toast.success("Password updated"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not change the password"),
+  });
+
+  if (me.isLoading) {
+    return (
+      <div className="mt-6 rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+        Loading your account…
+      </div>
+    );
+  }
+  if (me.isError || !me.data) {
+    return (
+      <div className="mt-6 rounded-xl border border-border bg-card p-6 text-sm text-destructive">
+        {me.error instanceof Error ? me.error.message : "Could not load your account"}
+      </div>
+    );
+  }
+
+  const row = me.data;
+  const isSso = row.provider !== "email";
+
+  return (
+    <div className="mt-6 rounded-xl border border-border bg-card p-6">
+      <p className="text-sm font-semibold">Your account</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Only administrators can see other accounts. You can view and manage your own details here.
+      </p>
+      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+        <div>
+          <dt className="text-xs text-muted-foreground">Email</dt>
+          <dd className="font-medium">{row.email}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Sign-in method</dt>
+          <dd className="chip capitalize">{row.provider}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Created</dt>
+          <dd className="text-muted-foreground">{fmt(row.createdAt)}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Last sign-in</dt>
+          <dd className="text-muted-foreground">{fmt(row.lastSignInAt)}</dd>
+        </div>
+        <div className="sm:col-span-2">
+          <dt className="text-xs text-muted-foreground">Permissions</dt>
+          <dd className="mt-1 flex flex-wrap gap-2">
+            {row.roles.length === 0 && <span className="text-muted-foreground">None assigned</span>}
+            {row.roles.map((r) => (
+              <span key={r} className="chip capitalize">
+                {r}
+              </span>
+            ))}
+          </dd>
+        </div>
+      </dl>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={emailMut.isPending}
+          onClick={() => {
+            const next = window.prompt("New email address for your account", row.email);
+            if (!next || next.trim() === row.email) return;
+            emailMut.mutate(next.trim());
+          }}
+          className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60 disabled:opacity-50"
+        >
+          Change email
+        </button>
+        <button
+          type="button"
+          disabled={passwordMut.isPending || isSso}
+          title={isSso ? "You sign in with single sign-on, so there is no password" : undefined}
+          onClick={() => {
+            const next = window.prompt("New password (at least 12 characters)", "");
+            if (next === null) return;
+            if (next.trim().length < 12) {
+              toast.error("Use at least 12 characters");
+              return;
+            }
+            passwordMut.mutate(next);
+          }}
+          className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60 disabled:opacity-50"
+        >
+          Change password
+        </button>
+      </div>
+      <p className="mt-4 text-xs text-muted-foreground">
+        Your role can only be changed by an administrator.
+      </p>
+    </div>
+  );
+}
+
