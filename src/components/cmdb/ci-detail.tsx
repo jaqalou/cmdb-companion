@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import type { CiRecord } from "@/lib/cmdb-data";
 import { BOOLEAN_FIELDS, groupFields, NUMERIC_FIELDS, toDateInputValue, type FieldDef } from "@/lib/cmdb-schema";
+import { SNOOZE_FIELD_NAMES, useSnoozeEnabled } from "@/lib/app-settings";
+
 import { updateCiRecord } from "@/lib/cmdb-mutate.functions";
 import { TABLE_TO_ITEMTYPE } from "@/lib/glpi-itemtypes";
 
@@ -21,8 +23,14 @@ type Props = {
   backLabel: string;
 };
 
-export function CiDetail({ record, fields, table, title, subtitle, backTo, backLabel }: Props) {
+export function CiDetail({ record, fields: allFields, table, title, subtitle, backTo, backLabel }: Props) {
+  const { enabled: snoozeEnabled } = useSnoozeEnabled();
+  const fields = useMemo(
+    () => (snoozeEnabled ? allFields : allFields.filter((f) => !SNOOZE_FIELD_NAMES.has(f.name))),
+    [allFields, snoozeEnabled],
+  );
   const groups = groupFields(fields);
+
   const sysId = String(record["sys_id"]);
   const { canWrite } = useAuth();
   const queryClient = useQueryClient();

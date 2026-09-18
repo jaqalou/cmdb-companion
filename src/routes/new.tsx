@@ -8,6 +8,8 @@ import { PageShell } from "@/components/cmdb/site-chrome";
 import { useAuth } from "@/hooks/use-auth";
 import { createCiRecord } from "@/lib/cmdb-create.functions";
 import { CI_CLASSES, NUMERIC_FIELDS, groupFields } from "@/lib/cmdb-schema";
+import { SNOOZE_FIELD_NAMES, useSnoozeEnabled } from "@/lib/app-settings";
+
 
 export const Route = createFileRoute("/new")({
   head: () => ({
@@ -50,7 +52,13 @@ function NewItemPage() {
   const [saving, setSaving] = useState(false);
 
   const cls = CI_CLASSES[table];
-  const groups = useMemo(() => groupFields(cls.fields), [cls.fields]);
+  const { enabled: snoozeEnabled } = useSnoozeEnabled();
+  const visibleFields = useMemo(
+    () => (snoozeEnabled ? cls.fields : cls.fields.filter((f) => !SNOOZE_FIELD_NAMES.has(f.name))),
+    [cls.fields, snoozeEnabled],
+  );
+  const groups = useMemo(() => groupFields(visibleFields), [visibleFields]);
+
 
   function setField(name: string, value: string) {
     setValues((prev) => ({ ...prev, [name]: value }));
