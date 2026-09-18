@@ -228,16 +228,7 @@ function UsersAdminPage() {
                   type="checkbox"
                   checked={snoozeEnabled}
                   disabled={snoozeMut.isPending}
-                  onChange={(e) =>
-                    snoozeMut.mutate(e.target.checked, {
-                      onSuccess: (next) =>
-                        toast.success(next ? "Snooze options enabled" : "Snooze options hidden"),
-                      onError: (error) =>
-                        toast.error(
-                          error instanceof Error ? error.message : "Could not update the setting",
-                        ),
-                    })
-                  }
+                  onChange={(e) => onToggleSnooze(e.target.checked)}
                 />
                 Snooze options enabled
               </label>
