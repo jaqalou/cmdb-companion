@@ -4,6 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
 import { accessPointsQuery, instancesQuery, serversQuery, switchesQuery } from "@/lib/cmdb-data";
+import {
+  INSTANCE_FIELDS,
+  SERVER_FIELDS,
+  SWITCH_FIELDS,
+  WAP_FIELDS,
+} from "@/lib/cmdb-schema";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/")({
@@ -121,28 +127,28 @@ function Index() {
               to: "/servers" as const,
               table: "cmdb_ci_server",
               title: "Servers",
-              count: 44,
+              count: SERVER_FIELDS.length,
               text: "Hostname, region, environment and SLA tags, technical owner, VM sizing, OS lifecycle, EOL dates, maintenance windows and backup status.",
             },
             {
               to: "/databases" as const,
               table: "cmdb_ci_db_mssql_instance",
               title: "SQL Server instances",
-              count: 47,
+              count: INSTANCE_FIELDS.length,
               text: "Instance and listener names, edition and build, port, CPU, cores and memory, backup chains, CheckDB jobs, service accounts and monitoring.",
             },
             {
               to: "/switches" as const,
               table: "cmdb_ci_netgear_switch",
               title: "Network switches",
-              count: 39,
+              count: SWITCH_FIELDS.length,
               text: "Core, distribution and access layer — ports, PoE, stacks, uplinks, VLANs, firmware levels and config backup posture.",
             },
             {
               to: "/access-points" as const,
               table: "cmdb_ci_wap",
               title: "Wireless access points",
-              count: 40,
+              count: WAP_FIELDS.length,
               text: "Controllers, SSIDs, radio bands and channel width, client capacity, and the exact PoE switch port every radio hangs off.",
             },
           ].map((c) => (
