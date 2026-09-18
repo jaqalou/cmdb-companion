@@ -181,12 +181,7 @@ function UsersAdminPage() {
           </div>
         )}
 
-        {!loading && user && !isAdmin && (
-          <div className="mt-6 rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
-            Administrator access required. Ask an existing administrator to grant your account the
-            admin role.
-          </div>
-        )}
+        {!loading && user && !isAdmin && <OwnAccountPanel />}
 
         {isAdmin && (
           <>
@@ -198,6 +193,33 @@ function UsersAdminPage() {
                 </div>
               ))}
             </div>
+
+            <div className="mt-6 rounded-xl border border-border bg-card p-4">
+              <p className="text-sm font-semibold">Platform features</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Turning the snooze feature off hides the snooze checkbox in the inventory lists and
+                every snooze exclusion field on the item pages, for all accounts.
+              </p>
+              <label className="mt-3 inline-flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={snoozeEnabled}
+                  disabled={snoozeMut.isPending}
+                  onChange={(e) =>
+                    snoozeMut.mutate(e.target.checked, {
+                      onSuccess: (next) =>
+                        toast.success(next ? "Snooze options enabled" : "Snooze options hidden"),
+                      onError: (error) =>
+                        toast.error(
+                          error instanceof Error ? error.message : "Could not update the setting",
+                        ),
+                    })
+                  }
+                />
+                Snooze options enabled
+              </label>
+            </div>
+
 
             <form
               onSubmit={(e) => {
