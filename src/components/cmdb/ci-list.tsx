@@ -12,6 +12,8 @@ import { deleteCiRecords, setCiSnoozed } from "@/lib/cmdb-mutate.functions";
 import { downloadFile, toCsv, toJsonExport } from "@/lib/csv-export";
 import { buildXlsx, downloadBlob } from "@/lib/xlsx-export";
 import { SUPPORT_COLORS, SUPPORT_LABELS, supportStatus } from "@/lib/support-status";
+import { useSnoozeEnabled } from "@/lib/app-settings";
+
 
 type Props = {
   records: CiRecord[];
@@ -59,6 +61,8 @@ export function CiList({
   table,
 }: Props) {
   const { canWrite, isAdmin } = useAuth();
+  const { enabled: snoozeEnabled } = useSnoozeEnabled();
+
   const queryClient = useQueryClient();
   const snoozeFn = useServerFn(setCiSnoozed);
   const deleteFn = useServerFn(deleteCiRecords);
@@ -287,9 +291,12 @@ export function CiList({
               <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                 Support
               </th>
-              <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                Snoozed
-              </th>
+              {snoozeEnabled && (
+                <th className="whitespace-nowrap px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                  Snoozed
+                </th>
+              )}
+
               <th className="px-3 py-2" />
             </tr>
           </thead>
