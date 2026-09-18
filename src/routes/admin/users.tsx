@@ -159,6 +159,23 @@ function UsersAdminPage() {
     if (confirmed) deleteMut.mutate({ userId });
   }
 
+  function onToggleSnooze(next: boolean) {
+    const confirmed = window.confirm(
+      next
+        ? "Enable snooze options? The snooze checkbox in the inventory lists and every snooze exclusion field on the item pages will become visible to all accounts again."
+        : "Disable snooze options? The snooze checkbox in the inventory lists and every snooze exclusion field on the item pages will be hidden for all accounts. Snooze values already saved on items are kept and will reappear if the feature is enabled again.",
+    );
+    if (!confirmed) return;
+    snoozeMut.mutate(next, {
+      onSuccess: (result) =>
+        toast.success(result ? "Snooze options enabled" : "Snooze options hidden"),
+      onError: (error) =>
+        toast.error(
+          error instanceof Error ? error.message : "Could not update the setting",
+        ),
+    });
+  }
+
   return (
     <PageShell>
       <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-6">
