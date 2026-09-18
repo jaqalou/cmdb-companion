@@ -47,8 +47,9 @@ export default defineConfig(({ mode, command }) => {
             nitro(
               selfHostPreset
                 ? { preset: selfHostPreset, output: { dir: ".output" } }
-                : { preset: "cloudflare-module" },
+                : { preset: "cloudflare-module", output: { dir: "dist" } },
             ),
+
           ]
         : []),
       viteReact(),
