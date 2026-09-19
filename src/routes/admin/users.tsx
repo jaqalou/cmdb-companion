@@ -65,6 +65,8 @@ function UsersAdminPage() {
   const queryClient = useQueryClient();
   const { enabled: snoozeEnabled } = useSnoozeEnabled();
   const snoozeMut = useSetSnoozeEnabled();
+  const { basis: lifecycleBasis } = useLifecycleBasis();
+  const lifecycleMut = useSetLifecycleBasis();
   const fetchUsers = useServerFn(listAppUsers);
 
   const grant = useServerFn(grantUserRole);
