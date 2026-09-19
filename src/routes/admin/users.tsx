@@ -258,6 +258,21 @@ function UsersAdminPage() {
                 />
                 Snooze options enabled
               </label>
+
+              <p className="mt-5 text-sm font-semibold">Lifecycle view</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Choose which attribute decides whether an item counts as out of support in the
+                lists, the pie charts and the exports.
+              </p>
+              <select
+                value={lifecycleBasis}
+                disabled={lifecycleMut.isPending}
+                onChange={(e) => onChangeLifecycle(e.target.value as LifecycleBasis)}
+                className="mt-3 h-9 rounded-md border border-border bg-background px-2 text-sm"
+              >
+                <option value="eol">EOL date</option>
+                <option value="esu">ESU (value and ESU end date)</option>
+              </select>
             </div>
 
 
