@@ -2,12 +2,26 @@ import type { CiRecord } from "@/lib/cmdb-data";
 
 export type SupportStatus = "out" | "soon" | "supported" | "unknown";
 
+/** Which attribute drives the lifecycle calculation. Chosen by administrators. */
+export type LifecycleBasis = "eol" | "esu";
+
 export const SUPPORT_LABELS: Record<SupportStatus, string> = {
   out: "Out of support",
   soon: "Expiring within 6 months",
   supported: "In support",
   unknown: "No EOL date",
 };
+
+const ESU_LABELS: Record<SupportStatus, string> = {
+  out: "ESU expired",
+  soon: "ESU expiring within 6 months",
+  supported: "Covered by ESU",
+  unknown: "No ESU coverage",
+};
+
+export function supportLabels(basis: LifecycleBasis = "eol") {
+  return basis === "esu" ? ESU_LABELS : SUPPORT_LABELS;
+}
 
 export const SUPPORT_COLORS: Record<SupportStatus, string> = {
   out: "#dc2626",
@@ -27,7 +41,12 @@ function parseEol(value: unknown): Date | null {
   return null;
 }
 
-export function supportStatus(record: CiRecord, now = new Date()): SupportStatus {
+export function supportStatus(
+  record: CiRecord,
+  basis: LifecycleBasis = "eol",
+  now = new Date(),
+): SupportStatus {
+  if (basis === "esu") return esuStatus(record, now);
   const eol = parseEol(record["eol_date"]);
   if (!eol) {
     const cycle = String(record["support_cycle"] ?? "").toLowerCase();
