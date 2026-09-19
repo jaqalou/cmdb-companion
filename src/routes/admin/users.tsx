@@ -184,6 +184,24 @@ function UsersAdminPage() {
     });
   }
 
+  function onChangeLifecycle(next: LifecycleBasis) {
+    if (next === lifecycleBasis) return;
+    const confirmed = window.confirm(
+      next === "esu"
+        ? "Base the lifecycle view on ESU? Support status in the lists, charts and exports will be calculated from the ESU value and ESU end date instead of the EOL date, for all accounts."
+        : "Base the lifecycle view on the EOL date? Support status in the lists, charts and exports will be calculated from the EOL date again, for all accounts.",
+    );
+    if (!confirmed) return;
+    lifecycleMut.mutate(next, {
+      onSuccess: (result) =>
+        toast.success(
+          result === "esu" ? "Lifecycle now based on ESU" : "Lifecycle now based on EOL date",
+        ),
+      onError: (error) =>
+        toast.error(error instanceof Error ? error.message : "Could not update the setting"),
+    });
+  }
+
   return (
     <PageShell>
       <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-6">
