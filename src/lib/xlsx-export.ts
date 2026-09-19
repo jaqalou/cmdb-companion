@@ -1,6 +1,11 @@
 import type { CiRecord } from "@/lib/cmdb-data";
 import type { FieldDef } from "@/lib/cmdb-schema";
-import { SUPPORT_LABELS, SUPPORT_ORDER, supportStatus } from "@/lib/support-status";
+import {
+  SUPPORT_ORDER,
+  supportLabels,
+  supportStatus,
+  type LifecycleBasis,
+} from "@/lib/support-status";
 
 const NAVY = "FF10213F";
 const NAVY_SOFT = "FF1E3A63";
