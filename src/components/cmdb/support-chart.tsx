@@ -2,10 +2,11 @@ import { useMemo, useState } from "react";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import type { CiRecord } from "@/lib/cmdb-data";
+import { useLifecycleBasis } from "@/lib/app-settings";
 import {
   SUPPORT_COLORS,
-  SUPPORT_LABELS,
   SUPPORT_ORDER,
+  supportLabels,
   supportStatus,
 } from "@/lib/support-status";
 
