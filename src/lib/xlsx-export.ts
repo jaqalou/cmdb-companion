@@ -31,7 +31,9 @@ export async function buildXlsx(
   fields: FieldDef[],
   title: string,
   scopeLabel: string,
+  basis: LifecycleBasis = "eol",
 ): Promise<Blob> {
+  const LABELS = supportLabels(basis);
   const ExcelJS = (await import("exceljs")).default;
   const wb = new ExcelJS.Workbook();
   wb.creator = "CB Assets";
