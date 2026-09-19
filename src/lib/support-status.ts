@@ -45,6 +45,8 @@ function parseEol(value: unknown): Date | null {
 function esuStatus(record: CiRecord, now: Date): SupportStatus {
   const flag = String(record["esu"] ?? "").trim().toLowerCase();
   if (flag === "eol") return "out";
+  // ESU = False → the item does not rely on ESU and is in full (standard) support.
+  if (flag === "false") return "supported";
   const end = parseEol(record["esu_end_date"]);
   if (end) {
     if (end.getTime() < now.getTime()) return "out";
