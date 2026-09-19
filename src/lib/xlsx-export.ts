@@ -1,6 +1,11 @@
 import type { CiRecord } from "@/lib/cmdb-data";
 import type { FieldDef } from "@/lib/cmdb-schema";
-import { SUPPORT_LABELS, SUPPORT_ORDER, supportStatus } from "@/lib/support-status";
+import {
+  SUPPORT_ORDER,
+  supportLabels,
+  supportStatus,
+  type LifecycleBasis,
+} from "@/lib/support-status";
 
 const NAVY = "FF10213F";
 const NAVY_SOFT = "FF1E3A63";
@@ -26,7 +31,9 @@ export async function buildXlsx(
   fields: FieldDef[],
   title: string,
   scopeLabel: string,
+  basis: LifecycleBasis = "eol",
 ): Promise<Blob> {
+  const LABELS = supportLabels(basis);
   const ExcelJS = (await import("exceljs")).default;
   const wb = new ExcelJS.Workbook();
   wb.creator = "CB Assets";
@@ -70,10 +77,10 @@ export async function buildXlsx(
 
   // Data rows
   records.forEach((r, i) => {
-    const status = supportStatus(r);
+    const status = supportStatus(r, basis);
     const row = ws.addRow([
       r["sys_id"] ?? "",
-      SUPPORT_LABELS[status],
+      LABELS[status],
       ...fields.map((f) => {
         const v = r[f.name];
         return v === null || v === undefined ? "" : (v as string | number);
@@ -109,7 +116,7 @@ export async function buildXlsx(
         idx === 0
           ? r["sys_id"]
           : idx === 1
-            ? SUPPORT_LABELS[supportStatus(r)]
+            ? LABELS[supportStatus(r, basis)]
             : r[fields[idx - 2]!.name];
       const len = v === null || v === undefined ? 0 : String(v).length;
       if (len > max) max = len;
@@ -145,8 +152,8 @@ export async function buildXlsx(
   });
 
   SUPPORT_ORDER.forEach((status) => {
-    const count = records.filter((r) => supportStatus(r) === status).length;
-    const row = summary.addRow([SUPPORT_LABELS[status], count]);
+    const count = records.filter((r) => supportStatus(r, basis) === status).length;
+    const row = summary.addRow([LABELS[status], count]);
     row.eachCell((cell, col) => {
       cell.font = {
         name: "Calibri",

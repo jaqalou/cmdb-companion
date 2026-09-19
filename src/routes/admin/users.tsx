@@ -17,7 +17,13 @@ import {
   type AppRole,
 } from "@/lib/admin-users.functions";
 import { getOwnAccount, updateOwnEmail, updateOwnPassword } from "@/lib/account.functions";
-import { useSetSnoozeEnabled, useSnoozeEnabled } from "@/lib/app-settings";
+import {
+  useLifecycleBasis,
+  useSetLifecycleBasis,
+  useSetSnoozeEnabled,
+  useSnoozeEnabled,
+} from "@/lib/app-settings";
+import type { LifecycleBasis } from "@/lib/support-status";
 
 
 
@@ -59,6 +65,8 @@ function UsersAdminPage() {
   const queryClient = useQueryClient();
   const { enabled: snoozeEnabled } = useSnoozeEnabled();
   const snoozeMut = useSetSnoozeEnabled();
+  const { basis: lifecycleBasis } = useLifecycleBasis();
+  const lifecycleMut = useSetLifecycleBasis();
   const fetchUsers = useServerFn(listAppUsers);
 
   const grant = useServerFn(grantUserRole);
@@ -176,6 +184,24 @@ function UsersAdminPage() {
     });
   }
 
+  function onChangeLifecycle(next: LifecycleBasis) {
+    if (next === lifecycleBasis) return;
+    const confirmed = window.confirm(
+      next === "esu"
+        ? "Base the lifecycle view on ESU? Support status in the lists, charts and exports will be calculated from the ESU value and ESU end date instead of the EOL date, for all accounts."
+        : "Base the lifecycle view on the EOL date? Support status in the lists, charts and exports will be calculated from the EOL date again, for all accounts.",
+    );
+    if (!confirmed) return;
+    lifecycleMut.mutate(next, {
+      onSuccess: (result) =>
+        toast.success(
+          result === "esu" ? "Lifecycle now based on ESU" : "Lifecycle now based on EOL date",
+        ),
+      onError: (error) =>
+        toast.error(error instanceof Error ? error.message : "Could not update the setting"),
+    });
+  }
+
   return (
     <PageShell>
       <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-6">
@@ -232,6 +258,21 @@ function UsersAdminPage() {
                 />
                 Snooze options enabled
               </label>
+
+              <p className="mt-5 text-sm font-semibold">Lifecycle view</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Choose which attribute decides whether an item counts as out of support in the
+                lists, the pie charts and the exports.
+              </p>
+              <select
+                value={lifecycleBasis}
+                disabled={lifecycleMut.isPending}
+                onChange={(e) => onChangeLifecycle(e.target.value as LifecycleBasis)}
+                className="mt-3 h-9 rounded-md border border-border bg-background px-2 text-sm"
+              >
+                <option value="eol">EOL date</option>
+                <option value="esu">ESU (value and ESU end date)</option>
+              </select>
             </div>
 
 
