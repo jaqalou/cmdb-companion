@@ -16,7 +16,7 @@ const ESU_LABELS: Record<SupportStatus, string> = {
   out: "ESU expired",
   soon: "ESU active",
   supported: "Full support",
-  unknown: "No ESU coverage",
+  unknown: "N/A",
 };
 
 export function supportLabels(basis: LifecycleBasis = "eol") {
