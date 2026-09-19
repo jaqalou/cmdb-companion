@@ -11,8 +11,8 @@ import type { FieldDef } from "@/lib/cmdb-schema";
 import { deleteCiRecords, setCiSnoozed } from "@/lib/cmdb-mutate.functions";
 import { downloadFile, toCsv, toJsonExport } from "@/lib/csv-export";
 import { buildXlsx, downloadBlob } from "@/lib/xlsx-export";
-import { SUPPORT_COLORS, SUPPORT_LABELS, supportStatus } from "@/lib/support-status";
-import { useSnoozeEnabled } from "@/lib/app-settings";
+import { SUPPORT_COLORS, supportLabels, supportStatus } from "@/lib/support-status";
+import { useLifecycleBasis, useSnoozeEnabled } from "@/lib/app-settings";
 
 
 type Props = {
@@ -62,6 +62,8 @@ export function CiList({
 }: Props) {
   const { canWrite, isAdmin } = useAuth();
   const { enabled: snoozeEnabled } = useSnoozeEnabled();
+  const { basis } = useLifecycleBasis();
+  const statusLabels = supportLabels(basis);
 
   const queryClient = useQueryClient();
   const snoozeFn = useServerFn(setCiSnoozed);
@@ -155,7 +157,7 @@ export function CiList({
     } else {
       setExporting(true);
       try {
-        const blob = await buildXlsx(scopeRecords, exportFields, exportName, scopeLabel);
+        const blob = await buildXlsx(scopeRecords, exportFields, exportName, scopeLabel, basis);
         downloadBlob(blob, `${exportName}_${stamp}.xlsx`);
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Could not build the spreadsheet");
@@ -365,11 +367,11 @@ export function CiList({
                   <span
                     className="chip"
                     style={{
-                      color: SUPPORT_COLORS[supportStatus(r)],
-                      borderColor: SUPPORT_COLORS[supportStatus(r)],
+                      color: SUPPORT_COLORS[supportStatus(r, basis)],
+                      borderColor: SUPPORT_COLORS[supportStatus(r, basis)],
                     }}
                   >
-                    {SUPPORT_LABELS[supportStatus(r)]}
+                    {statusLabels[supportStatus(r, basis)]}
                   </span>
                 </td>
                 {snoozeEnabled && (
