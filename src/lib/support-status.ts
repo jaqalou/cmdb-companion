@@ -41,6 +41,21 @@ function parseEol(value: unknown): Date | null {
   return null;
 }
 
+/** Lifecycle judged on Extended Security Updates instead of the EOL date. */
+function esuStatus(record: CiRecord, now: Date): SupportStatus {
+  const flag = String(record["esu"] ?? "").trim().toLowerCase();
+  if (flag === "eol") return "out";
+  const end = parseEol(record["esu_end_date"]);
+  if (end) {
+    if (end.getTime() < now.getTime()) return "out";
+    const sixMonths = new Date(now);
+    sixMonths.setMonth(sixMonths.getMonth() + 6);
+    return end.getTime() <= sixMonths.getTime() ? "soon" : "supported";
+  }
+  if (flag === "active") return "supported";
+  return "unknown";
+}
+
 export function supportStatus(
   record: CiRecord,
   basis: LifecycleBasis = "eol",

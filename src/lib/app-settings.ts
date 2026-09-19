@@ -9,6 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const SNOOZE_SETTING_KEY = "snooze_enabled";
 
+/** When enabled, lifecycle status is calculated from ESU instead of the EOL date. */
+export const LIFECYCLE_ESU_SETTING_KEY = "lifecycle_basis_esu";
+
 /** Every attribute that belongs to the snooze feature. */
 export const SNOOZE_FIELD_NAMES = new Set([
   "snoozed",
