@@ -17,7 +17,13 @@ import {
   type AppRole,
 } from "@/lib/admin-users.functions";
 import { getOwnAccount, updateOwnEmail, updateOwnPassword } from "@/lib/account.functions";
-import { useSetSnoozeEnabled, useSnoozeEnabled } from "@/lib/app-settings";
+import {
+  useLifecycleBasis,
+  useSetLifecycleBasis,
+  useSetSnoozeEnabled,
+  useSnoozeEnabled,
+} from "@/lib/app-settings";
+import type { LifecycleBasis } from "@/lib/support-status";
 
 
 
