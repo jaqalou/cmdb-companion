@@ -14,8 +14,8 @@ export const SUPPORT_LABELS: Record<SupportStatus, string> = {
 
 const ESU_LABELS: Record<SupportStatus, string> = {
   out: "ESU expired",
-  soon: "ESU expiring within 6 months",
-  supported: "Covered by ESU",
+  soon: "ESU active",
+  supported: "Full support",
   unknown: "No ESU coverage",
 };
 
@@ -44,9 +44,11 @@ function parseEol(value: unknown): Date | null {
 /** Lifecycle judged on Extended Security Updates instead of the EOL date. */
 function esuStatus(record: CiRecord, now: Date): SupportStatus {
   const flag = String(record["esu"] ?? "").trim().toLowerCase();
-  if (flag === "eol") return "out";
-  // ESU = False → the item does not rely on ESU and is in full (standard) support.
-  if (flag === "false") return "supported";
+  if (flag === "eol") return "out"; // Red
+  if (flag === "false") return "supported"; // Full support — Green
+  if (flag === "active") return "soon"; // Amber
+  if (flag === "n/a" || flag === "na") return "unknown"; // Grey
+  if (flag === "") return "unknown"; // Blank — Grey
   const end = parseEol(record["esu_end_date"]);
   if (end) {
     if (end.getTime() < now.getTime()) return "out";
@@ -54,7 +56,6 @@ function esuStatus(record: CiRecord, now: Date): SupportStatus {
     sixMonths.setMonth(sixMonths.getMonth() + 6);
     return end.getTime() <= sixMonths.getTime() ? "soon" : "supported";
   }
-  if (flag === "active") return "supported";
   return "unknown";
 }
 
