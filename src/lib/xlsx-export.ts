@@ -77,10 +77,10 @@ export async function buildXlsx(
 
   // Data rows
   records.forEach((r, i) => {
-    const status = supportStatus(r);
+    const status = supportStatus(r, basis);
     const row = ws.addRow([
       r["sys_id"] ?? "",
-      SUPPORT_LABELS[status],
+      LABELS[status],
       ...fields.map((f) => {
         const v = r[f.name];
         return v === null || v === undefined ? "" : (v as string | number);
@@ -116,7 +116,7 @@ export async function buildXlsx(
         idx === 0
           ? r["sys_id"]
           : idx === 1
-            ? SUPPORT_LABELS[supportStatus(r)]
+            ? LABELS[supportStatus(r, basis)]
             : r[fields[idx - 2]!.name];
       const len = v === null || v === undefined ? 0 : String(v).length;
       if (len > max) max = len;
@@ -152,8 +152,8 @@ export async function buildXlsx(
   });
 
   SUPPORT_ORDER.forEach((status) => {
-    const count = records.filter((r) => supportStatus(r) === status).length;
-    const row = summary.addRow([SUPPORT_LABELS[status], count]);
+    const count = records.filter((r) => supportStatus(r, basis) === status).length;
+    const row = summary.addRow([LABELS[status], count]);
     row.eachCell((cell, col) => {
       cell.font = {
         name: "Calibri",
