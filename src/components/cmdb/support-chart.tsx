@@ -18,6 +18,8 @@ const FILTERS = [
 
 export function SupportChart({ records }: { records: CiRecord[] }) {
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const { basis } = useLifecycleBasis();
+  const labels = supportLabels(basis);
 
   const options = useMemo(
     () =>
@@ -41,15 +43,15 @@ export function SupportChart({ records }: { records: CiRecord[] }) {
   const data = useMemo(() => {
     const counts = new Map<string, number>();
     for (const r of scoped) {
-      const s = supportStatus(r);
+      const s = supportStatus(r, basis);
       counts.set(s, (counts.get(s) ?? 0) + 1);
     }
     return SUPPORT_ORDER.filter((s) => counts.get(s)).map((s) => ({
       key: s,
-      name: SUPPORT_LABELS[s],
+      name: labels[s],
       value: counts.get(s) ?? 0,
     }));
-  }, [scoped]);
+  }, [scoped, basis, labels]);
 
   const outOfSupport = data.find((d) => d.key === "out")?.value ?? 0;
 
@@ -89,7 +91,9 @@ export function SupportChart({ records }: { records: CiRecord[] }) {
         </div>
 
         <div className="flex-1">
-          <p className="eyebrow text-muted-foreground">Support posture</p>
+          <p className="eyebrow text-muted-foreground">
+            Support posture · based on {basis === "esu" ? "ESU" : "EOL date"}
+          </p>
           <p className="mt-1 text-sm text-foreground">
             <span className="font-mono text-2xl font-semibold text-destructive">
               {outOfSupport}
