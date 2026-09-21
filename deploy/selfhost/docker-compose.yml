@@ -57,11 +57,9 @@ services:
       GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${PUBLIC_URL}/auth/v1/callback
       GOTRUE_LOG_LEVEL: info
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9999/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+    # No healthcheck: the image ships neither wget nor curl, so any in-container
+    # probe reports unhealthy even when the service is fine. up.sh verifies
+    # readiness against the database instead.
 
   rest:
     image: postgrest/postgrest:v12.2.3
