@@ -131,6 +131,16 @@ else
 fi
 export DB_HOST DB_PORT DB_NAME DB_USER DB_HOST_FOR_CONTAINERS DB_PORT_FOR_CONTAINERS DB_PROXY_PORT
 
+# Keep direct `docker compose` maintenance commands aligned with the mode last
+# selected through this script. Without these values in .env, Compose may use
+# its defaults and point services at the wrong database after a manual restart.
+sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=/d' "$ENV_FILE"
+{
+  echo "DB_HOST_FOR_CONTAINERS=${DB_HOST_FOR_CONTAINERS}"
+  echo "DB_PORT_FOR_CONTAINERS=${DB_PORT_FOR_CONTAINERS}"
+  [[ "$DB_MODE" == "existing" ]] && echo "DB_PROXY_PORT=${DB_PROXY_PORT}"
+} >>"$ENV_FILE"
+
 psql_run() {
   if [[ "$DB_MODE" == "bundled" ]]; then
     $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
