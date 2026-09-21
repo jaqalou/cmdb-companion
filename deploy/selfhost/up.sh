@@ -97,6 +97,11 @@ else
   DB_HOST="db"; DB_PORT="5432"; DB_NAME="postgres"; DB_USER="postgres"
 fi
 
+if [[ "$DB_MODE" != "bundled" && "$DB_MODE" != "existing" ]]; then
+  echo "DB_MODE must be either bundled or existing (received: ${DB_MODE})." >&2
+  exit 1
+fi
+
 # Persist the database settings so re-runs and other scripts agree.
 {
   sed -i '/^DB_MODE=/d;/^DB_HOST=/d;/^DB_PORT=/d;/^DB_NAME=/d;/^DB_USER=/d;/^DB_PASSWORD=/d' "$ENV_FILE"
@@ -138,6 +143,10 @@ psql_run() {
 
 # 2. Database --------------------------------------------------------------
 if [[ "$DB_MODE" == "bundled" ]]; then
+  # Compose profiles do not remove services from a previously selected mode.
+  # Remove the old relay so stale external-database settings cannot survive.
+  $COMPOSE stop db-proxy >/dev/null 2>&1 || true
+  $COMPOSE rm -f db-proxy >/dev/null 2>&1 || true
   # The bundled database is published on 5432. If anything else already holds
   # that port, reclaim it: stop leftover containers publishing it, and stop a
   # PostgreSQL installed directly on the VM.
@@ -199,6 +208,10 @@ if [[ "$DB_MODE" == "bundled" ]]; then
     exit 1
   fi
 else
+  # Likewise, an existing-database install must not leave the bundled database
+  # running and occupying host port 5432.
+  $COMPOSE stop db >/dev/null 2>&1 || true
+  $COMPOSE rm -f db >/dev/null 2>&1 || true
   log "Using the existing PostgreSQL at ${DB_HOST}:${DB_PORT}/${DB_NAME}"
   psql_run -tAc "select 1" >/dev/null || {
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
@@ -234,32 +247,20 @@ psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql
 # not ship wget/curl, so an exec-based probe always fails even when the service
 # is healthy. The accounts tables appearing is the condition we actually need.
 log "Starting the accounts service"
-$COMPOSE up -d auth
+$COMPOSE up -d --force-recreate auth
 auth_ready=""
-for i in $(seq 1 90); do
-  if [[ "$(psql_run -tAc "SELECT to_regclass('auth.users') IS NOT NULL" 2>/dev/null | tr -d '[:space:]')" == "t" ]]; then
+for i in $(seq 1 60); do
+  if curl -sf -o /dev/null "http://127.0.0.1:9999/health"; then
     auth_ready="yes"
     break
   fi
+  state="$($COMPOSE ps --format '{{.State}}' auth 2>/dev/null | tr -d '[:space:]')"
+  if [[ "$state" != "running" && -n "$state" ]]; then break; fi
   sleep 2
 done
 if [[ -z "$auth_ready" ]]; then
-  echo "The accounts service did not finish setting up its tables." >&2
-  $COMPOSE logs --tail 60 auth >&2
-  exit 1
-fi
-
-# The tables can already exist from an earlier run while the service itself is
-# crash-looping — that is exactly what produces 502 on sign-in later on.
-auth_up=""
-for i in $(seq 1 30); do
-  state="$($COMPOSE ps --format '{{.State}}' auth 2>/dev/null | tr -d '[:space:]')"
-  if [[ "$state" == "running" ]]; then auth_up="yes"; break; fi
-  sleep 2
-done
-if [[ -z "$auth_up" ]]; then
-  echo "The accounts service is not running (state: ${state:-unknown}), so sign-in would return 502." >&2
-  $COMPOSE logs --tail 60 auth >&2
+  echo "The accounts service did not become reachable on its HTTP endpoint (state: ${state:-unknown})." >&2
+  $COMPOSE logs --since 5m --tail 80 auth >&2
   exit 1
 fi
 
@@ -282,7 +283,7 @@ done
 
 # 5. Data API + gateway ----------------------------------------------------
 log "Starting the data API"
-$COMPOSE up -d rest gateway
+$COMPOSE up -d --force-recreate rest gateway
 psql_run -c "NOTIFY pgrst, 'reload schema'" >/dev/null
 
 gateway_ready=""
@@ -292,7 +293,7 @@ for i in $(seq 1 30); do
 done
 if [[ -z "$gateway_ready" ]]; then
   echo "The backend gateway on 127.0.0.1:8000 is not answering (sign-in would return 502)." >&2
-  $COMPOSE logs --tail 40 gateway rest >&2
+  $COMPOSE logs --since 5m --tail 60 gateway rest >&2
   exit 1
 fi
 
@@ -303,7 +304,7 @@ auth_code="$(curl -s -o /dev/null -w '%{http_code}' -X POST \
   "http://127.0.0.1:8000/auth/v1/token?grant_type=password" || echo 000)"
 if [[ "$auth_code" == "000" || "$auth_code" == "502" || "$auth_code" == "504" ]]; then
   echo "The accounts service is not reachable through the gateway (HTTP ${auth_code})." >&2
-  $COMPOSE logs --tail 40 auth gateway >&2
+  $COMPOSE logs --since 5m --tail 60 auth gateway >&2
   exit 1
 fi
 
