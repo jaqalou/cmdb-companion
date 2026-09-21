@@ -27,7 +27,7 @@ services:
       timeout: 5s
       retries: 20
     # Host port only for local admin access; container services use db:5432.
-    # up.sh picks a free port when 5432 is already taken on this VM.
+    # The installer reserves host port 5432 for this bundled database.
     ports:
       - "127.0.0.1:${DB_BUNDLED_PORT:-5432}:5432"
 
@@ -71,9 +71,10 @@ services:
       GOTRUE_EXTERNAL_GOOGLE_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOTRUE_EXTERNAL_GOOGLE_REDIRECT_URI: ${PUBLIC_URL}/auth/v1/callback
       GOTRUE_LOG_LEVEL: info
-    # No healthcheck: the image ships neither wget nor curl, so any in-container
-    # probe reports unhealthy even when the service is fine. up.sh verifies
-    # readiness against the database instead.
+    # Keep this port local to the VM. up.sh probes the real HTTP endpoint here,
+    # rather than mistaking old auth tables for a healthy accounts service.
+    ports:
+      - "127.0.0.1:9999:9999"
 
   rest:
     image: postgrest/postgrest:v12.2.3

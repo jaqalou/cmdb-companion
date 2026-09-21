@@ -4,6 +4,14 @@
 -- Database roles used by the Data API -------------------------------------
 DO $$
 BEGIN
+  -- GoTrue's bundled migrations grant read access to a role literally named
+  -- "postgres". Existing PostgreSQL installations may use a differently named
+  -- administrator (for example "cmdb"), but the compatibility role must still
+  -- exist or GoTrue exits before opening port 9999. NOLOGIN keeps it unusable
+  -- as an account while satisfying those migrations.
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
+    CREATE ROLE postgres NOLOGIN NOINHERIT;
+  END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
     CREATE ROLE anon NOLOGIN NOINHERIT;
   END IF;
@@ -30,14 +38,7 @@ GRANT anon, authenticated, service_role TO authenticator;
 
 CREATE SCHEMA IF NOT EXISTS auth AUTHORIZATION supabase_auth_admin;
 GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role;
--- The postgres role is absent on some existing databases (e.g. a custom
--- superuser); grant to it only when present.
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
-    GRANT USAGE ON SCHEMA auth TO postgres;
-  END IF;
-END $$;
+GRANT USAGE ON SCHEMA auth TO postgres;
 ALTER ROLE supabase_auth_admin SET search_path = auth, public;
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
@@ -80,10 +81,5 @@ END $$;
 -- The audit trigger reads emails from auth.users.
 GRANT SELECT ON ALL TABLES IN SCHEMA auth TO service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO service_role;
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
-    GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres;
-    EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO postgres';
-  END IF;
-END $$;
+GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres;
+ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO postgres;

@@ -97,6 +97,11 @@ else
   DB_HOST="db"; DB_PORT="5432"; DB_NAME="postgres"; DB_USER="postgres"
 fi
 
+if [[ "$DB_MODE" != "bundled" && "$DB_MODE" != "existing" ]]; then
+  echo "DB_MODE must be either bundled or existing (received: ${DB_MODE})." >&2
+  exit 1
+fi
+
 # Persist the database settings so re-runs and other scripts agree.
 {
   sed -i '/^DB_MODE=/d;/^DB_HOST=/d;/^DB_PORT=/d;/^DB_NAME=/d;/^DB_USER=/d;/^DB_PASSWORD=/d' "$ENV_FILE"
@@ -126,6 +131,16 @@ else
 fi
 export DB_HOST DB_PORT DB_NAME DB_USER DB_HOST_FOR_CONTAINERS DB_PORT_FOR_CONTAINERS DB_PROXY_PORT
 
+# Keep direct `docker compose` maintenance commands aligned with the mode last
+# selected through this script. Without these values in .env, Compose may use
+# its defaults and point services at the wrong database after a manual restart.
+sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=/d' "$ENV_FILE"
+{
+  echo "DB_HOST_FOR_CONTAINERS=${DB_HOST_FOR_CONTAINERS}"
+  echo "DB_PORT_FOR_CONTAINERS=${DB_PORT_FOR_CONTAINERS}"
+  [[ "$DB_MODE" == "existing" ]] && echo "DB_PROXY_PORT=${DB_PROXY_PORT}"
+} >>"$ENV_FILE"
+
 psql_run() {
   if [[ "$DB_MODE" == "bundled" ]]; then
     $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
@@ -138,6 +153,10 @@ psql_run() {
 
 # 2. Database --------------------------------------------------------------
 if [[ "$DB_MODE" == "bundled" ]]; then
+  # Compose profiles do not remove services from a previously selected mode.
+  # Remove the old relay so stale external-database settings cannot survive.
+  $COMPOSE stop db-proxy >/dev/null 2>&1 || true
+  $COMPOSE rm -f db-proxy >/dev/null 2>&1 || true
   # The bundled database is published on 5432. If anything else already holds
   # that port, reclaim it: stop leftover containers publishing it, and stop a
   # PostgreSQL installed directly on the VM.
@@ -184,8 +203,8 @@ if [[ "$DB_MODE" == "bundled" ]]; then
   log "Starting PostgreSQL"
   if ! $COMPOSE --profile bundled up -d db; then
     echo "PostgreSQL could not start. If the message mentions a port already allocated," >&2
-    echo "another service on this VM uses that port. Re-run with DB_BUNDLED_PORT=5433," >&2
-    echo "or use the existing database with DB_MODE=existing DB_HOST=127.0.0.1 ..." >&2
+    echo "another process still owns port 5432. Stop the process shown above, then re-run." >&2
+    echo "If that process is the PostgreSQL you intend to keep, select it with DB_MODE=existing." >&2
     exit 1
   fi
   db_ready=""
@@ -199,6 +218,10 @@ if [[ "$DB_MODE" == "bundled" ]]; then
     exit 1
   fi
 else
+  # Likewise, an existing-database install must not leave the bundled database
+  # running and occupying host port 5432.
+  $COMPOSE stop db >/dev/null 2>&1 || true
+  $COMPOSE rm -f db >/dev/null 2>&1 || true
   log "Using the existing PostgreSQL at ${DB_HOST}:${DB_PORT}/${DB_NAME}"
   psql_run -tAc "select 1" >/dev/null || {
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
@@ -230,36 +253,23 @@ log "Preparing roles and helper functions"
 psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql"
 
 # 3. Accounts service (creates the auth tables the app schema references) ---
-# Readiness is checked in the database, not with an HTTP probe: the image does
-# not ship wget/curl, so an exec-based probe always fails even when the service
-# is healthy. The accounts tables appearing is the condition we actually need.
+# Probe its host-published HTTP endpoint. Existing tables and a nominally
+# running container do not prove that GoTrue finished migrations or bound 9999.
 log "Starting the accounts service"
-$COMPOSE up -d auth
+$COMPOSE up -d --force-recreate auth
 auth_ready=""
-for i in $(seq 1 90); do
-  if [[ "$(psql_run -tAc "SELECT to_regclass('auth.users') IS NOT NULL" 2>/dev/null | tr -d '[:space:]')" == "t" ]]; then
+for i in $(seq 1 60); do
+  if curl -sf -o /dev/null "http://127.0.0.1:9999/health"; then
     auth_ready="yes"
     break
   fi
+  state="$($COMPOSE ps --format '{{.State}}' auth 2>/dev/null | tr -d '[:space:]')"
+  if [[ "$state" != "running" && -n "$state" ]]; then break; fi
   sleep 2
 done
 if [[ -z "$auth_ready" ]]; then
-  echo "The accounts service did not finish setting up its tables." >&2
-  $COMPOSE logs --tail 60 auth >&2
-  exit 1
-fi
-
-# The tables can already exist from an earlier run while the service itself is
-# crash-looping — that is exactly what produces 502 on sign-in later on.
-auth_up=""
-for i in $(seq 1 30); do
-  state="$($COMPOSE ps --format '{{.State}}' auth 2>/dev/null | tr -d '[:space:]')"
-  if [[ "$state" == "running" ]]; then auth_up="yes"; break; fi
-  sleep 2
-done
-if [[ -z "$auth_up" ]]; then
-  echo "The accounts service is not running (state: ${state:-unknown}), so sign-in would return 502." >&2
-  $COMPOSE logs --tail 60 auth >&2
+  echo "The accounts service did not become reachable on its HTTP endpoint (state: ${state:-unknown})." >&2
+  $COMPOSE logs --since 5m --tail 80 auth >&2
   exit 1
 fi
 
@@ -282,7 +292,7 @@ done
 
 # 5. Data API + gateway ----------------------------------------------------
 log "Starting the data API"
-$COMPOSE up -d rest gateway
+$COMPOSE up -d --force-recreate rest gateway
 psql_run -c "NOTIFY pgrst, 'reload schema'" >/dev/null
 
 gateway_ready=""
@@ -292,7 +302,7 @@ for i in $(seq 1 30); do
 done
 if [[ -z "$gateway_ready" ]]; then
   echo "The backend gateway on 127.0.0.1:8000 is not answering (sign-in would return 502)." >&2
-  $COMPOSE logs --tail 40 gateway rest >&2
+  $COMPOSE logs --since 5m --tail 60 gateway rest >&2
   exit 1
 fi
 
@@ -303,11 +313,22 @@ auth_code="$(curl -s -o /dev/null -w '%{http_code}' -X POST \
   "http://127.0.0.1:8000/auth/v1/token?grant_type=password" || echo 000)"
 if [[ "$auth_code" == "000" || "$auth_code" == "502" || "$auth_code" == "504" ]]; then
   echo "The accounts service is not reachable through the gateway (HTTP ${auth_code})." >&2
-  $COMPOSE logs --tail 40 auth gateway >&2
+  $COMPOSE logs --since 5m --tail 60 auth gateway >&2
   exit 1
 fi
 
-log "Backend is up on http://127.0.0.1:8000 (sign-in endpoint responded ${auth_code})"
+# Verify the second upstream as well. The gateway's own /health response is
+# static and can return 200 while the data service is still unavailable.
+rest_code="$(curl -s -o /dev/null -w '%{http_code}' \
+  -H "apikey: ${ANON_KEY}" \
+  "http://127.0.0.1:8000/rest/v1/" || echo 000)"
+if [[ "$rest_code" == "000" || "$rest_code" == "502" || "$rest_code" == "503" || "$rest_code" == "504" ]]; then
+  echo "The data service is not reachable through the gateway (HTTP ${rest_code})." >&2
+  $COMPOSE logs --since 5m --tail 60 rest gateway >&2
+  exit 1
+fi
+
+log "Backend is up on http://127.0.0.1:8000 (accounts ${auth_code}, data ${rest_code})"
 $COMPOSE ps
 
 # 6. First administrator ---------------------------------------------------
