@@ -1,8 +1,8 @@
 # CB Assets — self-contained backend stack (PostgreSQL + Auth + Data API).
 #
 #   bundled  DB_MODE: PostgreSQL 16 runs here (profile "bundled")
-#   existing DB_MODE: the db service stays off and the other services connect
-#                     to DB_HOST_FOR_CONTAINERS:DB_PORT/DB_NAME
+#   existing DB_MODE: the db service stays off and a host-network relay lets
+#                     the container services reach local or remote PostgreSQL
 #
 # Values come from deploy/selfhost/.env (created by deploy/selfhost/up.sh).
 name: cb-assets
@@ -29,6 +29,18 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
 
+  # Existing databases are reached through a host-network relay. This also
+  # works when PostgreSQL listens only on 127.0.0.1, which containers cannot
+  # access directly through the Docker bridge.
+  db-proxy:
+    image: alpine/socat:1.8.0.3
+    profiles: ["existing"]
+    restart: unless-stopped
+    network_mode: host
+    command:
+      - TCP-LISTEN:${DB_PROXY_PORT:-15432},fork,reuseaddr
+      - TCP:${DB_HOST}:${DB_PORT:-5432}
+
   auth:
     image: supabase/gotrue:v2.158.1
     restart: unless-stopped
@@ -41,7 +53,7 @@ services:
       GOTRUE_SITE_URL: ${PUBLIC_URL}
       GOTRUE_URI_ALLOW_LIST: ${PUBLIC_URL},${PUBLIC_URL}/*
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${DB_HOST_FOR_CONTAINERS:-db}:${DB_PORT:-5432}/${DB_NAME:-postgres}?search_path=auth&sslmode=disable
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${DB_HOST_FOR_CONTAINERS:-db}:${DB_PORT_FOR_CONTAINERS:-5432}/${DB_NAME:-postgres}?search_path=auth&sslmode=disable
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_JWT_AUD: authenticated
@@ -67,7 +79,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${DB_HOST_FOR_CONTAINERS:-db}:${DB_PORT:-5432}/${DB_NAME:-postgres}
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${DB_HOST_FOR_CONTAINERS:-db}:${DB_PORT_FOR_CONTAINERS:-5432}/${DB_NAME:-postgres}
       PGRST_DB_SCHEMAS: public
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}

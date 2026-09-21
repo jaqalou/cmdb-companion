@@ -63,7 +63,9 @@ The account supplied for an existing server must be allowed to create roles,
 schemas and extensions (a superuser, or the database owner with
 `CREATEROLE`). The setup creates the `anon`, `authenticated`, `service_role`,
 `authenticator` and `supabase_auth_admin` roles, the `auth` schema and the
-`public` CMDB tables.
+`public` CMDB tables. A local relay is started automatically so the accounts
+and data services can reach PostgreSQL even when it is on the same VM and
+listens only on `127.0.0.1`.
 
 ### Configuring the tables in an existing database, on its own
 
@@ -149,6 +151,7 @@ Further accounts are created in the app under **Users & permissions**
 | Sign-in redirects fail | `PUBLIC_URL` does not match the address in the browser |
 | Request contains `/<server-ip>/auth/v1/` | Re-run the installer; it now normalizes host-only `PUBLIC_URL` values |
 | Migrations not applied | `bash deploy/selfhost/up.sh` re-applies pending ones |
+| Accounts service times out connecting to PostgreSQL | Re-run `bash deploy/selfhost/up.sh`; container database traffic now uses the local relay |
 
 ## Sign-in fails with "Failed to fetch"
 

@@ -115,12 +115,16 @@ set -a; . "$ENV_FILE"; set +a
 if [[ "$DB_MODE" == "existing" ]]; then
   POSTGRES_PASSWORD="${POSTGRES_PASSWORD_OVERRIDE}"
   export POSTGRES_PASSWORD
-  # Containers reach a host-local database through the gateway alias.
-  [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" ]] && DB_HOST_FOR_CONTAINERS="host.docker.internal" || DB_HOST_FOR_CONTAINERS="$DB_HOST"
+  # Route through a host-network relay. It uses the same path as the successful
+  # host preflight, including when PostgreSQL listens only on 127.0.0.1.
+  DB_PROXY_PORT="${DB_PROXY_PORT:-15432}"
+  DB_HOST_FOR_CONTAINERS="host.docker.internal"
+  DB_PORT_FOR_CONTAINERS="$DB_PROXY_PORT"
 else
   DB_HOST_FOR_CONTAINERS="db"
+  DB_PORT_FOR_CONTAINERS="5432"
 fi
-export DB_HOST DB_PORT DB_NAME DB_USER DB_HOST_FOR_CONTAINERS
+export DB_HOST DB_PORT DB_NAME DB_USER DB_HOST_FOR_CONTAINERS DB_PORT_FOR_CONTAINERS DB_PROXY_PORT
 
 psql_run() {
   if [[ "$DB_MODE" == "bundled" ]]; then
@@ -144,6 +148,24 @@ else
   log "Using the existing PostgreSQL at ${DB_HOST}:${DB_PORT}/${DB_NAME}"
   psql_run -tAc "select 1" >/dev/null || {
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
+
+  log "Starting the database relay for container services"
+  $COMPOSE --profile existing up -d db-proxy
+  proxy_ready=""
+  for i in $(seq 1 30); do
+    if docker run --rm --network host postgres:16-alpine \
+      pg_isready -h 127.0.0.1 -p "$DB_PROXY_PORT" >/dev/null 2>&1; then
+      proxy_ready="yes"
+      break
+    fi
+    sleep 1
+  done
+  if [[ -z "$proxy_ready" ]]; then
+    echo "The container database relay could not reach ${DB_HOST}:${DB_PORT}." >&2
+    echo "Check that PostgreSQL accepts TCP connections from this VM." >&2
+    $COMPOSE --profile existing logs --tail 30 db-proxy >&2
+    exit 1
+  fi
 fi
 
 # A previous failed installation may have left auth in a restart loop. Stop it
