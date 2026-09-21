@@ -385,3 +385,15 @@ if [[ -n "${ADMIN_EMAIL:-}" && -n "${ADMIN_PASSWORD:-}" ]]; then
       >/dev/null && echo "  account ready"
   fi
 fi
+
+# 7. Key rotation notice ---------------------------------------------------
+if [[ -n "${KEYS_ROTATED:-}" ]]; then
+  cat >&2 <<'NOTE'
+
+The API keys were regenerated because they no longer matched the signing secret.
+Two follow-up steps are required:
+  1. Rebuild the website so it uses the new key:
+       sudo PUBLIC_URL="<your address>" bash deploy/install.sh
+  2. Everyone must sign out and sign in again (old sessions are now invalid).
+NOTE
+fi
