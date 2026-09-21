@@ -281,7 +281,6 @@ done
 if [[ -z "$auth_ready" ]]; then
   echo "The accounts service did not become reachable on its HTTP endpoint (state: ${state:-unknown})." >&2
   echo "It usually means it cannot reach the database. Checking that connection:" >&2
-  if ! $COMPOSE exec -T auth true >/dev/null 2>&1; then :; fi
   docker run --rm -e PGPASSWORD="$POSTGRES_PASSWORD" \
     --network "container:$($COMPOSE ps -q auth)" postgres:16-alpine \
     psql -h "$DB_HOST_FOR_CONTAINERS" -p "$DB_PORT_FOR_CONTAINERS" \
