@@ -217,12 +217,29 @@ log "Starting the data API"
 $COMPOSE up -d rest gateway
 psql_run -c "NOTIFY pgrst, 'reload schema'" >/dev/null
 
+gateway_ready=""
 for i in $(seq 1 30); do
-  curl -sf -o /dev/null "http://127.0.0.1:8000/health" && break
+  if curl -sf -o /dev/null "http://127.0.0.1:8000/health"; then gateway_ready="yes"; break; fi
   sleep 2
 done
+if [[ -z "$gateway_ready" ]]; then
+  echo "The backend gateway on 127.0.0.1:8000 is not answering (sign-in would return 502)." >&2
+  $COMPOSE logs --tail 40 gateway rest >&2
+  exit 1
+fi
 
-log "Backend is up on http://127.0.0.1:8000"
+# The sign-in endpoint itself must answer; a reachable gateway with a dead
+# accounts service still produces 502 in the browser.
+auth_code="$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+  -H 'content-type: application/json' -d '{}' \
+  "http://127.0.0.1:8000/auth/v1/token?grant_type=password" || echo 000)"
+if [[ "$auth_code" == "000" || "$auth_code" == "502" || "$auth_code" == "504" ]]; then
+  echo "The accounts service is not reachable through the gateway (HTTP ${auth_code})." >&2
+  $COMPOSE logs --tail 40 auth gateway >&2
+  exit 1
+fi
+
+log "Backend is up on http://127.0.0.1:8000 (sign-in endpoint responded ${auth_code})"
 $COMPOSE ps
 
 # 6. First administrator ---------------------------------------------------
