@@ -231,19 +231,26 @@ else
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
 
   log "Starting the database relay for container services"
-  $COMPOSE --profile existing up -d db-proxy
+  $COMPOSE --profile existing up -d --force-recreate db-proxy
+  proxy_cid="$($COMPOSE --profile existing ps -q db-proxy)"
   proxy_ready=""
   for i in $(seq 1 30); do
-    if docker run --rm --network host postgres:16-alpine \
-      pg_isready -h 127.0.0.1 -p "$DB_PROXY_PORT" >/dev/null 2>&1; then
+    # Probe from inside the relay's own network namespace: that is exactly the
+    # path the accounts and data services use.
+    if [[ -n "$proxy_cid" ]] && docker run --rm --network "container:${proxy_cid}" \
+      postgres:16-alpine pg_isready -h 127.0.0.1 -p 5432 >/dev/null 2>&1; then
       proxy_ready="yes"
       break
     fi
     sleep 1
   done
   if [[ -z "$proxy_ready" ]]; then
-    echo "The container database relay could not reach ${DB_HOST}:${DB_PORT}." >&2
-    echo "Check that PostgreSQL accepts TCP connections from this VM." >&2
+    echo "The container database relay could not reach ${DB_TARGET_HOST}:${DB_PORT}." >&2
+    echo "PostgreSQL must accept TCP connections from Docker containers on this VM." >&2
+    if [[ "$DB_TARGET_HOST" == "host.docker.internal" ]]; then
+      echo "For a database on this VM, check listen_addresses, pg_hba.conf and the" >&2
+      echo "firewall: sudo ufw allow from 172.16.0.0/12 to any port ${DB_PORT} proto tcp" >&2
+    fi
     $COMPOSE --profile existing logs --tail 30 db-proxy >&2
     exit 1
   fi
