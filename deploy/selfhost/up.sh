@@ -110,7 +110,9 @@ if [[ "$DB_MODE" == "existing" ]]; then
   # The bundled services connect with their own roles, using this password.
   POSTGRES_PASSWORD_OVERRIDE="$DB_PASSWORD"
 else
-  DB_HOST="db"; DB_PORT="5432"; DB_NAME="postgres"; DB_USER="postgres"
+  # The application database is called "cmdb". Installations made before this
+  # name existed keep their data in "postgres" and are renamed further down.
+  DB_HOST="db"; DB_PORT="5432"; DB_NAME="${DB_NAME:-cmdb}"; DB_USER="postgres"
 fi
 
 if [[ "$DB_MODE" != "bundled" && "$DB_MODE" != "existing" ]]; then
