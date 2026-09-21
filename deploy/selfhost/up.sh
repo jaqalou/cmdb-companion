@@ -138,12 +138,42 @@ psql_run() {
 
 # 2. Database --------------------------------------------------------------
 if [[ "$DB_MODE" == "bundled" ]]; then
+  # The bundled database only needs a host port for local admin access. When
+  # something else already listens on 5432 (often PostgreSQL installed on the
+  # VM itself), pick the next free port instead of failing to start.
+  port_free() {
+    ! (command -v ss >/dev/null && ss -ltn "sport = :$1" 2>/dev/null | grep -q LISTEN) \
+      && ! (docker ps --format '{{.Ports}}' | grep -q ":$1->")
+  }
+  DB_BUNDLED_PORT="${DB_BUNDLED_PORT:-5432}"
+  if ! port_free "$DB_BUNDLED_PORT"; then
+    for candidate in 5433 5434 5435 5436 5437; do
+      if port_free "$candidate"; then DB_BUNDLED_PORT="$candidate"; break; fi
+    done
+    echo "  port 5432 is already in use on this VM — exposing the bundled database on ${DB_BUNDLED_PORT} instead"
+    echo "  (if that other PostgreSQL is the one you want to use, re-run with DB_MODE=existing)"
+  fi
+  export DB_BUNDLED_PORT
+  sed -i '/^DB_BUNDLED_PORT=/d' "$ENV_FILE"
+  echo "DB_BUNDLED_PORT=${DB_BUNDLED_PORT}" >>"$ENV_FILE"
+
   log "Starting PostgreSQL"
-  $COMPOSE --profile bundled up -d db
+  if ! $COMPOSE --profile bundled up -d db; then
+    echo "PostgreSQL could not start. If the message mentions a port already allocated," >&2
+    echo "another service on this VM uses that port. Re-run with DB_BUNDLED_PORT=5433," >&2
+    echo "or use the existing database with DB_MODE=existing DB_HOST=127.0.0.1 ..." >&2
+    exit 1
+  fi
+  db_ready=""
   for i in $(seq 1 60); do
-    $COMPOSE exec -T db pg_isready -U postgres >/dev/null 2>&1 && break
+    $COMPOSE exec -T db pg_isready -U postgres >/dev/null 2>&1 && { db_ready="yes"; break; }
     sleep 2
   done
+  if [[ -z "$db_ready" ]]; then
+    echo "PostgreSQL started but never became ready." >&2
+    $COMPOSE --profile bundled logs --tail 40 db >&2
+    exit 1
+  fi
 else
   log "Using the existing PostgreSQL at ${DB_HOST}:${DB_PORT}/${DB_NAME}"
   psql_run -tAc "select 1" >/dev/null || {
@@ -191,6 +221,20 @@ for i in $(seq 1 90); do
 done
 if [[ -z "$auth_ready" ]]; then
   echo "The accounts service did not finish setting up its tables." >&2
+  $COMPOSE logs --tail 60 auth >&2
+  exit 1
+fi
+
+# The tables can already exist from an earlier run while the service itself is
+# crash-looping — that is exactly what produces 502 on sign-in later on.
+auth_up=""
+for i in $(seq 1 30); do
+  state="$($COMPOSE ps --format '{{.State}}' auth 2>/dev/null | tr -d '[:space:]')"
+  if [[ "$state" == "running" ]]; then auth_up="yes"; break; fi
+  sleep 2
+done
+if [[ -z "$auth_up" ]]; then
+  echo "The accounts service is not running (state: ${state:-unknown}), so sign-in would return 502." >&2
   $COMPOSE logs --tail 60 auth >&2
   exit 1
 fi
