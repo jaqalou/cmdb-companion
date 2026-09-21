@@ -29,7 +29,15 @@ ALTER ROLE supabase_auth_admin PASSWORD :'db_password';
 GRANT anon, authenticated, service_role TO authenticator;
 
 CREATE SCHEMA IF NOT EXISTS auth AUTHORIZATION supabase_auth_admin;
-GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role, postgres;
+GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role;
+-- The postgres role is absent on some existing databases (e.g. a custom
+-- superuser); grant to it only when present.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
+    GRANT USAGE ON SCHEMA auth TO postgres;
+  END IF;
+END $$;
 ALTER ROLE supabase_auth_admin SET search_path = auth, public;
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
@@ -70,5 +78,12 @@ END $$;
 
 
 -- The audit trigger reads emails from auth.users.
-GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO postgres, service_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA auth TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO service_role;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
+    GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres;
+    EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO postgres';
+  END IF;
+END $$;
