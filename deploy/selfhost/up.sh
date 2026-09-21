@@ -120,25 +120,29 @@ set -a; . "$ENV_FILE"; set +a
 if [[ "$DB_MODE" == "existing" ]]; then
   POSTGRES_PASSWORD="${POSTGRES_PASSWORD_OVERRIDE}"
   export POSTGRES_PASSWORD
-  # Route through a host-network relay. It uses the same path as the successful
-  # host preflight, including when PostgreSQL listens only on 127.0.0.1.
-  DB_PROXY_PORT="${DB_PROXY_PORT:-15432}"
-  DB_HOST_FOR_CONTAINERS="host.docker.internal"
-  DB_PORT_FOR_CONTAINERS="$DB_PROXY_PORT"
+  # Services reach the external database through a relay on the compose
+  # network. A database on the VM itself is reached via the host gateway.
+  case "$DB_HOST" in
+    localhost|127.0.0.1|::1|0.0.0.0) DB_TARGET_HOST="host.docker.internal" ;;
+    *) DB_TARGET_HOST="$DB_HOST" ;;
+  esac
+  DB_HOST_FOR_CONTAINERS="db-proxy"
+  DB_PORT_FOR_CONTAINERS="5432"
 else
+  DB_TARGET_HOST=""
   DB_HOST_FOR_CONTAINERS="db"
   DB_PORT_FOR_CONTAINERS="5432"
 fi
-export DB_HOST DB_PORT DB_NAME DB_USER DB_HOST_FOR_CONTAINERS DB_PORT_FOR_CONTAINERS DB_PROXY_PORT
+export DB_HOST DB_PORT DB_NAME DB_USER DB_TARGET_HOST DB_HOST_FOR_CONTAINERS DB_PORT_FOR_CONTAINERS
 
 # Keep direct `docker compose` maintenance commands aligned with the mode last
 # selected through this script. Without these values in .env, Compose may use
 # its defaults and point services at the wrong database after a manual restart.
-sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=/d' "$ENV_FILE"
+sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=/d;/^DB_TARGET_HOST=/d' "$ENV_FILE"
 {
   echo "DB_HOST_FOR_CONTAINERS=${DB_HOST_FOR_CONTAINERS}"
   echo "DB_PORT_FOR_CONTAINERS=${DB_PORT_FOR_CONTAINERS}"
-  [[ "$DB_MODE" == "existing" ]] && echo "DB_PROXY_PORT=${DB_PROXY_PORT}"
+  [[ "$DB_MODE" == "existing" ]] && echo "DB_TARGET_HOST=${DB_TARGET_HOST}"
 } >>"$ENV_FILE"
 
 psql_run() {
