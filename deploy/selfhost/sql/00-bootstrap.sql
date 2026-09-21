@@ -29,7 +29,15 @@ ALTER ROLE supabase_auth_admin PASSWORD :'db_password';
 GRANT anon, authenticated, service_role TO authenticator;
 
 CREATE SCHEMA IF NOT EXISTS auth AUTHORIZATION supabase_auth_admin;
-GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role, postgres;
+GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role;
+-- The postgres role is absent on some existing databases (e.g. a custom
+-- superuser); grant to it only when present.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
+    GRANT USAGE ON SCHEMA auth TO postgres;
+  END IF;
+END $$;
 ALTER ROLE supabase_auth_admin SET search_path = auth, public;
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
