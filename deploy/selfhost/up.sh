@@ -246,6 +246,29 @@ if [[ "$DB_MODE" == "bundled" ]]; then
     $COMPOSE --profile bundled logs --tail 40 db >&2
     exit 1
   fi
+
+  # Make sure the application database exists under its current name. Older
+  # installations kept everything in "postgres"; rename that one so the data,
+  # accounts and API tokens are preserved.
+  has_db() {
+    [[ "$(psql_maint -tAc "select 1 from pg_database where datname = '$1'" 2>/dev/null | tr -d '[:space:]')" == "1" ]]
+  }
+  if ! has_db "$DB_NAME"; then
+    if has_db postgres && [[ "$(psql_maint -tAc \
+        "select 1 from dblink_not_used" 2>/dev/null)" == "" ]] && \
+       $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
+         psql -tAc "select to_regclass('public.cmdb_ci_server') is not null" \
+         -U postgres -d postgres 2>/dev/null | tr -d '[:space:]' | grep -q '^t$'; then
+      log "Renaming the database from postgres to ${DB_NAME} (data is kept)"
+      # Existing sessions must be closed before a database can be renamed.
+      $COMPOSE stop auth rest >/dev/null 2>&1 || true
+      psql_maint -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = 'postgres' and pid <> pg_backend_pid()" >/dev/null
+      psql_maint -c "alter database postgres rename to \"${DB_NAME}\""
+    else
+      log "Creating the ${DB_NAME} database"
+      psql_maint -c "create database \"${DB_NAME}\""
+    fi
+  fi
 else
   # Likewise, an existing-database install must not leave the bundled database
   # running and occupying host port 5432.
