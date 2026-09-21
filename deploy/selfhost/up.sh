@@ -244,7 +244,29 @@ else
   $COMPOSE rm -f db >/dev/null 2>&1 || true
   log "Using the existing PostgreSQL at ${DB_HOST}:${DB_PORT}/${DB_NAME}"
   psql_run -tAc "select 1" >/dev/null || {
-    echo "Could not connect with the supplied credentials." >&2; exit 1; }
+    echo "Could not connect to ${DB_HOST}:${DB_PORT}/${DB_NAME} with those credentials." >&2
+    case "$DB_HOST" in
+      172.1[6-9].*|172.2[0-9].*|172.3[01].*|10.*)
+        echo >&2
+        echo "${DB_HOST} looks like an address that belongs to a Docker container," >&2
+        echo "not a real database host. Those addresses change whenever a container" >&2
+        echo "is recreated, and they are often unreachable from the VM itself." >&2
+        echo >&2
+        if command -v docker >/dev/null; then
+          echo "Databases currently running in Docker on this VM:" >&2
+          docker ps --filter "expose=5432" \
+            --format '  {{.Names}}  ports: {{.Ports}}' >&2 2>/dev/null || true
+          echo >&2
+        fi
+        echo "Pick one of these instead:" >&2
+        echo "  * The database runs in Docker here: publish its port and use" >&2
+        echo "    DB_HOST=127.0.0.1 with that published port." >&2
+        echo "  * The database runs directly on this VM: use DB_HOST=127.0.0.1." >&2
+        echo "  * You have no separate database: re-run with DB_MODE=bundled and" >&2
+        echo "    this setup will install and manage PostgreSQL for you." >&2
+        ;;
+    esac
+    exit 1; }
 
   # A database on the VM itself is reached over the Docker bridge; UFW drops
   # that traffic by default, which appears as a connection timeout inside the
