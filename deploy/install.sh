@@ -131,11 +131,11 @@ if [[ "$DB_MODE" == "existing" ]]; then
   if [[ -t 0 ]]; then
     [[ -n "${DB_HOST:-}" ]] || read -rp "  Host: " DB_HOST
     [[ -n "${DB_PORT:-}" ]] || { read -rp "  Port [5432]: " DB_PORT; DB_PORT="${DB_PORT:-5432}"; }
-    [[ -n "${DB_NAME:-}" ]] || { read -rp "  Database name [postgres]: " DB_NAME; DB_NAME="${DB_NAME:-postgres}"; }
+    [[ -n "${DB_NAME:-}" ]] || { read -rp "  Database name [cmdb]: " DB_NAME; DB_NAME="${DB_NAME:-cmdb}"; }
     [[ -n "${DB_USER:-}" ]] || { read -rp "  Username [postgres]: " DB_USER; DB_USER="${DB_USER:-postgres}"; }
     if [[ -z "${DB_PASSWORD:-}" ]]; then read -rsp "  Password: " DB_PASSWORD; echo; fi
   fi
-  DB_PORT="${DB_PORT:-5432}"; DB_NAME="${DB_NAME:-postgres}"; DB_USER="${DB_USER:-postgres}"
+  DB_PORT="${DB_PORT:-5432}"; DB_NAME="${DB_NAME:-cmdb}"; DB_USER="${DB_USER:-postgres}"
   : "${DB_HOST:?DB_HOST is required when DB_MODE=existing}"
   : "${DB_PASSWORD:?DB_PASSWORD is required when DB_MODE=existing}"
 
