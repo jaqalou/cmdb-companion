@@ -230,6 +230,14 @@ else
   psql_run -tAc "select 1" >/dev/null || {
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
 
+  # A database on the VM itself is reached over the Docker bridge; UFW drops
+  # that traffic by default, which appears as a connection timeout inside the
+  # containers. Open it for Docker's private ranges only.
+  if [[ "$DB_TARGET_HOST" == "host.docker.internal" ]] && command -v ufw >/dev/null \
+     && ufw status 2>/dev/null | grep -q "^Status: active"; then
+    ufw allow from 172.16.0.0/12 to any port "$DB_PORT" proto tcp >/dev/null 2>&1 || true
+  fi
+
   log "Starting the database relay for container services"
   $COMPOSE --profile existing up -d --force-recreate db-proxy
   proxy_cid="$($COMPOSE --profile existing ps -q db-proxy)"
