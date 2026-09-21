@@ -65,7 +65,7 @@ const STALE_SESSION =
 
 /** Friendly text for an error, translating signature/JWT failures. */
 function errText(error: unknown, fallback: string) {
-  const raw = errText(error, "");
+  const raw = error instanceof Error ? error.message : "";
   if (/invalid jwt|signature is invalid|jwt expired|bad_jwt/i.test(raw)) return STALE_SESSION;
   return raw || fallback;
 }
@@ -361,7 +361,7 @@ function UsersAdminPage() {
                   {users.isError && (
                     <tr>
                       <td colSpan={6} className="px-4 py-6 text-destructive">
-                        {users.error instanceof Error ? users.error.message : "Could not load users"}
+                        {errText(users.error, "Could not load users")}
                       </td>
                     </tr>
                   )}
@@ -505,7 +505,7 @@ function OwnAccountPanel() {
   if (me.isError || !me.data) {
     return (
       <div className="mt-6 rounded-xl border border-border bg-card p-6 text-sm text-destructive">
-        {me.error instanceof Error ? me.error.message : "Could not load your account"}
+        {errText(me.error, "Could not load your account")}
       </div>
     );
   }
