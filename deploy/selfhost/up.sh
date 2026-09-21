@@ -193,8 +193,8 @@ if [[ "$DB_MODE" == "bundled" ]]; then
   log "Starting PostgreSQL"
   if ! $COMPOSE --profile bundled up -d db; then
     echo "PostgreSQL could not start. If the message mentions a port already allocated," >&2
-    echo "another service on this VM uses that port. Re-run with DB_BUNDLED_PORT=5433," >&2
-    echo "or use the existing database with DB_MODE=existing DB_HOST=127.0.0.1 ..." >&2
+    echo "another process still owns port 5432. Stop the process shown above, then re-run." >&2
+    echo "If that process is the PostgreSQL you intend to keep, select it with DB_MODE=existing." >&2
     exit 1
   fi
   db_ready=""
