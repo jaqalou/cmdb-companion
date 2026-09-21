@@ -138,20 +138,44 @@ psql_run() {
 
 # 2. Database --------------------------------------------------------------
 if [[ "$DB_MODE" == "bundled" ]]; then
-  # The bundled database only needs a host port for local admin access. When
-  # something else already listens on 5432 (often PostgreSQL installed on the
-  # VM itself), pick the next free port instead of failing to start.
+  # The bundled database is published on 5432. If anything else already holds
+  # that port, reclaim it: stop leftover containers publishing it, and stop a
+  # PostgreSQL installed directly on the VM.
   port_free() {
     ! (command -v ss >/dev/null && ss -ltn "sport = :$1" 2>/dev/null | grep -q LISTEN) \
       && ! (docker ps --format '{{.Ports}}' | grep -q ":$1->")
   }
   DB_BUNDLED_PORT="${DB_BUNDLED_PORT:-5432}"
   if ! port_free "$DB_BUNDLED_PORT"; then
-    for candidate in 5433 5434 5435 5436 5437; do
-      if port_free "$candidate"; then DB_BUNDLED_PORT="$candidate"; break; fi
+    log "Freeing port ${DB_BUNDLED_PORT} for the bundled database"
+
+    # a) other containers publishing the port (including our own older ones)
+    for cid in $(docker ps --format '{{.ID}} {{.Ports}}' | grep ":${DB_BUNDLED_PORT}->" | awk '{print $1}'); do
+      name="$(docker inspect -f '{{.Name}}' "$cid" | sed 's#^/##')"
+      echo "  stopping container ${name}"
+      docker stop "$cid" >/dev/null || true
     done
-    echo "  port 5432 is already in use on this VM — exposing the bundled database on ${DB_BUNDLED_PORT} instead"
-    echo "  (if that other PostgreSQL is the one you want to use, re-run with DB_MODE=existing)"
+
+    # b) PostgreSQL installed on the VM itself
+    if ! port_free "$DB_BUNDLED_PORT" && command -v systemctl >/dev/null; then
+      for unit in postgresql postgresql@*-main; do
+        if systemctl is-active --quiet "$unit" 2>/dev/null; then
+          echo "  stopping the VM's own PostgreSQL service (${unit})"
+          systemctl stop "$unit" || true
+          systemctl disable "$unit" >/dev/null 2>&1 || true
+        fi
+      done
+    fi
+
+    for i in $(seq 1 15); do port_free "$DB_BUNDLED_PORT" && break; sleep 1; done
+    if ! port_free "$DB_BUNDLED_PORT"; then
+      echo "Port ${DB_BUNDLED_PORT} is still held by another process:" >&2
+      (ss -ltnp "sport = :${DB_BUNDLED_PORT}" 2>/dev/null || true) >&2
+      echo "Stop that process and re-run, or use it as the database with:" >&2
+      echo "  sudo DB_MODE=existing DB_HOST=127.0.0.1 DB_NAME=... DB_USER=... DB_PASSWORD='...' bash deploy/selfhost/up.sh" >&2
+      exit 1
+    fi
+    echo "  port ${DB_BUNDLED_PORT} is free"
   fi
   export DB_BUNDLED_PORT
   sed -i '/^DB_BUNDLED_PORT=/d' "$ENV_FILE"
