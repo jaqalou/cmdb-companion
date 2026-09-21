@@ -163,11 +163,12 @@ sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=
   [[ "$DB_MODE" == "existing" ]] && echo "DB_TARGET_HOST=${DB_TARGET_HOST}"
 } >>"$ENV_FILE"
 
-# Maintenance connection for the bundled database (always the "postgres"
-# database, so the application database can be created or renamed).
+# Maintenance connection for the bundled database. It uses template1 so the
+# application database itself can be created or renamed (a database cannot be
+# renamed while the session is connected to it).
 psql_maint() {
   $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
-    psql -v ON_ERROR_STOP=1 -U postgres -d postgres "$@"
+    psql -v ON_ERROR_STOP=1 -U postgres -d template1 "$@"
 }
 
 psql_run() {
