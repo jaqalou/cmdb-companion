@@ -120,25 +120,29 @@ set -a; . "$ENV_FILE"; set +a
 if [[ "$DB_MODE" == "existing" ]]; then
   POSTGRES_PASSWORD="${POSTGRES_PASSWORD_OVERRIDE}"
   export POSTGRES_PASSWORD
-  # Route through a host-network relay. It uses the same path as the successful
-  # host preflight, including when PostgreSQL listens only on 127.0.0.1.
-  DB_PROXY_PORT="${DB_PROXY_PORT:-15432}"
-  DB_HOST_FOR_CONTAINERS="host.docker.internal"
-  DB_PORT_FOR_CONTAINERS="$DB_PROXY_PORT"
+  # Services reach the external database through a relay on the compose
+  # network. A database on the VM itself is reached via the host gateway.
+  case "$DB_HOST" in
+    localhost|127.0.0.1|::1|0.0.0.0) DB_TARGET_HOST="host.docker.internal" ;;
+    *) DB_TARGET_HOST="$DB_HOST" ;;
+  esac
+  DB_HOST_FOR_CONTAINERS="db-proxy"
+  DB_PORT_FOR_CONTAINERS="5432"
 else
+  DB_TARGET_HOST=""
   DB_HOST_FOR_CONTAINERS="db"
   DB_PORT_FOR_CONTAINERS="5432"
 fi
-export DB_HOST DB_PORT DB_NAME DB_USER DB_HOST_FOR_CONTAINERS DB_PORT_FOR_CONTAINERS DB_PROXY_PORT
+export DB_HOST DB_PORT DB_NAME DB_USER DB_TARGET_HOST DB_HOST_FOR_CONTAINERS DB_PORT_FOR_CONTAINERS
 
 # Keep direct `docker compose` maintenance commands aligned with the mode last
 # selected through this script. Without these values in .env, Compose may use
 # its defaults and point services at the wrong database after a manual restart.
-sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=/d' "$ENV_FILE"
+sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=/d;/^DB_TARGET_HOST=/d' "$ENV_FILE"
 {
   echo "DB_HOST_FOR_CONTAINERS=${DB_HOST_FOR_CONTAINERS}"
   echo "DB_PORT_FOR_CONTAINERS=${DB_PORT_FOR_CONTAINERS}"
-  [[ "$DB_MODE" == "existing" ]] && echo "DB_PROXY_PORT=${DB_PROXY_PORT}"
+  [[ "$DB_MODE" == "existing" ]] && echo "DB_TARGET_HOST=${DB_TARGET_HOST}"
 } >>"$ENV_FILE"
 
 psql_run() {
@@ -226,20 +230,35 @@ else
   psql_run -tAc "select 1" >/dev/null || {
     echo "Could not connect with the supplied credentials." >&2; exit 1; }
 
+  # A database on the VM itself is reached over the Docker bridge; UFW drops
+  # that traffic by default, which appears as a connection timeout inside the
+  # containers. Open it for Docker's private ranges only.
+  if [[ "$DB_TARGET_HOST" == "host.docker.internal" ]] && command -v ufw >/dev/null \
+     && ufw status 2>/dev/null | grep -q "^Status: active"; then
+    ufw allow from 172.16.0.0/12 to any port "$DB_PORT" proto tcp >/dev/null 2>&1 || true
+  fi
+
   log "Starting the database relay for container services"
-  $COMPOSE --profile existing up -d db-proxy
+  $COMPOSE --profile existing up -d --force-recreate db-proxy
+  proxy_cid="$($COMPOSE --profile existing ps -q db-proxy)"
   proxy_ready=""
   for i in $(seq 1 30); do
-    if docker run --rm --network host postgres:16-alpine \
-      pg_isready -h 127.0.0.1 -p "$DB_PROXY_PORT" >/dev/null 2>&1; then
+    # Probe from inside the relay's own network namespace: that is exactly the
+    # path the accounts and data services use.
+    if [[ -n "$proxy_cid" ]] && docker run --rm --network "container:${proxy_cid}" \
+      postgres:16-alpine pg_isready -h 127.0.0.1 -p 5432 >/dev/null 2>&1; then
       proxy_ready="yes"
       break
     fi
     sleep 1
   done
   if [[ -z "$proxy_ready" ]]; then
-    echo "The container database relay could not reach ${DB_HOST}:${DB_PORT}." >&2
-    echo "Check that PostgreSQL accepts TCP connections from this VM." >&2
+    echo "The container database relay could not reach ${DB_TARGET_HOST}:${DB_PORT}." >&2
+    echo "PostgreSQL must accept TCP connections from Docker containers on this VM." >&2
+    if [[ "$DB_TARGET_HOST" == "host.docker.internal" ]]; then
+      echo "For a database on this VM, check listen_addresses, pg_hba.conf and the" >&2
+      echo "firewall: sudo ufw allow from 172.16.0.0/12 to any port ${DB_PORT} proto tcp" >&2
+    fi
     $COMPOSE --profile existing logs --tail 30 db-proxy >&2
     exit 1
   fi
@@ -258,7 +277,7 @@ psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql
 log "Starting the accounts service"
 $COMPOSE up -d --force-recreate auth
 auth_ready=""
-for i in $(seq 1 60); do
+for i in $(seq 1 90); do
   if curl -sf -o /dev/null "http://127.0.0.1:9999/health"; then
     auth_ready="yes"
     break
@@ -269,6 +288,11 @@ for i in $(seq 1 60); do
 done
 if [[ -z "$auth_ready" ]]; then
   echo "The accounts service did not become reachable on its HTTP endpoint (state: ${state:-unknown})." >&2
+  echo "It usually means it cannot reach the database. Checking that connection:" >&2
+  docker run --rm -e PGPASSWORD="$POSTGRES_PASSWORD" \
+    --network "container:$($COMPOSE ps -q auth)" postgres:16-alpine \
+    psql -h "$DB_HOST_FOR_CONTAINERS" -p "$DB_PORT_FOR_CONTAINERS" \
+    -U supabase_auth_admin -d "${DB_NAME:-postgres}" -c "select 1" >&2 || true
   $COMPOSE logs --since 5m --tail 80 auth >&2
   exit 1
 fi
