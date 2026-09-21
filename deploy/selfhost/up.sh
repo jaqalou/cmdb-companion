@@ -163,10 +163,17 @@ sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=
   [[ "$DB_MODE" == "existing" ]] && echo "DB_TARGET_HOST=${DB_TARGET_HOST}"
 } >>"$ENV_FILE"
 
+# Maintenance connection for the bundled database (always the "postgres"
+# database, so the application database can be created or renamed).
+psql_maint() {
+  $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
+    psql -v ON_ERROR_STOP=1 -U postgres -d postgres "$@"
+}
+
 psql_run() {
   if [[ "$DB_MODE" == "bundled" ]]; then
     $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
-      psql -v ON_ERROR_STOP=1 -U postgres -d postgres "$@"
+      psql -v ON_ERROR_STOP=1 -U postgres -d "$DB_NAME" "$@"
   else
     docker run --rm -i --network host -e PGPASSWORD="$DB_PASSWORD" postgres:16-alpine \
       psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" "$@"
