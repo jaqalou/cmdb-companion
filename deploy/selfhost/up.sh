@@ -361,7 +361,7 @@ if [[ -z "$auth_ready" ]]; then
   docker run --rm -e PGPASSWORD="$POSTGRES_PASSWORD" \
     --network "container:$($COMPOSE ps -q auth)" postgres:16-alpine \
     psql -h "$DB_HOST_FOR_CONTAINERS" -p "$DB_PORT_FOR_CONTAINERS" \
-    -U supabase_auth_admin -d "${DB_NAME:-postgres}" -c "select 1" >&2 || true
+    -U supabase_auth_admin -d "${DB_NAME:-cmdb}" -c "select 1" >&2 || true
   $COMPOSE logs --since 5m --tail 80 auth >&2
   exit 1
 fi
