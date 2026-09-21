@@ -78,5 +78,12 @@ END $$;
 
 
 -- The audit trigger reads emails from auth.users.
-GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO postgres, service_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA auth TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO service_role;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres') THEN
+    GRANT SELECT ON ALL TABLES IN SCHEMA auth TO postgres;
+    EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA auth GRANT SELECT ON TABLES TO postgres';
+  END IF;
+END $$;
