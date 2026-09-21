@@ -254,9 +254,7 @@ if [[ "$DB_MODE" == "bundled" ]]; then
     [[ "$(psql_maint -tAc "select 1 from pg_database where datname = '$1'" 2>/dev/null | tr -d '[:space:]')" == "1" ]]
   }
   if ! has_db "$DB_NAME"; then
-    if has_db postgres && [[ "$(psql_maint -tAc \
-        "select 1 from dblink_not_used" 2>/dev/null)" == "" ]] && \
-       $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
+    if $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
          psql -tAc "select to_regclass('public.cmdb_ci_server') is not null" \
          -U postgres -d postgres 2>/dev/null | tr -d '[:space:]' | grep -q '^t$'; then
       log "Renaming the database from postgres to ${DB_NAME} (data is kept)"
