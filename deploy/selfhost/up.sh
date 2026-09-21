@@ -431,9 +431,12 @@ $COMPOSE ps
 LIVE_ENV="/etc/cb-assets.env"
 if [[ -f "$LIVE_ENV" ]]; then
   live_changed=""
+  browser_key_changed=""
+  live_browser_anon="$(grep '^VITE_SUPABASE_PUBLISHABLE_KEY=' "$LIVE_ENV" | tail -n1 | cut -d= -f2- || true)"
   live_anon="$(grep '^SUPABASE_PUBLISHABLE_KEY=' "$LIVE_ENV" | tail -n1 | cut -d= -f2- || true)"
   live_service="$(grep '^SUPABASE_SERVICE_ROLE_KEY=' "$LIVE_ENV" | tail -n1 | cut -d= -f2- || true)"
-  if [[ "$live_anon" != "$ANON_KEY" || "$live_service" != "$SERVICE_ROLE_KEY" ]]; then
+  if [[ "$live_browser_anon" != "$ANON_KEY" ]]; then browser_key_changed="yes"; fi
+  if [[ -n "$browser_key_changed" || "$live_anon" != "$ANON_KEY" || "$live_service" != "$SERVICE_ROLE_KEY" ]]; then
     log "Synchronizing the website with the backend API keys"
     sed -i '/^VITE_SUPABASE_PUBLISHABLE_KEY=/d;/^SUPABASE_PUBLISHABLE_KEY=/d;/^SUPABASE_SERVICE_ROLE_KEY=/d' "$LIVE_ENV"
     {
@@ -442,6 +445,21 @@ if [[ -f "$LIVE_ENV" ]]; then
       echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
     } >>"$LIVE_ENV"
     chmod 640 "$LIVE_ENV"
+    # VITE_* values are embedded in browser assets at build time. Rebuild the
+    # installed copy when that value changed; restarting alone cannot replace it.
+    if [[ -n "$browser_key_changed" && "$REPO" == "/opt/cb-assets" && -f "$REPO/package.json" ]]; then
+      BUN_BIN="$(command -v bun || true)"
+      if [[ -n "$BUN_BIN" ]]; then
+        log "Rebuilding the website with the synchronized public API key"
+        systemctl stop cb-assets 2>/dev/null || true
+        rm -rf "$REPO/.output" "$REPO/.nitro" "$REPO/.tanstack" "$REPO/.vinxi"
+        su -s /bin/bash cbassets -c "cd '$REPO' && set -a && . '$LIVE_ENV' && set +a && NITRO_PRESET=node-server '$BUN_BIN' run build"
+      else
+        echo "The browser API key changed, but bun was not found; run deploy/install.sh to rebuild the website." >&2
+      fi
+    elif [[ -n "$browser_key_changed" ]]; then
+      echo "The installed browser build also needs refreshing. Run deploy/install.sh from /opt/cb-assets." >&2
+    fi
     systemctl restart cb-assets cb-assets-api 2>/dev/null || true
     live_changed="yes"
   fi
