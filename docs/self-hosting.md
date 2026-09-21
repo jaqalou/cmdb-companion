@@ -118,11 +118,23 @@ curl -sk https://localhost/api/public/health
 
 ## Backup and restore
 
+The application database is called `cmdb`.
+
 ```sh
 # backup
-sudo docker exec cb-assets-db-1 pg_dump -U postgres postgres | gzip > cb-assets-$(date +%F).sql.gz
+sudo docker exec cb-assets-db-1 pg_dump -U postgres cmdb | gzip > cb-assets-$(date +%F).sql.gz
 # restore
-gunzip -c cb-assets-2026-01-01.sql.gz | sudo docker exec -i cb-assets-db-1 psql -U postgres postgres
+gunzip -c cb-assets-2026-01-01.sql.gz | sudo docker exec -i cb-assets-db-1 psql -U postgres cmdb
+```
+
+## Renaming the database
+
+Installations made before the `cmdb` name existed keep their data in a database
+called `postgres`. Running `sudo bash deploy/selfhost/up.sh` renames it
+automatically. To rename it at any time (data, accounts and API tokens are kept):
+
+```sh
+cd /opt/cb-assets && sudo bash scripts/rename-database.sh cmdb
 ```
 
 Keep a copy of `deploy/selfhost/.env` with the dump — without the JWT secret,

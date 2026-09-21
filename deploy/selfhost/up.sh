@@ -110,7 +110,9 @@ if [[ "$DB_MODE" == "existing" ]]; then
   # The bundled services connect with their own roles, using this password.
   POSTGRES_PASSWORD_OVERRIDE="$DB_PASSWORD"
 else
-  DB_HOST="db"; DB_PORT="5432"; DB_NAME="postgres"; DB_USER="postgres"
+  # The application database is called "cmdb". Installations made before this
+  # name existed keep their data in "postgres" and are renamed further down.
+  DB_HOST="db"; DB_PORT="5432"; DB_NAME="${DB_NAME:-cmdb}"; DB_USER="postgres"
 fi
 
 if [[ "$DB_MODE" != "bundled" && "$DB_MODE" != "existing" ]]; then
@@ -161,10 +163,18 @@ sed -i '/^DB_HOST_FOR_CONTAINERS=/d;/^DB_PORT_FOR_CONTAINERS=/d;/^DB_PROXY_PORT=
   [[ "$DB_MODE" == "existing" ]] && echo "DB_TARGET_HOST=${DB_TARGET_HOST}"
 } >>"$ENV_FILE"
 
+# Maintenance connection for the bundled database. It uses template1 so the
+# application database itself can be created or renamed (a database cannot be
+# renamed while the session is connected to it).
+psql_maint() {
+  $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
+    psql -v ON_ERROR_STOP=1 -U postgres -d template1 "$@"
+}
+
 psql_run() {
   if [[ "$DB_MODE" == "bundled" ]]; then
     $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
-      psql -v ON_ERROR_STOP=1 -U postgres -d postgres "$@"
+      psql -v ON_ERROR_STOP=1 -U postgres -d "$DB_NAME" "$@"
   else
     docker run --rm -i --network host -e PGPASSWORD="$DB_PASSWORD" postgres:16-alpine \
       psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" "$@"
@@ -236,6 +246,27 @@ if [[ "$DB_MODE" == "bundled" ]]; then
     echo "PostgreSQL started but never became ready." >&2
     $COMPOSE --profile bundled logs --tail 40 db >&2
     exit 1
+  fi
+
+  # Make sure the application database exists under its current name. Older
+  # installations kept everything in "postgres"; rename that one so the data,
+  # accounts and API tokens are preserved.
+  has_db() {
+    [[ "$(psql_maint -tAc "select 1 from pg_database where datname = '$1'" 2>/dev/null | tr -d '[:space:]')" == "1" ]]
+  }
+  if ! has_db "$DB_NAME"; then
+    if $COMPOSE exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" db \
+         psql -tAc "select to_regclass('public.cmdb_ci_server') is not null" \
+         -U postgres -d postgres 2>/dev/null | tr -d '[:space:]' | grep -q '^t$'; then
+      log "Renaming the database from postgres to ${DB_NAME} (data is kept)"
+      # Existing sessions must be closed before a database can be renamed.
+      $COMPOSE stop auth rest >/dev/null 2>&1 || true
+      psql_maint -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = 'postgres' and pid <> pg_backend_pid()" >/dev/null
+      psql_maint -c "alter database postgres rename to \"${DB_NAME}\""
+    else
+      log "Creating the ${DB_NAME} database"
+      psql_maint -c "create database \"${DB_NAME}\""
+    fi
   fi
 else
   # Likewise, an existing-database install must not leave the bundled database
@@ -330,7 +361,7 @@ if [[ -z "$auth_ready" ]]; then
   docker run --rm -e PGPASSWORD="$POSTGRES_PASSWORD" \
     --network "container:$($COMPOSE ps -q auth)" postgres:16-alpine \
     psql -h "$DB_HOST_FOR_CONTAINERS" -p "$DB_PORT_FOR_CONTAINERS" \
-    -U supabase_auth_admin -d "${DB_NAME:-postgres}" -c "select 1" >&2 || true
+    -U supabase_auth_admin -d "${DB_NAME:-cmdb}" -c "select 1" >&2 || true
   $COMPOSE logs --since 5m --tail 80 auth >&2
   exit 1
 fi

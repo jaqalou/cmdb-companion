@@ -114,7 +114,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--env-file", action="store_true", help=f"read defaults from {ENV_FILE}")
     p.add_argument("--host", default=env.get("DB_HOST"))
     p.add_argument("--port", default=env.get("DB_PORT", "5432"))
-    p.add_argument("--dbname", default=env.get("DB_NAME", "postgres"))
+    p.add_argument("--dbname", default=env.get("DB_NAME", "cmdb"))
     p.add_argument("--user", default=env.get("DB_USER", "postgres"))
     p.add_argument("--password", default=env.get("DB_PASSWORD"))
     p.add_argument(
@@ -130,7 +130,7 @@ def parse_args() -> argparse.Namespace:
         values = read_env_file(ENV_FILE)
         args.host = args.host or values.get("DB_HOST")
         args.port = args.port or values.get("DB_PORT", "5432")
-        args.dbname = args.dbname or values.get("DB_NAME", "postgres")
+        args.dbname = args.dbname or values.get("DB_NAME", "cmdb")
         args.user = args.user or values.get("DB_USER", "postgres")
         args.password = args.password or values.get("DB_PASSWORD")
 

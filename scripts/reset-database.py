@@ -7,7 +7,7 @@ points) and, optionally, the audit trail, API tokens and user accounts.
 
 Usage (on the VM, from /opt/cb-assets):
 
-    python3 scripts/reset-database.py --dsn postgresql://postgres:PASSWORD@localhost:5432/postgres
+    python3 scripts/reset-database.py --dsn postgresql://postgres:PASSWORD@localhost:5432/cmdb
 
 Options:
     --items-only    only wipe the inventory (default also clears audit log +
