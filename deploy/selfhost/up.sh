@@ -225,6 +225,20 @@ if [[ -z "$auth_ready" ]]; then
   exit 1
 fi
 
+# The tables can already exist from an earlier run while the service itself is
+# crash-looping — that is exactly what produces 502 on sign-in later on.
+auth_up=""
+for i in $(seq 1 30); do
+  state="$($COMPOSE ps --format '{{.State}}' auth 2>/dev/null | tr -d '[:space:]')"
+  if [[ "$state" == "running" ]]; then auth_up="yes"; break; fi
+  sleep 2
+done
+if [[ -z "$auth_up" ]]; then
+  echo "The accounts service is not running (state: ${state:-unknown}), so sign-in would return 502." >&2
+  $COMPOSE logs --tail 60 auth >&2
+  exit 1
+fi
+
 log "Installing the request helper functions"
 psql_run -f - <"${HERE}/sql/10-auth-helpers.sql"
 
