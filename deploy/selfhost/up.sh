@@ -54,20 +54,21 @@ if [[ -n "${PUBLIC_URL:-}" ]]; then
   echo "PUBLIC_URL=${PUBLIC_URL}" >>"$ENV_FILE"
 fi
 
-# The API keys are JWTs signed with JWT_SECRET. If they ever drift apart the
-# services answer "invalid JWT ... token signature is invalid" on every call.
-KEYS_ROTATED=""
+# The API keys are JWTs signed with JWT_SECRET. Repair derived keys without
+# replacing JWT_SECRET: rotating the signing secret would invalidate every
+# user session even though the accounts and database are otherwise healthy.
+KEYS_REPAIRED=""
 if ! python3 "${HERE}/verify-keys.py" "$ENV_FILE"; then
-  log "API keys do not match the signing secret — regenerating them"
-  KEEP_PASSWORD="$(grep '^POSTGRES_PASSWORD=' "$ENV_FILE" | tail -n1 | cut -d= -f2- || true)"
-  NEW_KEYS="$(python3 "${HERE}/gen-keys.py")"
-  sed -i "/^JWT_SECRET=/d;/^ANON_KEY=/d;/^SERVICE_ROLE_KEY=/d" "$ENV_FILE"
-  printf '%s\n' "$NEW_KEYS" | grep -E '^(JWT_SECRET|ANON_KEY|SERVICE_ROLE_KEY)=' >>"$ENV_FILE"
-  if [[ -n "$KEEP_PASSWORD" ]]; then
-    sed -i "/^POSTGRES_PASSWORD=/d" "$ENV_FILE"
-    echo "POSTGRES_PASSWORD=${KEEP_PASSWORD}" >>"$ENV_FILE"
+  JWT_SECRET_CURRENT="$(grep '^JWT_SECRET=' "$ENV_FILE" | tail -n1 | cut -d= -f2- || true)"
+  if [[ -z "$JWT_SECRET_CURRENT" ]]; then
+    echo "JWT_SECRET is missing from ${ENV_FILE}; refusing to replace the signing secret automatically." >&2
+    exit 1
   fi
-  KEYS_ROTATED="yes"
+  log "API keys do not match the signing secret — repairing the derived keys"
+  NEW_KEYS="$(python3 "${HERE}/gen-keys.py" "$JWT_SECRET_CURRENT")"
+  sed -i "/^ANON_KEY=/d;/^SERVICE_ROLE_KEY=/d" "$ENV_FILE"
+  printf '%s\n' "$NEW_KEYS" | grep -E '^(ANON_KEY|SERVICE_ROLE_KEY)=' >>"$ENV_FILE"
+  KEYS_REPAIRED="yes"
 fi
 
 # 1a. Google sign-in (optional) -------------------------------------------
@@ -424,6 +425,46 @@ fi
 log "Backend is up on http://127.0.0.1:8000 (accounts ${auth_code}, data ${rest_code})"
 $COMPOSE ps
 
+# A direct up.sh run must also refresh the environment used by the already
+# installed website. Otherwise server functions keep an old anon/service key
+# and reject newly issued sessions even though signing in itself succeeds.
+LIVE_ENV="/etc/cb-assets.env"
+if [[ -f "$LIVE_ENV" ]]; then
+  live_changed=""
+  browser_key_changed=""
+  live_browser_anon="$(grep '^VITE_SUPABASE_PUBLISHABLE_KEY=' "$LIVE_ENV" | tail -n1 | cut -d= -f2- || true)"
+  live_anon="$(grep '^SUPABASE_PUBLISHABLE_KEY=' "$LIVE_ENV" | tail -n1 | cut -d= -f2- || true)"
+  live_service="$(grep '^SUPABASE_SERVICE_ROLE_KEY=' "$LIVE_ENV" | tail -n1 | cut -d= -f2- || true)"
+  if [[ "$live_browser_anon" != "$ANON_KEY" ]]; then browser_key_changed="yes"; fi
+  if [[ -n "$browser_key_changed" || "$live_anon" != "$ANON_KEY" || "$live_service" != "$SERVICE_ROLE_KEY" ]]; then
+    log "Synchronizing the website with the backend API keys"
+    sed -i '/^VITE_SUPABASE_PUBLISHABLE_KEY=/d;/^SUPABASE_PUBLISHABLE_KEY=/d;/^SUPABASE_SERVICE_ROLE_KEY=/d' "$LIVE_ENV"
+    {
+      echo "VITE_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
+      echo "SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
+      echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+    } >>"$LIVE_ENV"
+    chmod 640 "$LIVE_ENV"
+    # VITE_* values are embedded in browser assets at build time. Rebuild the
+    # installed copy when that value changed; restarting alone cannot replace it.
+    if [[ -n "$browser_key_changed" && "$REPO" == "/opt/cb-assets" && -f "$REPO/package.json" ]]; then
+      BUN_BIN="$(command -v bun || true)"
+      if [[ -n "$BUN_BIN" ]]; then
+        log "Rebuilding the website with the synchronized public API key"
+        systemctl stop cb-assets 2>/dev/null || true
+        rm -rf "$REPO/.output" "$REPO/.nitro" "$REPO/.tanstack" "$REPO/.vinxi"
+        su -s /bin/bash cbassets -c "cd '$REPO' && set -a && . '$LIVE_ENV' && set +a && NITRO_PRESET=node-server '$BUN_BIN' run build"
+      else
+        echo "The browser API key changed, but bun was not found; run deploy/install.sh to rebuild the website." >&2
+      fi
+    elif [[ -n "$browser_key_changed" ]]; then
+      echo "The installed browser build also needs refreshing. Run deploy/install.sh from /opt/cb-assets." >&2
+    fi
+    systemctl restart cb-assets cb-assets-api 2>/dev/null || true
+    live_changed="yes"
+  fi
+fi
+
 # 6. First administrator ---------------------------------------------------
 # The first account created becomes an administrator (database trigger).
 if [[ -n "${ADMIN_EMAIL:-}" && -n "${ADMIN_PASSWORD:-}" ]]; then
@@ -439,14 +480,11 @@ if [[ -n "${ADMIN_EMAIL:-}" && -n "${ADMIN_PASSWORD:-}" ]]; then
   fi
 fi
 
-# 7. Key rotation notice ---------------------------------------------------
-if [[ -n "${KEYS_ROTATED:-}" ]]; then
+# 7. Key repair notice -----------------------------------------------------
+if [[ -n "${KEYS_REPAIRED:-}" || -n "${live_changed:-}" ]]; then
   cat >&2 <<'NOTE'
 
-The API keys were regenerated because they no longer matched the signing secret.
-Two follow-up steps are required:
-  1. Rebuild the website so it uses the new key:
-       sudo PUBLIC_URL="<your address>" bash deploy/install.sh
-  2. Everyone must sign out and sign in again (old sessions are now invalid).
+The website and backend API keys are synchronized. The signing secret was kept,
+so existing user sessions remain valid. Refresh the browser and try again.
 NOTE
 fi
