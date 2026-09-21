@@ -243,9 +243,8 @@ log "Preparing roles and helper functions"
 psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql"
 
 # 3. Accounts service (creates the auth tables the app schema references) ---
-# Readiness is checked in the database, not with an HTTP probe: the image does
-# not ship wget/curl, so an exec-based probe always fails even when the service
-# is healthy. The accounts tables appearing is the condition we actually need.
+# Probe its host-published HTTP endpoint. Existing tables and a nominally
+# running container do not prove that GoTrue finished migrations or bound 9999.
 log "Starting the accounts service"
 $COMPOSE up -d --force-recreate auth
 auth_ready=""
@@ -308,7 +307,18 @@ if [[ "$auth_code" == "000" || "$auth_code" == "502" || "$auth_code" == "504" ]]
   exit 1
 fi
 
-log "Backend is up on http://127.0.0.1:8000 (sign-in endpoint responded ${auth_code})"
+# Verify the second upstream as well. The gateway's own /health response is
+# static and can return 200 while the data service is still unavailable.
+rest_code="$(curl -s -o /dev/null -w '%{http_code}' \
+  -H "apikey: ${ANON_KEY}" \
+  "http://127.0.0.1:8000/rest/v1/" || echo 000)"
+if [[ "$rest_code" == "000" || "$rest_code" == "502" || "$rest_code" == "503" || "$rest_code" == "504" ]]; then
+  echo "The data service is not reachable through the gateway (HTTP ${rest_code})." >&2
+  $COMPOSE logs --since 5m --tail 60 rest gateway >&2
+  exit 1
+fi
+
+log "Backend is up on http://127.0.0.1:8000 (accounts ${auth_code}, data ${rest_code})"
 $COMPOSE ps
 
 # 6. First administrator ---------------------------------------------------
