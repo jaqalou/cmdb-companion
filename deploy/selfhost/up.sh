@@ -154,17 +154,24 @@ log "Preparing roles and helper functions"
 psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql"
 
 # 3. Accounts service (creates the auth tables the app schema references) ---
+# Readiness is checked in the database, not with an HTTP probe: the image does
+# not ship wget/curl, so an exec-based probe always fails even when the service
+# is healthy. The accounts tables appearing is the condition we actually need.
 log "Starting the accounts service"
 $COMPOSE up -d auth
-for i in $(seq 1 60); do
-  $COMPOSE exec -T auth wget -qO- http://localhost:9999/health >/dev/null 2>&1 && break
+auth_ready=""
+for i in $(seq 1 90); do
+  if [[ "$(psql_run -tAc "SELECT to_regclass('auth.users') IS NOT NULL" 2>/dev/null | tr -d '[:space:]')" == "t" ]]; then
+    auth_ready="yes"
+    break
+  fi
   sleep 2
 done
-$COMPOSE exec -T auth wget -qO- http://localhost:9999/health >/dev/null 2>&1 || {
+if [[ -z "$auth_ready" ]]; then
   echo "The accounts service did not finish setting up its tables." >&2
-  $COMPOSE logs --tail 40 auth >&2
+  $COMPOSE logs --tail 60 auth >&2
   exit 1
-}
+fi
 
 log "Installing the request helper functions"
 psql_run -f - <"${HERE}/sql/10-auth-helpers.sql"
