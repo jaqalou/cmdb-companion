@@ -26,8 +26,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+    # Host port only for local admin access; container services use db:5432.
+    # up.sh picks a free port when 5432 is already taken on this VM.
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${DB_BUNDLED_PORT:-5432}:5432"
 
   # Existing databases are reached through a host-network relay. This also
   # works when PostgreSQL listens only on 127.0.0.1, which containers cannot
