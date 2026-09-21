@@ -65,7 +65,7 @@ const STALE_SESSION =
 
 /** Friendly text for an error, translating signature/JWT failures. */
 function errText(error: unknown, fallback: string) {
-  const raw = error instanceof Error ? error.message : "";
+  const raw = errText(error, "");
   if (/invalid jwt|signature is invalid|jwt expired|bad_jwt/i.test(raw)) return STALE_SESSION;
   return raw || fallback;
 }
@@ -100,7 +100,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not update permissions"),
+      toast.error(errText(error, "Could not update permissions")),
   });
 
   const renameMut = useMutation({
@@ -111,7 +111,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not rename account"),
+      toast.error(errText(error, "Could not rename account")),
   });
 
   const deleteMut = useMutation({
@@ -121,7 +121,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not delete account"),
+      toast.error(errText(error, "Could not delete account")),
   });
 
   const changePassword = useServerFn(setUserPassword);
@@ -130,7 +130,7 @@ function UsersAdminPage() {
       changePassword({ data: input }),
     onSuccess: () => toast.success("Password updated"),
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not change the password"),
+      toast.error(errText(error, "Could not change the password")),
   });
 
   const createAccount = useServerFn(createUserAccount);
@@ -149,7 +149,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not create account"),
+      toast.error(errText(error, "Could not create account")),
   });
 
 
@@ -189,7 +189,7 @@ function UsersAdminPage() {
         toast.success(result ? "Snooze options enabled" : "Snooze options hidden"),
       onError: (error) =>
         toast.error(
-          error instanceof Error ? error.message : "Could not update the setting",
+          errText(error, "Could not update the setting"),
         ),
     });
   }
@@ -208,7 +208,7 @@ function UsersAdminPage() {
           result === "esu" ? "Lifecycle now based on ESU" : "Lifecycle now based on EOL date",
         ),
       onError: (error) =>
-        toast.error(error instanceof Error ? error.message : "Could not update the setting"),
+        toast.error(errText(error, "Could not update the setting")),
     });
   }
 
@@ -485,14 +485,14 @@ function OwnAccountPanel() {
       queryClient.invalidateQueries({ queryKey: ["own-account"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not update the email address"),
+      toast.error(errText(error, "Could not update the email address")),
   });
 
   const passwordMut = useMutation({
     mutationFn: async (password: string) => changePassword({ data: { password } }),
     onSuccess: () => toast.success("Password updated"),
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not change the password"),
+      toast.error(errText(error, "Could not change the password")),
   });
 
   if (me.isLoading) {
