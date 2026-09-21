@@ -178,7 +178,7 @@ export const INSTANCE_FIELDS: FieldDef[] = [
 export const SWITCH_FIELDS: FieldDef[] = [
   { name: "hostname", label: "Hostname", group: "Identity" },
   { name: "switch_role", label: "Switch Role", group: "Identity" },
-  { name: "status", label: "Status", group: "Identity" },
+  { name: "status", label: "Status", group: "Identity", options: STATUS_OPTIONS },
   { name: "management_ip", label: "Management IP", group: "Identity" },
   { name: "region", label: "Region", group: "Location" },
   { name: "vm_location", label: "Location", group: "Location" },
@@ -221,7 +221,7 @@ export const SWITCH_FIELDS: FieldDef[] = [
 
 export const WAP_FIELDS: FieldDef[] = [
   { name: "ap_name", label: "AP Name", group: "Identity" },
-  { name: "status", label: "Status", group: "Identity" },
+  { name: "status", label: "Status", group: "Identity", options: STATUS_OPTIONS },
   { name: "management_ip", label: "Management IP", group: "Identity" },
   { name: "mac_address", label: "MAC Address", group: "Identity" },
   { name: "region", label: "Region", group: "Location" },
