@@ -60,6 +60,16 @@ function fmt(value: string | null) {
   return new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
+const STALE_SESSION =
+  "Your sign-in session is no longer valid on this server. Sign out and sign in again.";
+
+/** Friendly text for an error, translating signature/JWT failures. */
+function errText(error: unknown, fallback: string) {
+  const raw = error instanceof Error ? error.message : "";
+  if (/invalid jwt|signature is invalid|jwt expired|bad_jwt/i.test(raw)) return STALE_SESSION;
+  return raw || fallback;
+}
+
 function UsersAdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const queryClient = useQueryClient();
