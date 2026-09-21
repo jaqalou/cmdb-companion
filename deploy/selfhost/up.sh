@@ -54,6 +54,22 @@ if [[ -n "${PUBLIC_URL:-}" ]]; then
   echo "PUBLIC_URL=${PUBLIC_URL}" >>"$ENV_FILE"
 fi
 
+# The API keys are JWTs signed with JWT_SECRET. If they ever drift apart the
+# services answer "invalid JWT ... token signature is invalid" on every call.
+KEYS_ROTATED=""
+if ! python3 "${HERE}/verify-keys.py" "$ENV_FILE"; then
+  log "API keys do not match the signing secret — regenerating them"
+  KEEP_PASSWORD="$(grep '^POSTGRES_PASSWORD=' "$ENV_FILE" | tail -n1 | cut -d= -f2- || true)"
+  NEW_KEYS="$(python3 "${HERE}/gen-keys.py")"
+  sed -i "/^JWT_SECRET=/d;/^ANON_KEY=/d;/^SERVICE_ROLE_KEY=/d" "$ENV_FILE"
+  printf '%s\n' "$NEW_KEYS" | grep -E '^(JWT_SECRET|ANON_KEY|SERVICE_ROLE_KEY)=' >>"$ENV_FILE"
+  if [[ -n "$KEEP_PASSWORD" ]]; then
+    sed -i "/^POSTGRES_PASSWORD=/d" "$ENV_FILE"
+    echo "POSTGRES_PASSWORD=${KEEP_PASSWORD}" >>"$ENV_FILE"
+  fi
+  KEYS_ROTATED="yes"
+fi
+
 # 1a. Google sign-in (optional) -------------------------------------------
 for var in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET; do
   if [[ -z "${!var:-}" ]] && grep -q "^${var}=" "$ENV_FILE"; then
@@ -368,4 +384,16 @@ if [[ -n "${ADMIN_EMAIL:-}" && -n "${ADMIN_PASSWORD:-}" ]]; then
       -d "{\"email\":\"${ADMIN_EMAIL}\",\"password\":\"${ADMIN_PASSWORD}\",\"email_confirm\":true}" \
       >/dev/null && echo "  account ready"
   fi
+fi
+
+# 7. Key rotation notice ---------------------------------------------------
+if [[ -n "${KEYS_ROTATED:-}" ]]; then
+  cat >&2 <<'NOTE'
+
+The API keys were regenerated because they no longer matched the signing secret.
+Two follow-up steps are required:
+  1. Rebuild the website so it uses the new key:
+       sudo PUBLIC_URL="<your address>" bash deploy/install.sh
+  2. Everyone must sign out and sign in again (old sessions are now invalid).
+NOTE
 fi

@@ -60,6 +60,16 @@ function fmt(value: string | null) {
   return new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
+const STALE_SESSION =
+  "Your sign-in session is no longer valid on this server. Sign out and sign in again.";
+
+/** Friendly text for an error, translating signature/JWT failures. */
+function errText(error: unknown, fallback: string) {
+  const raw = error instanceof Error ? error.message : "";
+  if (/invalid jwt|signature is invalid|jwt expired|bad_jwt/i.test(raw)) return STALE_SESSION;
+  return raw || fallback;
+}
+
 function UsersAdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const queryClient = useQueryClient();
@@ -90,7 +100,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not update permissions"),
+      toast.error(errText(error, "Could not update permissions")),
   });
 
   const renameMut = useMutation({
@@ -101,7 +111,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not rename account"),
+      toast.error(errText(error, "Could not rename account")),
   });
 
   const deleteMut = useMutation({
@@ -111,7 +121,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not delete account"),
+      toast.error(errText(error, "Could not delete account")),
   });
 
   const changePassword = useServerFn(setUserPassword);
@@ -120,7 +130,7 @@ function UsersAdminPage() {
       changePassword({ data: input }),
     onSuccess: () => toast.success("Password updated"),
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not change the password"),
+      toast.error(errText(error, "Could not change the password")),
   });
 
   const createAccount = useServerFn(createUserAccount);
@@ -139,7 +149,7 @@ function UsersAdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not create account"),
+      toast.error(errText(error, "Could not create account")),
   });
 
 
@@ -179,7 +189,7 @@ function UsersAdminPage() {
         toast.success(result ? "Snooze options enabled" : "Snooze options hidden"),
       onError: (error) =>
         toast.error(
-          error instanceof Error ? error.message : "Could not update the setting",
+          errText(error, "Could not update the setting"),
         ),
     });
   }
@@ -198,7 +208,7 @@ function UsersAdminPage() {
           result === "esu" ? "Lifecycle now based on ESU" : "Lifecycle now based on EOL date",
         ),
       onError: (error) =>
-        toast.error(error instanceof Error ? error.message : "Could not update the setting"),
+        toast.error(errText(error, "Could not update the setting")),
     });
   }
 
@@ -351,7 +361,7 @@ function UsersAdminPage() {
                   {users.isError && (
                     <tr>
                       <td colSpan={6} className="px-4 py-6 text-destructive">
-                        {users.error instanceof Error ? users.error.message : "Could not load users"}
+                        {errText(users.error, "Could not load users")}
                       </td>
                     </tr>
                   )}
@@ -475,14 +485,14 @@ function OwnAccountPanel() {
       queryClient.invalidateQueries({ queryKey: ["own-account"] });
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not update the email address"),
+      toast.error(errText(error, "Could not update the email address")),
   });
 
   const passwordMut = useMutation({
     mutationFn: async (password: string) => changePassword({ data: { password } }),
     onSuccess: () => toast.success("Password updated"),
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not change the password"),
+      toast.error(errText(error, "Could not change the password")),
   });
 
   if (me.isLoading) {
@@ -495,7 +505,7 @@ function OwnAccountPanel() {
   if (me.isError || !me.data) {
     return (
       <div className="mt-6 rounded-xl border border-border bg-card p-6 text-sm text-destructive">
-        {me.error instanceof Error ? me.error.message : "Could not load your account"}
+        {errText(me.error, "Could not load your account")}
       </div>
     );
   }
