@@ -269,7 +269,7 @@ psql_run -v db_password="$POSTGRES_PASSWORD" -f - <"${HERE}/sql/00-bootstrap.sql
 log "Starting the accounts service"
 $COMPOSE up -d --force-recreate auth
 auth_ready=""
-for i in $(seq 1 60); do
+for i in $(seq 1 90); do
   if curl -sf -o /dev/null "http://127.0.0.1:9999/health"; then
     auth_ready="yes"
     break
@@ -280,6 +280,12 @@ for i in $(seq 1 60); do
 done
 if [[ -z "$auth_ready" ]]; then
   echo "The accounts service did not become reachable on its HTTP endpoint (state: ${state:-unknown})." >&2
+  echo "It usually means it cannot reach the database. Checking that connection:" >&2
+  if ! $COMPOSE exec -T auth true >/dev/null 2>&1; then :; fi
+  docker run --rm -e PGPASSWORD="$POSTGRES_PASSWORD" \
+    --network "container:$($COMPOSE ps -q auth)" postgres:16-alpine \
+    psql -h "$DB_HOST_FOR_CONTAINERS" -p "$DB_PORT_FOR_CONTAINERS" \
+    -U supabase_auth_admin -d "${DB_NAME:-postgres}" -c "select 1" >&2 || true
   $COMPOSE logs --since 5m --tail 80 auth >&2
   exit 1
 fi
