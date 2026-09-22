@@ -208,7 +208,11 @@ def main() -> None:
     wb = load_workbook(args.file, data_only=True, read_only=True)
     sheet_name = args.sheet or wb.sheetnames[0]
     if sheet_name not in wb.sheetnames:
-        sys.exit(f"No tab named '{sheet_name}'. Available: {', '.join(wb.sheetnames)}")
+        match = [s for s in wb.sheetnames if s.lower() == sheet_name.lower()]
+        if match:
+            sheet_name = match[0]
+        else:
+            sys.exit(f"No tab named '{sheet_name}'. Available: {', '.join(wb.sheetnames)}")
     ws = wb[sheet_name]
 
     rows = ws.iter_rows(values_only=True)
