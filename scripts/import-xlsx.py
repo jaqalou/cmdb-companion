@@ -72,8 +72,9 @@ ALIASES = {
 }
 
 BOOLEAN_FIELDS = {"snooze_exclusion", "snoozed"}
+# sql_port and memory_gb are free text (e.g. "1433, 1434", "1.9 TB").
 NUMERIC_FIELDS = {
-    "sql_port", "cpu_count", "core_count", "memory_gb", "port_count",
+    "cpu_count", "core_count", "port_count",
     "stack_member_count", "vlan_count", "client_capacity",
 }
 DATE_FIELDS = {
