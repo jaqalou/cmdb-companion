@@ -138,6 +138,10 @@ COLUMN_ALIASES = {
     "esu_reached": "esu",
     "version_lock_enabled_yes_no": "version_lock_enabled",
     "azure_deployment_year_tag": "azure_deployment_year",
+    # SQL instance sheet
+    "servertype": "server_type",
+    "cluster_name_listenername": "cluster_listener_name",
+    "sql_server_service_account": "sql_service_account",
 }
 
 
