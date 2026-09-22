@@ -216,7 +216,10 @@ def main() -> None:
         header = next(rows)
     except StopIteration:
         sys.exit("The worksheet is empty")
-    columns = [str(h).strip() if h is not None else "" for h in header]
+    raw_columns = [str(h).strip() if h is not None else "" for h in header]
+    # Map headers case-insensitively ("Hostname", "HOSTNAME", "host name" → hostname)
+    canon = {norm(f): f for f in fields} if fields is not None else {}
+    columns = [canon.get(norm(c), norm(c)) for c in raw_columns]
 
     unknown = [c for c in columns if c and fields is not None and c not in fields]
     if unknown:
