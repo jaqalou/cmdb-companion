@@ -39,7 +39,12 @@ try:
     import requests
     from openpyxl import load_workbook
 except ImportError:
-    sys.exit("Missing dependency: pip3 install requests openpyxl")
+    sys.exit(
+        "Missing dependencies. Install them with one of:\n"
+        "  sudo apt install python3-requests python3-openpyxl   (Ubuntu 24.04+)\n"
+        "  python3 -m venv venv && ./venv/bin/pip install requests openpyxl\n"
+        "  pip3 install --break-system-packages requests openpyxl   (last resort)"
+    )
 
 TIMEOUT = 30
 VERIFY = True
