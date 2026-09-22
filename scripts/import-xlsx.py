@@ -25,7 +25,8 @@ Options:
     --skip-existing  Skip rows whose name already exists in the CMDB
     --insecure    Accept a self-signed HTTPS certificate (IP installations)
 
-Requires: python3 3.8+, `pip3 install requests openpyxl`
+Requires: python3 3.8+; install with `sudo apt install python3-requests python3-openpyxl`
+          or a venv (`python3 -m venv venv && ./venv/bin/pip install requests openpyxl`).
 """
 
 from __future__ import annotations
