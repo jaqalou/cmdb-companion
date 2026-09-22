@@ -103,6 +103,11 @@ def sign_in(base: str, email: str, password: str, apikey: str) -> str:
     return r.json()["access_token"]
 
 
+def norm(name: str) -> str:
+    """Normalise a column header: lowercase, spaces/hyphens become underscores."""
+    return name.strip().lower().replace(" ", "_").replace("-", "_")
+
+
 def known_fields(session: requests.Session, base: str, table: str) -> set[str] | None:
     """Field names the table accepts, learned from an existing record."""
     r = session.get(f"{base}/api/public/now/table/{table}",
@@ -203,7 +208,11 @@ def main() -> None:
     wb = load_workbook(args.file, data_only=True, read_only=True)
     sheet_name = args.sheet or wb.sheetnames[0]
     if sheet_name not in wb.sheetnames:
-        sys.exit(f"No tab named '{sheet_name}'. Available: {', '.join(wb.sheetnames)}")
+        match = [s for s in wb.sheetnames if s.lower() == sheet_name.lower()]
+        if match:
+            sheet_name = match[0]
+        else:
+            sys.exit(f"No tab named '{sheet_name}'. Available: {', '.join(wb.sheetnames)}")
     ws = wb[sheet_name]
 
     rows = ws.iter_rows(values_only=True)
@@ -211,7 +220,10 @@ def main() -> None:
         header = next(rows)
     except StopIteration:
         sys.exit("The worksheet is empty")
-    columns = [str(h).strip() if h is not None else "" for h in header]
+    raw_columns = [str(h).strip() if h is not None else "" for h in header]
+    # Map headers case-insensitively ("Hostname", "HOSTNAME", "host name" → hostname)
+    canon = {norm(f): f for f in fields} if fields is not None else {}
+    columns = [canon.get(norm(c), norm(c)) for c in raw_columns]
 
     unknown = [c for c in columns if c and fields is not None and c not in fields]
     if unknown:
