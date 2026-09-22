@@ -148,7 +148,7 @@ export type Database = {
           location: string | null
           log_backups: string | null
           manufacturer_model: string | null
-          memory_gb: number | null
+          memory_gb: string | null
           metal_class_of_service: string | null
           monitoring: string | null
           operating_system: string | null
@@ -167,7 +167,7 @@ export type Database = {
           snooze_exclusion_start_date: string | null
           snoozed: boolean
           sql_agent_service_account: string | null
-          sql_port: number | null
+          sql_port: string | null
           sql_service_account: string | null
           sql_version: string | null
           stats_update: string | null
@@ -211,7 +211,7 @@ export type Database = {
           location?: string | null
           log_backups?: string | null
           manufacturer_model?: string | null
-          memory_gb?: number | null
+          memory_gb?: string | null
           metal_class_of_service?: string | null
           monitoring?: string | null
           operating_system?: string | null
@@ -230,7 +230,7 @@ export type Database = {
           snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           sql_agent_service_account?: string | null
-          sql_port?: number | null
+          sql_port?: string | null
           sql_service_account?: string | null
           sql_version?: string | null
           stats_update?: string | null
@@ -274,7 +274,7 @@ export type Database = {
           location?: string | null
           log_backups?: string | null
           manufacturer_model?: string | null
-          memory_gb?: number | null
+          memory_gb?: string | null
           metal_class_of_service?: string | null
           monitoring?: string | null
           operating_system?: string | null
@@ -293,7 +293,7 @@ export type Database = {
           snooze_exclusion_start_date?: string | null
           snoozed?: boolean
           sql_agent_service_account?: string | null
-          sql_port?: number | null
+          sql_port?: string | null
           sql_service_account?: string | null
           sql_version?: string | null
           stats_update?: string | null
