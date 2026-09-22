@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import getpass
+import re
 import sys
 
 try:
@@ -104,8 +105,39 @@ def sign_in(base: str, email: str, password: str, apikey: str) -> str:
 
 
 def norm(name: str) -> str:
-    """Normalise a column header: lowercase, spaces/hyphens become underscores."""
-    return name.strip().lower().replace(" ", "_").replace("-", "_")
+    """Normalise a column header so it can be matched against CMDB fields.
+
+    Lowercase; whitespace, line breaks, hyphens and slashes become underscores;
+    punctuation such as parentheses, semicolons and question marks is dropped.
+    Collapses repeated underscores. Examples:
+        "Market (TAG)"            -> market_tag
+        "SAP/NonSAP\nServers;"    -> sap_nonsap_servers
+        "Version lock enabled\nyes/no?" -> version_lock_enabled_yes_no
+    """
+    s = name.strip().lower().replace("\r", " ").replace("\n", " ")
+    s = re.sub(r"[\s\-/\\]+", "_", s)
+    s = re.sub(r"[^a-z0-9_]", "", s)
+    return re.sub(r"_+", "_", s).strip("_")
+
+
+# Excel headers that do not match a CMDB field name after normalisation.
+# Key is norm() of the Excel header, value the CMDB field it maps to.
+COLUMN_ALIASES = {
+    "market_tag": "market",
+    "environment_tag": "environment",
+    "sla_tag": "sla",
+    "application_name_tag": "application_name",
+    "business_functions_tag": "business_functions",
+    "sap_sid_tag": "sap_sid",
+    "sap_nonsap_servers": "sap_nonsap",
+    "c_one_non_c_one": "cone_class",
+    "commission_ritm_change": "commission_ritm",
+    "ipaddress": "ip_address",
+    "clustered_standalone": "cluster_type",
+    "esu_reached": "esu",
+    "version_lock_enabled_yes_no": "version_lock_enabled",
+    "azure_deployment_year_tag": "azure_deployment_year",
+}
 
 
 def known_fields(session: requests.Session, base: str, table: str) -> set[str] | None:
