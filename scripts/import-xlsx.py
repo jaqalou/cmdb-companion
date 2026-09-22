@@ -141,6 +141,7 @@ COLUMN_ALIASES = {
     # SQL instance sheet
     "servertype": "server_type",
     "cluster_name_listenername": "cluster_listener_name",
+    "sql_server_service_account": "sql_service_account",
 }
 
 
