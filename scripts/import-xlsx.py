@@ -103,6 +103,11 @@ def sign_in(base: str, email: str, password: str, apikey: str) -> str:
     return r.json()["access_token"]
 
 
+def norm(name: str) -> str:
+    """Normalise a column header: lowercase, spaces/hyphens become underscores."""
+    return name.strip().lower().replace(" ", "_").replace("-", "_")
+
+
 def known_fields(session: requests.Session, base: str, table: str) -> set[str] | None:
     """Field names the table accepts, learned from an existing record."""
     r = session.get(f"{base}/api/public/now/table/{table}",
