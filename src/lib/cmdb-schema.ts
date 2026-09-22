@@ -299,10 +299,8 @@ export const SYS_FIELDS = ["sys_id", "sys_class_name", "sys_created_on", "sys_up
 
 /** Columns stored as integers in Postgres — forms must submit numbers. */
 export const NUMERIC_FIELDS = new Set([
-  "sql_port",
   "cpu_count",
   "core_count",
-  "memory_gb",
   "port_count",
   "stack_member_count",
   "vlan_count",
