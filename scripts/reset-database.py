@@ -7,7 +7,14 @@ points) and, optionally, the audit trail, API tokens and user accounts.
 
 Usage (on the VM, from /opt/cb-assets):
 
-    python3 scripts/reset-database.py --dsn postgresql://postgres:PASSWORD@localhost:5432/cmdb
+    python3 scripts/reset-database.py --dsn postgresql://postgres@localhost:5432/cmdb
+
+Never put the password inside the --dsn value — it would be saved in your
+shell history. Instead do one of:
+
+    - let the script prompt for it (it asks without echoing), or
+    - export it for just this run:
+        PGPASSWORD="$PASSWORD" python3 scripts/reset-database.py --dsn ...
 
 Options:
     --items-only    only wipe the inventory (default also clears audit log +
@@ -17,7 +24,8 @@ Options:
     --yes           skip the confirmation prompt
 
 The bundled-database password lives in deploy/selfhost/.env
-(POSTGRES_PASSWORD / DB_PASSWORD).
+(POSTGRES_PASSWORD / DB_PASSWORD). If no password is supplied, the script
+offers to read it from there automatically.
 """
 
 from __future__ import annotations
