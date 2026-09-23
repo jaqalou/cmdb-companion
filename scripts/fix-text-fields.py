@@ -7,15 +7,21 @@ any text (for example "1433, 1434" or "128 GB") instead of whole numbers only.
 Usage
 -----
     python3 scripts/fix-text-fields.py \
-        --dsn postgresql://postgres:PASSWORD@localhost:5432/cmdb
+        --dsn postgresql://postgres@localhost:5432/cmdb
 
-The password is in deploy/selfhost/.env (POSTGRES_PASSWORD or DB_PASSWORD).
+Never put the password inside the --dsn value — it would be saved in your
+shell history. The script reads it from deploy/selfhost/.env
+(POSTGRES_PASSWORD or DB_PASSWORD) automatically, from the PGPASSWORD
+environment variable, or prompts for it without echoing.
 Re-running is safe: columns that are already text are left untouched.
 Requires the psql client (sudo apt install postgresql-client).
 """
 from __future__ import annotations
 
 import argparse
+import getpass
+import os
+import re
 import subprocess
 import sys
 
