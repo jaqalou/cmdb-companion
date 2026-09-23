@@ -136,9 +136,13 @@ def main() -> int:
             print("Cancelled.")
             return 1
 
+    env = dict(os.environ)
+    if password:
+        env["PGPASSWORD"] = password
     result = subprocess.run(
-        ["psql", args.dsn, "-v", "ON_ERROR_STOP=1", "-q", "-c", sql],
+        ["psql", dsn, "-v", "ON_ERROR_STOP=1", "-q", "-c", sql],
         check=False,
+        env=env,
     )
     if result.returncode != 0:
         print("The reset failed — nothing was changed (the whole wipe runs in one transaction).")
