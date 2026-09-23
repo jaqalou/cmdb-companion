@@ -17,7 +17,13 @@ Options:
     --password   Account password (prompted when omitted)
     --cleanup    Delete the items this script created afterwards
     --only       Limit to one dialect: glpi | now (default: both)
-    --insecure   Accept a self-signed HTTPS certificate (IP installations)
+    --ca-cert    Path to the server's certificate (PEM) to trust. Use for
+                 self-signed/IP installations. Download it once with:
+                   openssl s_client -connect HOST:443 -servername HOST \
+                     </dev/null 2>/dev/null | openssl x509 > cmdb-cert.pem
+
+TLS certificate verification is always on (CWE-295); there is no option to
+disable it. Self-signed installations must pass --ca-cert.
 
 Requires: python3 (3.8+) and `requests`  →  pip3 install requests
 """
@@ -27,6 +33,7 @@ from __future__ import annotations
 import argparse
 import getpass
 import json
+import os
 import sys
 import uuid
 
@@ -36,7 +43,6 @@ except ImportError:
     sys.exit("Missing dependency: pip3 install requests")
 
 TIMEOUT = 20
-VERIFY = True  # set to False by --insecure (self-signed certificate)
 PASS, FAIL = "PASS", "FAIL"
 results: list[tuple[str, str, str]] = []
 created: list[tuple[str, str]] = []  # (table, sys_id) for cleanup
@@ -54,14 +60,14 @@ def check(ok: bool, what: str, detail: str = "") -> bool:
 
 # ---------------------------------------------------------------- auth
 
-def sign_in(base: str, email: str, password: str, apikey: str) -> str:
+def sign_in(base: str, email: str, password: str, apikey: str, verify) -> str:
     """Get an account access token from the built-in login service."""
     resp = requests.post(
         f"{base}/auth/v1/token?grant_type=password",
         headers={"apikey": apikey, "Content-Type": "application/json"},
         json={"email": email, "password": password},
         timeout=TIMEOUT,
-        verify=VERIFY,
+        verify=verify,
     )
     if resp.status_code != 200 or "access_token" not in resp.text:
         sys.exit(f"Sign-in failed ({resp.status_code}): {resp.text[:200]}")
@@ -163,39 +169,47 @@ def main() -> None:
     ap.add_argument("--apikey", default="", help="Anon key (ANON_KEY in deploy/selfhost/.env) — needed with --email")
     ap.add_argument("--cleanup", action="store_true", help="Delete created items afterwards")
     ap.add_argument("--only", choices=["glpi", "now"], help="Test one dialect only")
-    ap.add_argument("--insecure", action="store_true", help="Accept a self-signed HTTPS certificate")
+    ap.add_argument("--ca-cert", metavar="PEM", help="Server/CA certificate to trust (self-signed installations)")
+    ap.add_argument("--insecure", action="store_true", help=argparse.SUPPRESS)  # removed: see --ca-cert
     args = ap.parse_args()
+
+    if args.insecure:
+        ap.error(
+            "--insecure was removed: TLS verification is never disabled. "
+            "For a self-signed certificate, download it and pass --ca-cert:\n"
+            "  openssl s_client -connect HOST:443 -servername HOST </dev/null 2>/dev/null | openssl x509 > cmdb-cert.pem"
+        )
 
     base = args.base.rstrip("/")
     if not base.startswith(("http://", "https://")):
         base = "https://" + base
 
-    global VERIFY
-    if args.insecure:
-        VERIFY = False
-        requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
+    verify = args.ca_cert or True
+    if args.ca_cert and not os.path.isfile(args.ca_cert):
+        ap.error(f"--ca-cert file not found: {args.ca_cert}")
 
     if args.token:
         token = args.token
     elif args.email:
         apikey = args.apikey or getpass.getpass("Anon key (ANON_KEY in deploy/selfhost/.env): ")
         password = args.password or getpass.getpass("Password: ")
-        token = sign_in(base, args.email, password, apikey)
+        token = sign_in(base, args.email, password, apikey, verify)
         report(PASS, "Signed in", args.email)
     else:
         ap.error("provide --token or --email")
 
     session = requests.Session()
     session.headers["Authorization"] = f"Bearer {token}"
-    session.verify = VERIFY
+    session.verify = verify
 
     try:
         r = session.get(f"{base}/api/public/health", timeout=TIMEOUT)
     except requests.exceptions.SSLError:
         sys.exit(
-            "HTTPS certificate verification failed. This installation uses a "
-            "self-signed certificate. Re-run this command with --insecure, or "
-            "install a trusted certificate for a domain name."
+            "HTTPS certificate verification failed. If this installation uses a "
+            "self-signed certificate, download it and re-run with --ca-cert:\n"
+            "  openssl s_client -connect HOST:443 -servername HOST </dev/null 2>/dev/null | openssl x509 > cmdb-cert.pem\n"
+            "  python3 api-test.py --base " + base + " --ca-cert cmdb-cert.pem ..."
         )
     except requests.exceptions.ConnectionError as exc:
         sys.exit(f"Could not connect to {base}: {exc}")
