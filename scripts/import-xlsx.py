@@ -23,7 +23,12 @@ Options:
     --type        server | sql | switch | ap  (or the cmdb table name)
     --dry-run     Validate and show what would be created, create nothing
     --skip-existing  Skip rows whose name already exists in the CMDB
-    --insecure    Accept a self-signed HTTPS certificate (IP installations)
+    --ca-cert     Path to the server's certificate (PEM) to trust, for
+                  self-signed/IP installations. Download it once with:
+                    openssl s_client -connect HOST:443 -servername HOST \
+                      </dev/null 2>/dev/null | openssl x509 > cmdb-cert.pem
+
+TLS certificate verification is always on (CWE-295); it cannot be disabled.
 
 Requires: python3 3.8+; install with `sudo apt install python3-requests python3-openpyxl`
           or a venv (`python3 -m venv venv && ./venv/bin/pip install requests openpyxl`).
@@ -34,6 +39,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import getpass
+import os
 import re
 import sys
 
@@ -49,7 +55,6 @@ except ImportError:
     )
 
 TIMEOUT = 30
-VERIFY = True
 
 # Mirrors src/lib/cmdb-schema.ts
 TYPES = {
@@ -93,12 +98,12 @@ def resolve_type(name: str) -> tuple[str, str]:
     return TYPES[key]
 
 
-def sign_in(base: str, email: str, password: str, apikey: str) -> str:
+def sign_in(base: str, email: str, password: str, apikey: str, verify) -> str:
     r = requests.post(
         f"{base}/auth/v1/token?grant_type=password",
         headers={"apikey": apikey, "Content-Type": "application/json"},
         json={"email": email, "password": password},
-        timeout=TIMEOUT, verify=VERIFY,
+        timeout=TIMEOUT, verify=verify,
     )
     if r.status_code != 200 or "access_token" not in r.text:
         sys.exit(f"Sign-in failed ({r.status_code}): {r.text[:200]}")
@@ -199,14 +204,21 @@ def main() -> None:
     p.add_argument("--type")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--skip-existing", action="store_true")
-    p.add_argument("--insecure", action="store_true")
+    p.add_argument("--ca-cert", metavar="PEM", help="Server/CA certificate to trust (self-signed installations)")
+    p.add_argument("--insecure", action="store_true", help=argparse.SUPPRESS)  # removed: see --ca-cert
     p.add_argument("--list-sheets", action="store_true")
     p.add_argument("--list-fields", action="store_true")
     args = p.parse_args()
 
     if args.insecure:
-        VERIFY = False
-        requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
+        p.error(
+            "--insecure was removed: TLS verification is never disabled. "
+            "For a self-signed certificate, download it and pass --ca-cert:\n"
+            "  openssl s_client -connect HOST:443 -servername HOST </dev/null 2>/dev/null | openssl x509 > cmdb-cert.pem"
+        )
+    if args.ca_cert and not os.path.isfile(args.ca_cert):
+        p.error(f"--ca-cert file not found: {args.ca_cert}")
+    verify = args.ca_cert or True
 
     if args.list_sheets:
         if not args.file:
@@ -228,12 +240,12 @@ def main() -> None:
     base = args.base.rstrip("/")
 
     session = requests.Session()
-    session.verify = VERIFY
+    session.verify = verify
     if args.token:
         session.headers.update({"Authorization": f"Bearer {args.token}"})
     elif args.email:
         pw = args.password or getpass.getpass("Password: ")
-        session.headers.update({"Authorization": f"Bearer {sign_in(base, args.email, pw, args.apikey)}"})
+        session.headers.update({"Authorization": f"Bearer {sign_in(base, args.email, pw, args.apikey, verify)}"})
     else:
         sys.exit("Provide --token or --email")
 
