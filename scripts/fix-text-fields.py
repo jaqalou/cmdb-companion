@@ -74,9 +74,9 @@ def main() -> int:
     # from PGPASSWORD, deploy/selfhost/.env, or an interactive prompt, and
     # hand it to psql through the environment instead of the DSN.
     dsn, password = args.dsn, os.environ.get("PGPASSWORD", "")
-    match = re.match(r"^(postgres(?:ql)?://[^:]+:)([^@]*)@(.*)$", dsn)
+    match = re.match(r"^(postgres(?:ql)?://[^:]+):([^@]*)@(.*)$", dsn)
     if match:
-        dsn = f"{match.group(1)}{match.group(3)}"
+        dsn = f"{match.group(1)}@{match.group(3)}"
         if not password:
             password = match.group(2)
     if not password:

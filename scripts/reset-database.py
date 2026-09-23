@@ -97,9 +97,9 @@ def main() -> int:
     # hand it to psql through the environment instead of the DSN.
     dsn, password = args.dsn or "", os.environ.get("PGPASSWORD", "")
     if dsn:
-        match = re.match(r"^(postgres(?:ql)?://[^:]+:)([^@]*)@(.*)$", dsn)
+        match = re.match(r"^(postgres(?:ql)?://[^:]+):([^@]*)@(.*)$", dsn)
         if match:
-            dsn = f"{match.group(1)}{match.group(3)}"
+            dsn = f"{match.group(1)}@{match.group(3)}"
             if not password:
                 password = match.group(2)
     if dsn and not password:
