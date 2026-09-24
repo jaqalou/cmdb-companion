@@ -167,8 +167,17 @@ export function CiList({
     }
   }
 
+  const limitedView = records.some((r) => r["__limited"] === true);
+
   return (
     <div>
+      {limitedView && (
+        <div className="border-b border-border bg-muted/40 px-6 py-2.5 text-[13px] text-muted-foreground lg:px-8">
+          You have no access scopes yet, so only names and OS/firmware versions are shown. Ask an
+          administrator to grant you access to a region, environment, application or component
+          type.
+        </div>
+      )}
       <div className="flex flex-wrap items-end gap-3 border-b border-border bg-sand px-6 py-3 lg:px-8">
         <div className="min-w-[220px] flex-1">
           <label className="eyebrow text-muted-foreground">Search all fields</label>
