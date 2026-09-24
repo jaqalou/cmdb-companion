@@ -945,7 +945,10 @@ export type Database = {
     Functions: {
       can_write: { Args: { _user_id: string }; Returns: boolean }
       cmdb_access_mode: { Args: never; Returns: string }
-      cmdb_limited_list: { Args: { _table: string }; Returns: Json[] }
+      cmdb_limited_list: {
+        Args: { _table: string; _uid: string }
+        Returns: Json[]
+      }
       cmdb_scope_match: {
         Args: {
           _app: string
