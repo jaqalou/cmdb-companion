@@ -914,12 +914,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_scopes: {
+        Row: {
+          created_at: string
+          dimension: string
+          id: string
+          user_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          dimension: string
+          id?: string
+          user_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          dimension?: string
+          id?: string
+          user_id?: string
+          value?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       can_write: { Args: { _user_id: string }; Returns: boolean }
+      cmdb_access_mode: { Args: never; Returns: string }
+      cmdb_limited_list: {
+        Args: { _table: string; _uid: string }
+        Returns: Json[]
+      }
+      cmdb_scope_match: {
+        Args: {
+          _app: string
+          _class: string
+          _env: string
+          _region: string
+          _uid: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

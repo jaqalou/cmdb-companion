@@ -139,11 +139,108 @@ def _total_count(response: requests.Response, fallback: int) -> int:
     return fallback
 
 
+# ---------------------------------------------------------------------------
+# Access scopes for API-token callers (mirrors src/lib/cmdb-api/core.ts).
+# Account bearer tokens are enforced by row level security instead.
+# ---------------------------------------------------------------------------
+
+LIMITED_FIELDS = {
+    "cmdb_ci_server": ["sys_id", "hostname", "operating_system"],
+    "cmdb_ci_db_mssql_instance": ["sys_id", "server_name", "operating_system"],
+    "cmdb_ci_netgear_switch": ["sys_id", "hostname", "firmware_version"],
+    "cmdb_ci_wap": ["sys_id", "ap_name", "firmware_version"],
+}
+
+
+@dataclass
+class Scope:
+    admin: bool
+    limited: bool
+    classes: list[str] | None
+    dims: dict[str, list[str]]
+
+
+def _current_scope() -> Scope | None:
+    try:
+        from flask import g, has_request_context
+    except ImportError:  # pragma: no cover
+        return None
+    if not has_request_context():
+        return None
+    identity = getattr(g, "api_identity", None)
+    if identity is None:
+        return None
+    cached = getattr(g, "api_scope", None)
+    if cached is not None:
+        return cached
+    from .tokens import service_key
+
+    key = service_key() or ""
+    rows = requests.get(
+        f"{_base_url()}/user_scopes",
+        headers={"apikey": key, "Authorization": f"Bearer {key}"},
+        params={"select": "dimension,value", "user_id": f"eq.{identity.user_id}"},
+        timeout=TIMEOUT,
+    ).json() or []
+    admin = "admin" in identity.roles
+    dims: dict[str, list[str]] = {}
+    classes: list[str] | None = None
+    any_class = False
+    for r in rows:
+        dim, val = r["dimension"], r["value"]
+        if dim == "ci_class":
+            if val == "*":
+                any_class = True
+            else:
+                classes = (classes or []) + [val]
+        else:
+            dims.setdefault(dim, []).append(val)
+    if any_class:
+        classes = None
+    dims = {k: v for k, v in dims.items() if "*" not in v}
+    scope = Scope(admin=admin, limited=not admin and not rows, classes=classes, dims=dims)
+    g.api_scope = scope
+    return scope
+
+
+def _class_allowed(scope: Scope, table: str) -> bool:
+    return scope.admin or scope.classes is None or table in scope.classes
+
+
+def _quote_like(v: str) -> str:
+    esc = v.strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_").replace('"', '\\"')
+    return f'"{esc}"'
+
+
+def _scope_params(scope: Scope) -> list[tuple[str, str]]:
+    params = []
+    for dim, values in scope.dims.items():
+        params.append(("or", "(" + ",".join(f"{dim}.ilike.{_quote_like(v)}" for v in values) + ")"))
+    return params
+
+
+def _row_in_scope(scope: Scope, row: Row) -> bool:
+    for dim, values in scope.dims.items():
+        v = str(row.get(dim) or "").strip().lower()
+        if not any(a.strip().lower() == v for a in values):
+            return False
+    return True
+
+
+OUT_OF_SCOPE = "This record is outside the access scopes of the account behind this API token"
+
+
 def list_records(table: str, query: CoreQuery, token: str | None) -> tuple[list[Row], int]:
     limit = min(max(query.limit, 1), MAX_LIMIT)
     offset = max(query.offset, 0)
-    params = [("select", _select(query.fields))]
+    scope = _current_scope()
+    if scope and not scope.admin and not _class_allowed(scope, table):
+        return [], 0
+    fields = LIMITED_FIELDS.get(table, ["sys_id"]) if scope and scope.limited else query.fields
+    params = [("select", _select(fields))]
     params += _filter_params(query.filters)
+    if scope and not scope.admin and not scope.limited:
+        params += _scope_params(scope)
     if query.sort:
         params.append(("order", f"{query.sort}.{'asc' if query.ascending else 'desc'}"))
     headers = {
@@ -157,12 +254,21 @@ def list_records(table: str, query: CoreQuery, token: str | None) -> tuple[list[
 
 
 def get_record(table: str, record_id: str, fields: list[str] | None, token: str | None) -> Row | None:
+    scope = _current_scope()
+    if scope and not scope.admin and (scope.limited or not _class_allowed(scope, table)):
+        return None
     params = [("select", _select(fields)), (PRIMARY_KEY, f"eq.{record_id}"), ("limit", "1")]
+    if scope and not scope.admin:
+        params += _scope_params(scope)
     rows = _request("GET", table, token, params=params).json() or []
     return rows[0] if rows else None
 
 
 def create_records(table: str, rows: list[Row], token: str | None) -> list[Row]:
+    scope = _current_scope()
+    if scope and not scope.admin:
+        if scope.limited or not _class_allowed(scope, table) or not all(_row_in_scope(scope, r) for r in rows):
+            raise CoreError(OUT_OF_SCOPE, 403)
     response = _request(
         "POST",
         table,
@@ -174,6 +280,15 @@ def create_records(table: str, rows: list[Row], token: str | None) -> list[Row]:
 
 
 def update_record(table: str, record_id: str, patch: Row, token: str | None) -> Row | None:
+    scope = _current_scope()
+    if scope and not scope.admin:
+        if scope.limited or not _class_allowed(scope, table):
+            raise CoreError(OUT_OF_SCOPE, 403)
+        current = get_record(table, record_id, None, token)
+        if current is None:
+            return None
+        if not _row_in_scope(scope, {**current, **patch}):
+            raise CoreError(OUT_OF_SCOPE, 403)
     response = _request(
         "PATCH",
         table,

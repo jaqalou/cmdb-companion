@@ -75,3 +75,25 @@ database password or service key is involved. See [api.md](api.md).
 Triggers on all four CI tables write every insert, update and delete to
 `cmdb_audit_log` with the acting account, the timestamp and the before/after
 payloads. The log is append-only and readable by admins.
+
+## Access scopes
+
+Viewers and editors can be limited to part of the inventory. Admins set this
+with **Access scopes** on **Users & permissions**. Scopes live in
+`public.user_scopes` (`user_id`, `dimension`, `value`). A dimension is one of
+`region`, `environment`, `application_name` or `ci_class`.
+
+- Values of the **same** dimension combine as *any of*.
+- **Different** dimensions combine as *all of*. For example, Region `EMEA`
+  plus Environment `Production` means EMEA production items only.
+- `*` means any value. Matching ignores upper/lower case.
+- Editors can only create or change records inside their scopes.
+- An account with a role but **no scopes** sees a names-only list: the name
+  plus OS version (servers, SQL instances) or firmware version (switches, access
+  points). It cannot open, create or change records.
+- Admins are never limited.
+
+The rule is enforced in row level security by
+`public.cmdb_scope_match(uid, class, region, environment, application_name)`.
+API-token requests run with the service key, so both API backends (TypeScript
+and Flask) apply the same scopes themselves.

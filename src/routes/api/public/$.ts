@@ -57,7 +57,7 @@ async function authenticate(request: Request): Promise<Auth> {
   const { resolveApiToken, canRead, canWrite, canDelete } = await import(
     "@/lib/cmdb-api/token-auth.server"
   );
-  const { SERVICE_TOKEN } = await import("@/lib/cmdb-api/core");
+  const { serviceTokenFor } = await import("@/lib/cmdb-api/core");
 
   const identity = await resolveApiToken(candidate);
   if (!identity) {
@@ -89,7 +89,7 @@ async function authenticate(request: Request): Promise<Auth> {
     };
   }
 
-  return { token: SERVICE_TOKEN };
+  return { token: serviceTokenFor(identity.userId) };
 }
 
 async function handler({ request, params }: Ctx) {
