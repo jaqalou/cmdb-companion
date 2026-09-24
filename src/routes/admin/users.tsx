@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { toast } from "sonner";
 
 import { PageShell } from "@/components/cmdb/site-chrome";
+import { ScopeEditor } from "@/components/cmdb/scope-editor";
 import { useAuth } from "@/hooks/use-auth";
 import {
   createUserAccount,
@@ -366,7 +367,8 @@ function UsersAdminPage() {
                     </tr>
                   )}
                   {users.data?.map((row, i) => (
-                    <tr key={row.id} className={i % 2 ? "bg-muted/20" : undefined}>
+                    <Fragment key={row.id}>
+                    <tr className={i % 2 ? "bg-muted/20" : undefined}>
                       <td className="px-4 py-2.5">
                         <span className="font-medium">{row.email}</span>
                         <span className="block font-mono text-[11px] text-muted-foreground">
@@ -406,6 +408,13 @@ function UsersAdminPage() {
                         <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
+                            onClick={() => setScopeUser(scopeUser === row.id ? null : row.id)}
+                            className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60"
+                          >
+                            {scopeUser === row.id ? "Hide scopes" : "Access scopes"}
+                          </button>
+                          <button
+                            type="button"
                             disabled={renameMut.isPending || deleteMut.isPending}
                             onClick={() => onRename(row.id, row.email)}
                             className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted/60 disabled:opacity-50"
@@ -443,6 +452,14 @@ function UsersAdminPage() {
                         </div>
                       </td>
                     </tr>
+                    {scopeUser === row.id && (
+                      <tr className="border-b border-border bg-muted/10">
+                        <td colSpan={6} className="px-4">
+                          <ScopeEditor userId={row.id} isAdmin={row.roles.includes("admin")} />
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   ))}
                   {users.data?.length === 0 && (
                     <tr>
