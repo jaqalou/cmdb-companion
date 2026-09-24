@@ -79,6 +79,7 @@ function UsersAdminPage() {
   const { basis: lifecycleBasis } = useLifecycleBasis();
   const lifecycleMut = useSetLifecycleBasis();
   const fetchUsers = useServerFn(listAppUsers);
+  const [scopeUser, setScopeUser] = useState<string | null>(null);
 
   const grant = useServerFn(grantUserRole);
   const revoke = useServerFn(revokeUserRole);
