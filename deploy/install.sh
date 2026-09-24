@@ -114,20 +114,53 @@ systemctl enable --now docker
 # Non-interactive:
 #   sudo DB_MODE=existing DB_HOST=... DB_PORT=5432 DB_NAME=cmdb \
 #        DB_USER=... DB_PASSWORD='...' bash deploy/install.sh
+# Detect a PostgreSQL server already running on this VM (any of: pg_isready OK,
+# an active postgres service, or something answering on port 5432).
+LOCAL_PG=""
+if command -v pg_isready >/dev/null && pg_isready -h 127.0.0.1 -p 5432 -q 2>/dev/null; then
+  LOCAL_PG="127.0.0.1"
+elif systemctl is-active --quiet postgresql 2>/dev/null; then
+  LOCAL_PG="127.0.0.1"
+elif (exec 3<>/dev/tcp/127.0.0.1/5432) 2>/dev/null; then
+  exec 3>&- 3<&- 2>/dev/null || true
+  LOCAL_PG="127.0.0.1"
+fi
+
 if [[ -z "${DB_MODE:-}" ]]; then
   if [[ -t 0 ]]; then
     echo
     echo "Database"
     echo "  1) Install a new PostgreSQL 16 on this VM (recommended)"
-    echo "  2) Use an existing PostgreSQL server"
+    if [[ -n "$LOCAL_PG" ]]; then
+      echo "  2) Use the PostgreSQL already running on this VM (localhost:5432)"
+      echo "  3) Use an existing PostgreSQL on another server"
+    else
+      echo "  2) Use an existing PostgreSQL server"
+    fi
     read -rp "Choose [1]: " db_choice
-    if [[ "${db_choice:-1}" == "2" ]]; then DB_MODE="existing"; else DB_MODE="bundled"; fi
+    db_choice="${db_choice:-1}"
+    if [[ -n "$LOCAL_PG" ]]; then
+      case "$db_choice" in
+        2) DB_MODE="existing"; DB_HOST="${DB_HOST:-127.0.0.1}" ;;
+        3) DB_MODE="existing" ;;
+        *) DB_MODE="bundled" ;;
+      esac
+    elif [[ "$db_choice" == "2" ]]; then
+      DB_MODE="existing"
+    else
+      DB_MODE="bundled"
+    fi
   else
     DB_MODE="bundled"
   fi
 fi
 
 if [[ "$DB_MODE" == "existing" ]]; then
+  # The reachability check below needs psql; install the client if missing.
+  if ! command -v psql >/dev/null; then
+    log "Installing the PostgreSQL client (needed to verify the connection)"
+    apt-get update -y && apt-get install -y postgresql-client
+  fi
   if [[ -t 0 ]]; then
     [[ -n "${DB_HOST:-}" ]] || read -rp "  Host: " DB_HOST
     [[ -n "${DB_PORT:-}" ]] || { read -rp "  Port [5432]: " DB_PORT; DB_PORT="${DB_PORT:-5432}"; }
