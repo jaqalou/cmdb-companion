@@ -155,12 +155,18 @@ function AuthPage() {
         </>
         ) : null}
 
-        <button
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-8 text-sm text-muted-foreground underline underline-offset-4 hover:text-gold"
-        >
-          {mode === "signin" ? "Need an account? Register" : "Already registered? Sign in"}
-        </button>
+        {import.meta.env["VITE_SELFHOSTED"] === "true" ? (
+          <p className="mt-8 text-sm text-muted-foreground">
+            Need an account? Ask an administrator to create one for you.
+          </p>
+        ) : (
+          <button
+            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            className="mt-8 text-sm text-muted-foreground underline underline-offset-4 hover:text-gold"
+          >
+            {mode === "signin" ? "Need an account? Register" : "Already registered? Sign in"}
+          </button>
+        )}
       </section>
     </PageShell>
   );
