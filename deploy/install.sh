@@ -347,6 +347,22 @@ echo "Backend status:  sudo docker compose --project-directory ${APP_DIR}/deploy
 echo "Logs:            sudo journalctl -u ${APP_NAME} -f"
 echo "Certificate:     ${SSL_CERT}"
 echo "Trusted cert:    sudo certbot --nginx -d your.domain   (needs a public domain name)"
+echo
+# Show the database admin credentials at the end of deployment so they can be
+# noted down. They are also stored in deploy/selfhost/.env on the VM.
+DB_ADMIN_USER="${DB_USER:-postgres}"
+DB_ADMIN_PASSWORD="${DB_PASSWORD:-${POSTGRES_PASSWORD:-}}"
+DB_ADMIN_NAME="${DB_NAME:-cmdb}"
+if [[ -n "$DB_ADMIN_PASSWORD" ]]; then
+  echo "Database admin (PostgreSQL):"
+  echo "  Host:      127.0.0.1:5432 (only reachable from this VM)"
+  echo "  Database:  ${DB_ADMIN_NAME}"
+  echo "  User:      ${DB_ADMIN_USER}"
+  echo "  Password:  ${DB_ADMIN_PASSWORD}"
+  echo "  (also in ${APP_DIR}/deploy/selfhost/.env — view with: sudo grep -E 'POSTGRES_PASSWORD|DB_PASSWORD' ${APP_DIR}/deploy/selfhost/.env)"
+else
+  echo "Database password: sudo grep -E 'POSTGRES_PASSWORD|DB_PASSWORD' ${APP_DIR}/deploy/selfhost/.env"
+fi
 if [[ -z "${ADMIN_EMAIL:-}" ]]; then
   echo
   echo "No administrator account yet. Create one with:"
